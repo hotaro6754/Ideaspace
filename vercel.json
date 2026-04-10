@@ -10,18 +10,18 @@
       "runtime": "vercel-php@0.7.1"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(css|js|img|assets)/(.*)",
-      "dest": "/public/$1/$2"
+      "source": "/(css|js|img|assets)/(.*)",
+      "destination": "/public/$1/$2"
     },
     {
-      "src": "/(.*)\.(php|html)",
-      "dest": "/public/$1.$2"
+      "source": "/(.*)\\.(php|html)",
+      "destination": "/public/$1.$2"
     },
     {
-      "src": "/(.*)",
-      "dest": "/public/index.php"
+      "source": "/(.*)",
+      "destination": "/public/index.php"
     }
   ]
 }
