@@ -4,33 +4,21 @@
  * Main Entry Point
  */
 
-session_start();
-
-// Set content type for HTML
-header("Content-Type: text/html; charset=utf-8");
-
-// Security headers
+// CRITICAL: Set content type FIRST before any output
+header("Content-Type: text/html; charset=utf-8", true);
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
-header("X-XSS-Protection: 1; mode=block");
-header("Referrer-Policy: strict-origin-when-cross-origin");
+
+session_start();
+
+// Define base paths dynamically
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+define('BASE_URL', $protocol . '://' . $host);
+define('ASSETS_URL', BASE_URL . '/assets');
 
 // Include core files
 require_once __DIR__ . '/../src/config/Database.php';
-require_once __DIR__ . '/../src/config/Env.php';
-
-// Load environment variables
-Env::load(__DIR__ . '/../.env');
-
-// Define base paths dynamically
-if (empty($_ENV['APP_URL']) && empty($_ENV['RAILWAY_PUBLIC_DOMAIN']) && empty($_SERVER['HTTP_HOST'])) {
-    define('BASE_URL', 'http://localhost:8000');
-} else {
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
-    $host = $_ENV['RAILWAY_PUBLIC_DOMAIN'] ?? $_ENV['APP_URL'] ?? $_SERVER['HTTP_HOST'];
-    define('BASE_URL', $protocol . '://' . $host);
-}
-define('ASSETS_URL', BASE_URL . '/assets');
 
 // Helper function for secure output
 function sanitize($data) {
