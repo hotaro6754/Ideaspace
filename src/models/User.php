@@ -31,10 +31,10 @@ class User {
         }
 
         // Hash password
-        $password_hash = password_hash($password, PASSWORD_BCRYPT);
+        $password_hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 
-        // Insert into database
-        $query = "INSERT INTO users (roll_number, name, email, password_hash, branch, year, user_type)
+        // Insert into database (using password field for consistency)
+        $query = "INSERT INTO users (roll_number, name, email, password, branch, year, user_type)
                   VALUES (?, ?, ?, ?, ?, ?, 'builder')";
 
         $stmt = $this->conn->prepare($query);
@@ -56,7 +56,8 @@ class User {
      */
     public function login($identifier, $password) {
         // Identifier can be roll_number or email
-        $query = "SELECT id, roll_number, name, email, password_hash, user_type, profile_pic
+        $query = "SELECT id, roll_number, name, email, password, user_type, profile_pic,
+                         email_verified, is_active, is_suspended
                   FROM users
                   WHERE roll_number = ? OR email = ?";
 
@@ -73,7 +74,7 @@ class User {
             $user = $result->fetch_assoc();
 
             // Verify password
-            if (password_verify($password, $user['password_hash'])) {
+            if (password_verify($password, $user['password'])) {
                 // Password is correct
                 return [
                     'success' => true,
@@ -83,14 +84,17 @@ class User {
                         'name' => $user['name'],
                         'email' => $user['email'],
                         'user_type' => $user['user_type'],
-                        'profile_pic' => $user['profile_pic']
+                        'profile_pic' => $user['profile_pic'],
+                        'email_verified' => (bool)$user['email_verified'],
+                        'is_active' => (bool)$user['is_active'],
+                        'is_suspended' => (bool)$user['is_suspended']
                     ]
                 ];
             } else {
-                return ['success' => false, 'error' => 'Invalid password'];
+                return ['success' => false, 'error' => 'Invalid username/email or password'];
             }
         } else {
-            return ['success' => false, 'error' => 'User not found'];
+            return ['success' => false, 'error' => 'Invalid username/email or password'];
         }
     }
 
@@ -135,5 +139,43 @@ class User {
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
+
+    /**
+     * Get user by ID (alias for compatibility)
+     */
+    public function getById($user_id) {
+        $query = "SELECT id, roll_number, name, email, password, branch, year, bio, github_username, user_type, profile_pic,
+                         email_verified, last_login, is_active, is_suspended, created_at
+                  FROM users WHERE id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
+    /**
+     * Get user by email
+     */
+    public function getByEmail($email) {
+        $query = "SELECT id, roll_number, name, email, branch, year, user_type, profile_pic, email_verified, created_at
+                  FROM users WHERE email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
+    /**
+     * Get user by identifier (email or roll number)
+     */
+    public function getByIdentifier($identifier) {
+        $query = "SELECT id, roll_number, name, email, branch, year, user_type, profile_pic, email_verified, created_at
+                  FROM users WHERE email = ? OR roll_number = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("ss", $identifier, $identifier);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
 }
+
 ?>
