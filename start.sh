@@ -1,10 +1,8 @@
 #!/bin/bash
 # Startup script for Railway PHP deployment
 
-PORT=${PORT:-8000}
+PORT=${PORT:-8080}
 
-# Change to public directory
-cd "$(dirname "$0")/public" || exit 1
-
-# Start PHP built-in server with proper routing
-php -S 0.0.0.0:$PORT
+# Start PHP built-in server with proper routing from the root
+# The router script is in public/router.php
+php -S 0.0.0.0:$PORT -t public public/router.php

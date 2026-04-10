@@ -1,0 +1,13 @@
+{
+    "name": "hotaro6754/ideaspace",
+    "description": "Campus Collaboration Platform",
+    "type": "project",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
