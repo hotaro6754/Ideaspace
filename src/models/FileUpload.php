@@ -124,7 +124,7 @@ class FileUpload {
             return ['success' => false, 'error' => 'Database error: ' . $this->conn->error];
         }
 
-        $stmt->bind_param("iIIssIss", $user_id, $idea_id, $collaboration_id, $filename, $filepath, $filesize, $filetype, $mimetype);
+        $stmt->bind_param("iiisssis", $user_id, $idea_id, $collaboration_id, $filename, $filepath, $filesize, $filetype, $mimetype);
 
         if ($stmt->execute()) {
             return ['success' => true, 'file_id' => $stmt->insert_id, 'filename' => $filename];

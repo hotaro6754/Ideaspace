@@ -1,12 +1,12 @@
 {
   "functions": {
-    "api/**/*.php": {
+    "public/index.php": {
       "runtime": "vercel-php@0.7.1"
     },
-    "public/**/*.php": {
+    "public/*.php": {
       "runtime": "vercel-php@0.7.1"
     },
-    "index.php": {
+    "src/controllers/*.php": {
       "runtime": "vercel-php@0.7.1"
     }
   },
@@ -14,10 +14,6 @@
     {
       "src": "/(css|js|img|assets)/(.*)",
       "dest": "/public/$1/$2"
-    },
-    {
-      "src": "/(.*)\.(php|html)",
-      "dest": "/public/$1.$2"
     },
     {
       "src": "/(.*)",

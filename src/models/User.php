@@ -42,7 +42,7 @@ class User {
             return ['success' => false, 'error' => 'Database error: ' . $this->conn->error];
         }
 
-        $stmt->bind_param("ssisii", $roll_number, $name, $email, $password_hash, $branch, $year);
+        $stmt->bind_param("sssssi", $roll_number, $name, $email, $password_hash, $branch, $year);
 
         if ($stmt->execute()) {
             return ['success' => true, 'user_id' => $stmt->insert_id];
