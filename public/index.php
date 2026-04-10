@@ -15,8 +15,29 @@ header("Referrer-Policy: strict-origin-when-cross-origin");
 // Include core files
 require_once __DIR__ . '/../src/config/Database.php';
 
-// Define base paths
-define('BASE_URL', 'http://localhost:8000');
+// Define base paths dynamically so the app works in any environment.
+// Priority: APP_URL env var > inferred from the current HTTP request.
+if (!empty(getenv('APP_URL'))) {
+    $base_url = rtrim(getenv('APP_URL'), '/');
+} elseif (!empty($_ENV['APP_URL'])) {
+    $base_url = rtrim($_ENV['APP_URL'], '/');
+} else {
+    // Infer scheme from the current request.
+    // NOTE: X-Forwarded-Proto is only checked as a convenience for local/trusted
+    // environments. In production, always set APP_URL instead of relying on
+    // request headers, which can be spoofed by untrusted clients.
+    $forwarded_proto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
+    if ($forwarded_proto === 'https') {
+        $scheme = 'https';
+    } elseif (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        $scheme = 'https';
+    } else {
+        $scheme = 'http';
+    }
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+    $base_url = $scheme . '://' . $host;
+}
+define('BASE_URL', $base_url);
 define('ASSETS_URL', BASE_URL . '/assets');
 
 // Helper function for secure output
