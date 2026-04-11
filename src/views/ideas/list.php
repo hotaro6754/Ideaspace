@@ -4,15 +4,18 @@
  */
 
 require_once __DIR__ . '/../../models/Idea.php';
+require_once __DIR__ . '/../../models/IdeaRecommendation.php';
 
 $db = new Database();
 $conn = $db->connect();
 $ideaModel = new Idea($conn);
+$recommender = new IdeaRecommendation($conn);
 
 // Get filter parameters
 $domain = $_GET['domain'] ?? '';
 $status = $_GET['status'] ?? '';
 $search = $_GET['search'] ?? '';
+$sort = $_GET['sort'] ?? 'newest'; // New sort parameter
 $page = (int)($_GET['p'] ?? 1);
 $per_page = 12;
 $offset = ($page - 1) * $per_page;
@@ -23,9 +26,21 @@ if (!empty($domain)) $filters['domain'] = $domain;
 if (!empty($status)) $filters['status'] = $status;
 if (!empty($search)) $filters['search'] = $search;
 
-// Fetch ideas
-$ideas = $ideaModel->getAll($per_page, $offset, $filters);
-$total = $ideaModel->getTotal($filters);
+// Fetch ideas based on sort
+try {
+    if ($sort === 'trending' || $sort === 'most-applied' || $sort === 'upvotes') {
+        $ideas = $recommender->getIdeasSorted($sort, $offset, $per_page, $domain ?? null);
+        $total = count($recommender->getIdeasSorted($sort, 0, 1000, $domain ?? null)); // Simplified total count
+    } else {
+        $ideas = $ideaModel->getAll($per_page, $offset, $filters);
+        $total = $ideaModel->getTotal($filters);
+    }
+} catch (Exception $e) {
+    error_log("Error fetching ideas: " . $e->getMessage());
+    $ideas = $ideaModel->getAll($per_page, $offset, $filters);
+    $total = $ideaModel->getTotal($filters);
+}
+
 $total_pages = ceil($total / $per_page);
 
 // Domain colors
@@ -37,6 +52,10 @@ $domain_colors = [
     'Environment' => '#14B8A6',
     'Other' => '#64748B'
 ];
+
+// Initialize recommender for skill matching
+$current_user = isLoggedIn() ? getCurrentUser() : null;
+$recommender_available = $current_user !== null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -89,11 +108,11 @@ $domain_colors = [
                     <form method="GET" style="display: grid; gap: 1rem;">
                         <input type="hidden" name="page" value="ideas">
 
-                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 1rem; align-items: end;">
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1rem; align-items: end;">
                             <!-- Search -->
                             <div>
                                 <label class="form-label">Search Ideas</label>
-                                <input type="text" name="search" class="form-input" placeholder="Search by title or description..." value="<?php echo htmlspecialchars($search); ?>" style="margin-bottom: 0;">
+                                <input type="text" name="search" class="form-input" placeholder="Search by title..." value="<?php echo htmlspecialchars($search); ?>" style="margin-bottom: 0;">
                             </div>
 
                             <!-- Domain Filter -->
@@ -120,6 +139,17 @@ $domain_colors = [
                                 </select>
                             </div>
 
+                            <!-- Sort Filter -->
+                            <div>
+                                <label class="form-label">Sort By</label>
+                                <select name="sort" class="form-input" style="margin-bottom: 0;">
+                                    <option value="newest" <?php echo $sort === 'newest' ? 'selected' : ''; ?>>Newest</option>
+                                    <option value="trending" <?php echo $sort === 'trending' ? 'selected' : ''; ?>>Trending 🔥</option>
+                                    <option value="most-applied" <?php echo $sort === 'most-applied' ? 'selected' : ''; ?>>Most Applied</option>
+                                    <option value="upvotes" <?php echo $sort === 'upvotes' ? 'selected' : ''; ?>>Top Upvoted</option>
+                                </select>
+                            </div>
+
                             <!-- Search Button -->
                             <div>
                                 <button type="submit" class="btn btn-primary btn-block" style="margin-bottom: 0;">Search</button>
@@ -132,16 +162,42 @@ $domain_colors = [
             <!-- IDEAS GRID -->
             <?php if (!empty($ideas)): ?>
                 <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                    <?php foreach ($ideas as $idea): ?>
+                    <?php foreach ($ideas as $idea):
+                        // Calculate skill match if user is logged in
+                        $match_percentage = 0;
+                        if ($recommender_available && isset($idea['skills_needed'])) {
+                            $match_percentage = $recommender->calculateSkillMatch(
+                                $recommender->getUserSkills_Helper($current_user['id']),
+                                json_decode($idea['skills_needed'], true) ?? []
+                            );
+                        }
+
+                        // Check if trending
+                        $is_trending = $recommender->isTrending($idea['id']);
+                    ?>
                         <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" style="text-decoration: none; color: inherit;">
-                            <div class="card" style="height: 100%; transition: all var(--transition-base); cursor: pointer;">
+                            <div class="card" style="height: 100%; transition: all var(--transition-base); cursor: pointer; position: relative;">
+                                <!-- Trending Badge -->
+                                <?php if ($is_trending): ?>
+                                <div style="position: absolute; top: 0.75rem; right: 0.75rem; background: linear-gradient(135deg, #ff6b6b, #ff8a65); color: white; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; z-index: 10;">
+                                    🔥 Trending
+                                </div>
+                                <?php endif; ?>
+
                                 <div class="card-body">
                                     <!-- Domain Badge -->
-                                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem;">
+                                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
                                         <span class="badge" style="background-color: <?php echo $domain_colors[$idea['domain']] ?? '#64748B'; ?>25; color: <?php echo $domain_colors[$idea['domain']] ?? '#64748B'; ?>; border: 1px solid <?php echo $domain_colors[$idea['domain']] ?? '#64748B'; ?>33;">
                                             <?php echo htmlspecialchars($idea['domain']); ?>
                                         </span>
                                         <span class="badge badge-gray" style="text-transform: capitalize;"><?php echo htmlspecialchars($idea['status'] ?? 'open'); ?></span>
+
+                                        <!-- Skill Match Badge (showing for logged-in users) -->
+                                        <?php if ($recommender_available && $match_percentage > 0): ?>
+                                        <span class="badge" style="background-color: var(--color-success-100); color: var(--color-success-700); border: 1px solid var(--color-success-300);">
+                                            ✓ <?php echo $match_percentage; ?>% match
+                                        </span>
+                                        <?php endif; ?>
                                     </div>
 
                                     <!-- Title -->

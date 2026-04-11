@@ -100,6 +100,82 @@ if (!$current_user) {
                 </a>
             </div>
 
+            <!-- PERSONALIZED FEED SECTION -->
+            <?php
+            // Include recommendation engine
+            require_once $GLOBALS['BASE_DIR'] ?? __DIR__ . '/../../src/models/IdeaRecommendation.php';
+
+            try {
+                $db = new Database();
+                $conn = $db->getConnection();
+                $recommender = new IdeaRecommendation($conn);
+
+                $recommended_ideas = $recommender->getRecommendedIdeas($current_user['id'], 5);
+            } catch (Exception $e) {
+                error_log("Recommendation error: " . $e->getMessage());
+                $recommended_ideas = [];
+            }
+            ?>
+
+            <?php if (!empty($recommended_ideas)): ?>
+            <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--color-accent-100), var(--color-accent-50)); border-left: 4px solid var(--color-accent-600);">
+                <div class="card-header" style="padding-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.5rem;">✨</span> Ideas For You
+                        </h2>
+                        <a href="<?php echo BASE_URL; ?>/?page=ideas&view=for-you" style="font-size: 0.875rem; color: var(--color-accent-600); text-decoration: none; font-weight: 600;">See all →</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p style="color: var(--color-text-secondary); margin-bottom: 1rem; font-size: 0.875rem;">Based on your skills and interests</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                        <?php foreach ($recommended_ideas as $idea): ?>
+                        <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1rem; transition: all 0.2s; hover:n box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <!-- Match Score Badge -->
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                                <div>
+                                    <h4 style="margin: 0 0 0.25rem 0; font-size: 1rem;">
+                                        <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" style="text-decoration: none; color: inherit;">
+                                            <?php echo htmlspecialchars(substr($idea['title'], 0, 40)); ?>...
+                                        </a>
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <!-- Skill Match Indicator -->
+                            <div style="margin-bottom: 0.75rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                    <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Skill Match</span>
+                                    <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-success-600);"><?php echo $idea['match_percentage']; ?>%</span>
+                                </div>
+                                <div style="width: 100%; height: 4px; background: var(--color-border); border-radius: 2px; overflow: hidden;">
+                                    <div style="height: 100%; width: <?php echo $idea['match_percentage']; ?>%; background: var(--color-success-500);"></div>
+                                </div>
+                            </div>
+
+                            <!-- Meta Info -->
+                            <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.75rem;">
+                                <div>👤 <?php echo htmlspecialchars($idea['creator_name']); ?> • ⭐ <?php echo htmlspecialchars($idea['creator_rank'] ?? 'Member'); ?></div>
+                                <div>⬆️ <?php echo htmlspecialchars($idea['total_upvotes']); ?> upvotes • 👥 <?php echo htmlspecialchars($idea['applicant_count']); ?> applied</div>
+                            </div>
+
+                            <!-- Domain Badge -->
+                            <div style="margin-bottom: 0.75rem;">
+                                <span class="badge badge-secondary" style="font-size: 0.75rem;">
+                                    <?php echo htmlspecialchars($idea['domain']); ?>
+                                </span>
+                            </div>
+
+                            <!-- Apply Button -->
+                            <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" class="btn btn-primary btn-sm" style="width: 100%; text-align: center;">Apply</a>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- MAIN GRID -->
             <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 2rem;">
                 <!-- LEFT COLUMN -->
