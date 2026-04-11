@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/../../models/Idea.php';
+require_once __DIR__ . '/../../models/IdeaRecommendation.php';
 
 $idea_id = (int)($_GET['id'] ?? 0);
 if ($idea_id === 0) {
@@ -13,11 +14,23 @@ if ($idea_id === 0) {
 $db = new Database();
 $conn = $db->connect();
 $ideaModel = new Idea($conn);
+$recommender = new IdeaRecommendation($conn);
 $idea = $ideaModel->getById($idea_id);
 
 if (!$idea) {
     http_response_code(404);
     redirect(BASE_URL . '/?page=ideas');
+}
+
+// Get recommendations
+$perfect_team = [];
+$similar_ideas = [];
+try {
+    $perfect_team = $recommender->findPerfectTeam($idea_id, 5);
+    $similar_ideas = $recommender->getSimilarIdeas($idea_id, 5);
+    $is_trending = $recommender->isTrending($idea_id);
+} catch (Exception $e) {
+    error_log("Recommendation error: " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>
@@ -135,6 +148,86 @@ if (!$idea) {
                     <?php endif; ?>
                 </div>
             </div>
+
+            <!-- TRENDING BADGE SECTION -->
+            <?php if ($is_trending): ?>
+            <div style="background: linear-gradient(135deg, #ff6b6b, #ff8a65); color: white; padding: 1rem; border-radius: var(--radius-lg); margin-bottom: 2rem; text-align: center;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔥 This Idea is Trending!</div>
+                <div style="font-size: 0.875rem; opacity: 0.95;">This idea is gaining serious attention from the community</div>
+            </div>
+            <?php endif; ?>
+
+            <!-- PERFECT TEAM SECTION -->
+            <?php if (!empty($perfect_team)): ?>
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2>👥 Perfect Builders for This Idea</h2>
+                    <p style="color: var(--color-text-secondary); margin-top: 0.5rem; font-size: 0.875rem;">These builders have the skills you need for this project</p>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                        <?php foreach ($perfect_team as $builder): ?>
+                        <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1rem; text-align: center;">
+                            <!-- Avatar -->
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--color-accent-600); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.25rem; margin: 0 auto 0.75rem;">
+                                <?php echo strtoupper(substr($builder['name'], 0, 1)); ?>
+                            </div>
+
+                            <!-- Name & Rank -->
+                            <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem;"><?php echo htmlspecialchars($builder['name']); ?></h4>
+                            <p style="color: var(--color-text-secondary); font-size: 0.8rem; margin: 0 0 0.5rem 0;">
+                                ⭐ <?php echo htmlspecialchars($builder['rank'] ?? 'Member'); ?> • <?php echo $builder['projects_completed']; ?> projects
+                            </p>
+
+                            <!-- Skill Match -->
+                            <div style="background: var(--color-success-100); color: var(--color-success-700); padding: 0.5rem; border-radius: var(--radius-md); margin-bottom: 0.75rem; font-weight: 600; font-size: 0.875rem;">
+                                <?php echo $builder['match_percentage']; ?>% Skill Match
+                            </div>
+
+                            <!-- Rating -->
+                            <?php if ($builder['team_rating'] > 0): ?>
+                            <p style="color: var(--color-text-secondary); font-size: 0.8rem; margin: 0 0 0.75rem 0;">
+                                ★ <?php echo number_format($builder['team_rating'], 1); ?>/5.0
+                            </p>
+                            <?php endif; ?>
+
+                            <!-- View Profile Button -->
+                            <a href="<?php echo BASE_URL; ?>/?page=profile&id=<?php echo $builder['id']; ?>" class="btn btn-primary btn-sm" style="width: 100%;">View Profile</a>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- SIMILAR IDEAS SECTION -->
+            <?php if (!empty($similar_ideas)): ?>
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h2>Similar Ideas in <?php echo htmlspecialchars($idea['domain']); ?></h2>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <?php foreach ($similar_ideas as $similar): ?>
+                        <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1rem; transition: all 0.2s;">
+                            <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem;">
+                                <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $similar['id']; ?>" style="text-decoration: none; color: inherit; hover:color:var(--color-accent-600);">
+                                    <?php echo htmlspecialchars(substr($similar['title'], 0, 35)); ?>...
+                                </a>
+                            </h4>
+                            <p style="color: var(--color-text-secondary); font-size: 0.75rem; margin: 0.5rem 0;">
+                                👤 <?php echo htmlspecialchars($similar['creator_name']); ?> • ⭐ <?php echo htmlspecialchars($similar['creator_rank'] ?? 'Member'); ?>
+                            </p>
+                            <p style="color: var(--color-text-secondary); font-size: 0.75rem; margin: 0 0 0.75rem 0;">
+                                ⬆️ <?php echo $similar['upvotes']; ?> upvotes • 👥 <?php echo $similar['applicant_count']; ?> applied
+                            </p>
+                            <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $similar['id']; ?>" class="btn btn-tertiary btn-sm" style="width: 100%;">View</a>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- COMMENTS SECTION -->
             <div class="card" style="margin-bottom: 2rem;">
