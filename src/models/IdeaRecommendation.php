@@ -251,6 +251,11 @@ class IdeaRecommendation {
 
     /**
      * Get user's skills from database
+     *
+     * @param int $userId User ID
+     * @return array Array of skill names
+     */
+    public function getUserSkills($userId) {
         $query = "SELECT skill_name FROM user_skills WHERE user_id = ? ORDER BY proficiency DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $userId);
