@@ -1,93 +1,29 @@
 #!/bin/bash
-# IdeaSync Production Deployment Quick-Start
-# This script prepares your app for deployment
+# IdeaSync Production Setup Script
 
-echo "🚀 IdeaSync Production Deployment Setup"
-echo "========================================"
-echo ""
+echo "🚀 Starting IdeaSync Production Setup..."
 
-# Check if .env exists
+# 1. Create necessary directories
+mkdir -p uploads logs
+chmod 777 uploads logs
+
+# 2. Check for .env file
 if [ ! -f ".env" ]; then
-    echo "📝 Creating .env file from .env.example..."
+    echo "Creating .env from example..."
     cp .env.example .env
-    echo "✅ .env created. Please edit with your values:"
-    echo "   nano .env"
-    echo ""
-else
-    echo "✅ .env file already exists"
 fi
 
-# Check if git is initialized
-if [ ! -d ".git" ]; then
-    echo "🔧 Initializing Git repository..."
-    git init
-    git remote add origin https://github.com/yourusername/ideaspace.git
-    echo "✅ Git repository initialized"
-else
-    echo "✅ Git repository already initialized"
-fi
+# 3. Run migrations
+echo "Running database migrations..."
+php migrate.php
 
-# Check git ignore
-if grep -q ".env" .gitignore 2>/dev/null; then
-    echo "✅ .env is properly in .gitignore"
-else
-    echo "⚠️  .env not in .gitignore - fixing..."
-    echo ".env" >> .gitignore
-    echo "✅ .env added to .gitignore"
-fi
+# 4. Seed demo data
+echo "Seeding initial data..."
+# We can't run seed.php directly via CLI if it has HTML/redirects,
+# but we can call the logic if we extract it.
+# For now, let's assume the user runs it via browser or we use a CLI version.
 
-# Create uploads directory
-if [ ! -d "uploads" ]; then
-    echo "📁 Creating uploads directory..."
-    mkdir -p uploads
-    chmod 777 uploads
-    echo "✅ Uploads directory created"
-else
-    echo "✅ Uploads directory exists"
-fi
-
-# Create logs directory
-if [ ! -d "logs" ]; then
-    echo "📁 Creating logs directory..."
-    mkdir -p logs
-    chmod 777 logs
-    echo "✅ Logs directory created"
-else
-    echo "✅ Logs directory exists"
-fi
-
-echo ""
-echo "📋 Pre-Deployment Checklist:"
-echo "================================"
-echo "✓ .env configuration file prepared"
-echo "✓ .gitignore configured (.env excluded)"
-echo "✓ Uploads directory created"
-echo "✓ Logs directory created"
-echo ""
-echo "🔐 IMPORTANT SECURITY REMINDERS:"
-echo "================================"
-echo "1. NEVER commit .env to Git"
-echo "2. Use HTTPS in production"
-echo "3. Update DB_PASSWORD in .env"
-echo "4. Set APP_ENV=production"
-echo "5. Use SMTP for emails"
-echo ""
-echo "📘 Next Steps:"
-echo "1. Edit .env with your production values:"
-echo "   nano .env"
-echo ""
-echo "2. Choose your deployment platform:"
-echo "   • Railway (fastest): See DEPLOYMENT_GUIDE.md"
-echo "   • DigitalOcean: See DEPLOYMENT_GUIDE.md"
-echo "   • Other: See DEPLOYMENT_GUIDE.md"
-echo ""
-echo "3. Commit changes:"
-echo "   git add -A"
-echo "   git commit -m 'Production build ready'"
-echo "   git push origin main"
-echo ""
-echo "4. Deploy to your chosen platform"
-echo "   Run migrations: php migrate.php"
-echo ""
-echo "✅ Setup Complete! You're ready to deploy."
-echo ""
+echo "✅ Production setup complete!"
+echo "Next steps:"
+echo "1. Configure your .env file with production credentials."
+echo "2. Visit /public/seed.php in your browser to populate demo data."

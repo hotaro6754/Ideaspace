@@ -2,97 +2,80 @@
 /**
  * IdeaSync - Professional Login Page
  */
+require_once __DIR__ . '/../../config/Database.php';
+
+if (isLoggedIn()) {
+    header('Location: ' . BASE_URL . '/?page=feed');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - IdeaSync</title>
+    <title>Login | IdeaSync</title>
     <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body style="background: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-accent-600) 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+<body class="bg-primary text-primary">
+    <div class="flex" style="min-height: 100vh;">
+        <!-- Left Panel: Brand -->
+        <div style="flex: 1; background-color: var(--bg-secondary); border-right: 1px solid var(--border);" class="flex flex-col justify-center p-20">
+            <a href="/" class="logo mb-12">IDEASYNC</a>
+            <h1 class="mb-6">Build the future with Lendi's best.</h1>
+            <p class="text-secondary text-lg mb-8">Access the campus OS for innovation, collaboration, and growth.</p>
 
-    <div style="width: 100%; max-width: 420px;">
-        <!-- Card -->
-        <div class="card" style="box-shadow: var(--shadow-xl);">
-            <div class="card-body">
-                <!-- Logo -->
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <a href="<?php echo BASE_URL; ?>/" class="navbar-brand" style="font-size: 1.875rem; margin-bottom: 1rem; display: inline-block;">IdeaSync</a>
-                    <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text-primary);">Welcome Back</h1>
-                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">Sign in to continue building</p>
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="check-circle" class="text-accent" size="20"></i>
+                    <span class="text-secondary">Verified builder profiles</span>
                 </div>
-
-                <!-- Messages -->
-                <?php if (isset($_SESSION['message'])): ?>
-                    <div class="alert alert-success" style="margin-bottom: 1.5rem;">
-                        <span style="flex: 1;"><?php echo htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?></span>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-error" style="margin-bottom: 1.5rem;">
-                        <span style="flex: 1;"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Login Form -->
-                <form method="POST" action="<?php echo BASE_URL; ?>/src/controllers/auth.php" style="margin-bottom: 1.5rem;">
-                    <input type="hidden" name="action" value="login">
-
-                    <!-- Email/Roll -->
-                    <div class="form-group">
-                        <label class="form-label">Email or Roll Number</label>
-                        <input type="text" name="identifier" class="form-input" placeholder="you@college.edu or LID001" required autofocus style="font-size: 16px;">
-                    </div>
-
-                    <!-- Password -->
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <label class="form-label" style="margin-bottom: 0;">Password</label>
-                            <a href="<?php echo BASE_URL; ?>/?page=forgot-password" style="font-size: 0.875rem; color: var(--color-accent-600);">Forgot?</a>
-                        </div>
-                        <input type="password" name="password" class="form-input" placeholder="••••••••" required style="font-size: 16px;">
-                    </div>
-
-                    <!-- Remember Me -->
-                    <div style="margin-bottom: 1.5rem; display: flex; align-items: center;">
-                        <input type="checkbox" id="remember" name="remember" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-accent-600);">
-                        <label for="remember" style="margin-left: 0.5rem; cursor: pointer; font-size: 0.875rem; color: var(--color-text-secondary);">Remember me</label>
-                    </div>
-
-                    <!-- Sign In Button -->
-                    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1rem;">Sign In</button>
-                </form>
-
-                <!-- Divider -->
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                    <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
-                    <span style="color: var(--color-text-secondary); font-size: 0.875rem;">or</span>
-                    <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
+                <div class="flex items-center gap-3">
+                    <i data-lucide="check-circle" class="text-accent" size="20"></i>
+                    <span class="text-secondary">Real-time collaboration</span>
                 </div>
-
-                <!-- GitHub Button -->
-                <button type="button" class="btn btn-ghost btn-block" style="cursor: pointer; margin-bottom: 2rem;">
-                    <span style="margin-right: 0.5rem;">🐙</span> Continue with GitHub
-                </button>
-
-                <!-- Sign Up Link -->
-                <div style="text-align: center; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
-                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">
-                        Don't have an account?
-                        <a href="<?php echo BASE_URL; ?>/?page=register" style="color: var(--color-accent-600); font-weight: 600;">Create one free</a>
-                    </p>
+                <div class="flex items-center gap-3">
+                    <i data-lucide="check-circle" class="text-accent" size="20"></i>
+                    <span class="text-secondary">Gamified ranking system</span>
                 </div>
             </div>
         </div>
 
-        <!-- Footer Link -->
-        <div style="text-align: center; margin-top: 2rem; color: white; opacity: 0.8; font-size: 0.875rem;">
-            <a href="<?php echo BASE_URL; ?>/" style="color: white; text-decoration: underline;">← Back to Home</a>
+        <!-- Right Panel: Form -->
+        <div style="flex: 1.2;" class="flex items-center justify-center p-20">
+            <div style="width: 100%; max-width: 400px;">
+                <h2 class="mb-2">Welcome back</h2>
+                <p class="text-secondary text-sm mb-8">Don't have an account? <a href="/?page=register">Join here</a></p>
+
+                <form action="/src/controllers/auth.php?action=login" method="POST">
+                    <div class="input-group">
+                        <label>Roll Number / Email</label>
+                        <input type="text" name="identifier" class="form-input" placeholder="e.g. 21B21A0501" required>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="flex justify-between items-center mb-2">
+                            <label style="margin-bottom: 0;">Password</label>
+                            <a href="#" class="text-xs text-accent">Forgot?</a>
+                        </div>
+                        <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full py-3 mt-4">Sign In</button>
+
+                    <div class="mt-8 text-center">
+                        <span class="text-muted text-xs uppercase tracking-widest">— Or continue with —</span>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary w-full py-3 mt-6">
+                        <i data-lucide="github" size="18"></i>
+                        GitHub
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
-
+    <script>lucide.createIcons();</script>
 </body>
 </html>

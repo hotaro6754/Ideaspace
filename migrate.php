@@ -494,3 +494,23 @@ class DatabaseMigration {
 $migration = new DatabaseMigration();
 $migration->run();
 ?>
+
+/**
+ * Migration Extension for new features
+ */
+class ExtendedMigration extends DatabaseMigration {
+    public function runExtended() {
+        $this->connect();
+        echo "Running Extended Migrations...\n";
+
+        $sql = file_get_contents(__DIR__ . '/update_schema.sql');
+        $this->executeMultipleStatements($sql);
+
+        echo "Extended Migrations completed successfully!\n";
+    }
+}
+
+if (basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
+    $extMigration = new ExtendedMigration();
+    $extMigration->runExtended();
+}

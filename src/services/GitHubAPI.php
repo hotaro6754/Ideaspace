@@ -1,27 +1,31 @@
 <?php
 /**
  * GitHubAPI - GitHub OAuth and data integration for IdeaSync
+ * Optimized for production with environment variables
  */
 
+require_once __DIR__ . '/../config/Env.php';
+
 class GitHubAPI {
-    private $client_id = 'YOUR_GITHUB_CLIENT_ID';
-    private $client_secret = 'YOUR_GITHUB_CLIENT_SECRET';
-    private $redirect_uri = 'http://localhost:8000/src/controllers/github_auth.php';
+    private $client_id;
+    private $client_secret;
+    private $redirect_uri;
     private $auth_url = 'https://github.com/login/oauth/authorize';
     private $token_url = 'https://github.com/login/oauth/access_token';
     private $api_url = 'https://api.github.com';
 
-    public function __construct($client_id = null, $client_secret = null) {
-        if ($client_id && $client_secret) {
-            $this->client_id = $client_id;
-            $this->client_secret = $client_secret;
-        }
+    public function __construct() {
+        $this->client_id = Env::get('GITHUB_CLIENT_ID');
+        $this->client_secret = Env::get('GITHUB_CLIENT_SECRET');
+        $this->redirect_uri = Env::get('GITHUB_REDIRECT_URI', Env::get('APP_URL') . '/?page=auth&action=github-callback');
     }
 
     /**
      * Get GitHub authorization URL
      */
     public function getAuthorizationUrl($state = null) {
+        if (!$this->client_id) return null;
+
         $state = $state ?? bin2hex(random_bytes(16));
         $_SESSION['github_state'] = $state;
 
@@ -67,128 +71,66 @@ class GitHubAPI {
     }
 
     /**
-     * Get authenticated user's GitHub profile
+     * Get authenticated user profile and aggregate languages
      */
-    public function getUserProfile($access_token) {
-        $user = $this->apiCall('/user', $access_token);
-        $repos = $this->getTopRepositories($access_token, 5);
+    public function getUserData($username) {
+        $headers = [
+            'Accept: application/vnd.github.v3+json',
+            'User-Agent: IdeaSync-Lendi'
+        ];
+
+        $token = Env::get('GITHUB_PAT');
+        if ($token) {
+            $headers[] = 'Authorization: token ' . $token;
+        }
+
+        $userRes = $this->makeRequest("/users/{$username}", $headers);
+        $reposRes = $this->makeRequest("/users/{$username}/repos?sort=stars&per_page=10", $headers);
+
+        if (!$userRes) throw new Exception('GitHub user not found');
+
+        // Aggregate languages
+        $languageCounts = [];
+        foreach ($reposRes as $repo) {
+            if ($repo['language']) {
+                $lang = $repo['language'];
+                $languageCounts[$lang] = ($languageCounts[$lang] ?? 0) + ($repo['size'] ?: 1);
+            }
+        }
+
+        $totalSize = array_sum($languageCounts);
+        $languages = [];
+        foreach ($languageCounts as $lang => $size) {
+            $languages[] = [
+                'lang' => $lang,
+                'percentage' => $totalSize > 0 ? round(($size / $totalSize) * 100) : 0
+            ];
+        }
+
+        usort($languages, fn($a, $b) => $b['percentage'] <=> $a['percentage']);
 
         return [
-            'github_id' => $user['id'] ?? null,
-            'github_username' => $user['login'] ?? null,
-            'name' => $user['name'] ?? null,
-            'email' => $user['email'] ?? null,
-            'bio' => $user['bio'] ?? null,
-            'avatar_url' => $user['avatar_url'] ?? null,
-            'profile_url' => $user['html_url'] ?? null,
-            'public_repos' => $user['public_repos'] ?? 0,
-            'followers' => $user['followers'] ?? 0,
-            'following' => $user['following'] ?? 0,
-            'primary_language' => $this->getPrimaryLanguage($repos),
-            'repositories' => $repos
+            'username' => $username,
+            'publicRepos' => $userRes['public_repos'] ?? 0,
+            'followers' => $userRes['followers'] ?? 0,
+            'topRepos' => array_map(fn($r) => [
+                'name' => $r['name'],
+                'stars' => $r['stargazers_count'],
+                'language' => $r['language'],
+                'description' => $r['description'],
+                'url' => $r['html_url']
+            ], array_slice($reposRes, 0, 3)),
+            'languages' => array_slice($languages, 0, 5),
+            'syncedAt' => date('c')
         ];
     }
 
-    /**
-     * Get user's top repositories
-     */
-    public function getTopRepositories($access_token, $limit = 5) {
-        $repos = $this->apiCall('/user/repos?sort=stars&per_page=' . $limit, $access_token);
-
-        return array_map(function($repo) {
-            return [
-                'name' => $repo['name'],
-                'url' => $repo['html_url'],
-                'description' => $repo['description'],
-                'stars' => $repo['stargazers_count'],
-                'language' => $repo['language'],
-                'updated_at' => $repo['updated_at']
-            ];
-        }, $repos);
-    }
-
-    /**
-     * Extract skills from repositories
-     */
-    public function extractSkills($repositories) {
-        $languages = [];
-
-        foreach ($repositories as $repo) {
-            if ($repo['language']) {
-                $languages[$repo['language']] = ($languages[$repo['language']] ?? 0) + 1;
-            }
-        }
-
-        // Sort by frequency and return top 10
-        arsort($languages);
-        return array_keys(array_slice($languages, 0, 10));
-    }
-
-    /**
-     * Get primary programming language
-     */
-    private function getPrimaryLanguage($repositories) {
-        $languages = [];
-
-        foreach ($repositories as $repo) {
-            if ($repo['language']) {
-                $languages[$repo['language']] = ($languages[$repo['language']] ?? 0) + 1;
-            }
-        }
-
-        arsort($languages);
-        return array_key_first($languages) ?? 'Unknown';
-    }
-
-    /**
-     * Make GitHub API call
-     */
-    private function apiCall($endpoint, $access_token) {
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $this->api_url . $endpoint,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $access_token,
-                'Accept: application/vnd.github.v3+json',
-                'User-Agent: IdeaSync'
-            ],
-            CURLOPT_TIMEOUT => 10
-        ]);
-
+    private function makeRequest($path, $headers) {
+        $ch = curl_init($this->api_url . $path);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-
-        if ($http_code >= 400) {
-            throw new Exception("GitHub API error: HTTP {$http_code}");
-        }
-
         return json_decode($response, true);
     }
-
-    /**
-     * Verify user's skills by checking repositories
-     */
-    public function verifySkills($username, $required_skills = []) {
-        try {
-            $repos = $this->apiCall("/users/{$username}/repos?per_page=100", null);
-            $found_skills = [];
-
-            foreach ($repos as $repo) {
-                if ($repo['language'] && in_array($repo['language'], $required_skills)) {
-                    $found_skills[] = $repo['language'];
-                }
-            }
-
-            return [
-                'verified' => !empty($found_skills),
-                'skills' => array_unique($found_skills),
-                'confidence' => count($found_skills) / count($required_skills)
-            ];
-        } catch (Exception $e) {
-            return ['verified' => false, 'skills' => [], 'error' => $e->getMessage()];
-        }
-    }
 }
-?>
