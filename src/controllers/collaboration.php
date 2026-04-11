@@ -28,7 +28,7 @@ class CollaborationController {
         }
 
         // SECURITY: Verify CSRF token
-        require_once __DIR__ . '/../config/Security.php';
+        require_once __DIR__ . '/../helpers/Security.php';
         if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             return ['success' => false, 'error' => 'Invalid request'];
         }
@@ -72,7 +72,7 @@ class CollaborationController {
         }
 
         // SECURITY: Verify CSRF token
-        require_once __DIR__ . '/../config/Security.php';
+        require_once __DIR__ . '/../helpers/Security.php';
         if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             return ['success' => false, 'error' => 'Invalid request'];
         }
@@ -120,7 +120,7 @@ class CollaborationController {
         }
 
         // SECURITY: Verify CSRF token
-        require_once __DIR__ . '/../config/Security.php';
+        require_once __DIR__ . '/../helpers/Security.php';
         if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
             return ['success' => false, 'error' => 'Invalid request'];
         }
