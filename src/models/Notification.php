@@ -29,7 +29,7 @@ class Notification {
             return ['success' => false, 'error' => 'Database error: ' . $this->conn->error];
         }
 
-        $stmt->bind_param("iisIs", $recipient_user_id, $actor_user_id, $notification_type, $related_idea_id, $message);
+        $stmt->bind_param("iisis", $recipient_user_id, $actor_user_id, $notification_type, $related_idea_id, $message);
 
         if ($stmt->execute()) {
             return ['success' => true, 'notification_id' => $stmt->insert_id];
