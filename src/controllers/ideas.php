@@ -24,6 +24,12 @@ class IdeasController {
             return ['success' => false, 'error' => 'Invalid request method'];
         }
 
+        // SECURITY: Verify CSRF token
+        require_once __DIR__ . '/../config/Security.php';
+        if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+            return ['success' => false, 'error' => 'Invalid request'];
+        }
+
         // Get POST data
         $title = trim($_POST['title'] ?? '');
         $description = trim($_POST['description'] ?? '');

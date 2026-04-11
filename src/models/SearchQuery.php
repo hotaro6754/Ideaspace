@@ -179,10 +179,9 @@ class SearchQuery {
                   LEFT JOIN applications a ON i.id = a.idea_id
                   WHERE i.status = 'open'";
 
-        // Search for skill matches in JSON array
-        foreach ($skills as $skill) {
-            $query .= " AND (i.skills_needed LIKE '%" . $this->conn->real_escape_string($skill) . "%' OR ? = '')";
-        }
+        // Search for skill matches in JSON array - use only parameterized queries
+        $placeholders = array_fill(0, count($skills), "i.skills_needed LIKE CONCAT('%', ?, '%')");
+        $query .= " AND (" . implode(" OR ", $placeholders) . ")";
 
         $query .= " GROUP BY i.id ORDER BY i.created_at DESC LIMIT ? OFFSET ?";
 
@@ -191,7 +190,7 @@ class SearchQuery {
             return [];
         }
 
-        // Bind parameters
+        // Bind parameters - all skills as strings, then limit and offset as integers
         $types = str_repeat("s", count($skills)) . "ii";
         $params = array_merge($skills, [$limit, $offset]);
 

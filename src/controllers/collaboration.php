@@ -27,6 +27,12 @@ class CollaborationController {
             return ['success' => false, 'error' => 'Invalid request method'];
         }
 
+        // SECURITY: Verify CSRF token
+        require_once __DIR__ . '/../config/Security.php';
+        if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+            return ['success' => false, 'error' => 'Invalid request'];
+        }
+
         $idea_id = (int)($_POST['idea_id'] ?? 0);
         $role = trim($_POST['role'] ?? '');
         $message = trim($_POST['message'] ?? '');
@@ -63,6 +69,12 @@ class CollaborationController {
     public function acceptApplication() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return ['success' => false, 'error' => 'Invalid request method'];
+        }
+
+        // SECURITY: Verify CSRF token
+        require_once __DIR__ . '/../config/Security.php';
+        if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+            return ['success' => false, 'error' => 'Invalid request'];
         }
 
         $app_id = (int)($_POST['app_id'] ?? 0);
@@ -105,6 +117,12 @@ class CollaborationController {
     public function rejectApplication() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return ['success' => false, 'error' => 'Invalid request method'];
+        }
+
+        // SECURITY: Verify CSRF token
+        require_once __DIR__ . '/../config/Security.php';
+        if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+            return ['success' => false, 'error' => 'Invalid request'];
         }
 
         $app_id = (int)($_POST['app_id'] ?? 0);
