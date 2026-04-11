@@ -7,7 +7,7 @@
   "deploy": {
     "numReplicas": 1,
     "startCommand": "apache2-foreground",
-    "healthcheckPath": "/",
+    "healthcheckPath": "/health.php",
     "healthcheckInterval": 10,
     "memoryMB": 512,
     "cpuNumber": 0.5
