@@ -1,397 +1,124 @@
+<?php
+/**
+ * IdeaSync - Professional Register Page
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - IdeaSync</title>
+    <title>Create Account - IdeaSync</title>
     <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
 </head>
-<body>
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center py-12 px-4">
-        <div class="w-full max-w-md">
-            <!-- Logo/Branding -->
-            <div class="text-center mb-8">
-                <a href="<?php echo BASE_URL; ?>/?page=home" class="inline-block mb-6">
-                    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-                        IdeaSync
-                    </h1>
-                </a>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Create your account</h2>
-                <p class="text-gray-600">Join the campus collaboration platform</p>
-            </div>
+<body style="background: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-accent-600) 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;">
 
-            <!-- Error Message -->
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-sm text-red-800"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
-                </div>
-            <?php endif; ?>
-
-            <!-- Registration Form -->
-            <form method="POST" action="<?php echo BASE_URL; ?>/src/controllers/auth.php" class="space-y-4">
-                <input type="hidden" name="action" value="register">
-
-                <!-- Roll Number -->
-                <div class="input-group">
-                    <label for="roll_number">Roll Number</label>
-                    <input type="text" id="roll_number" name="roll_number" placeholder="e.g., LID001"
-                           required pattern="LID\d{3,}" title="Format: LID followed by numbers (e.g., LID001)">
+    <div style="width: 100%; max-width: 480px;">
+        <!-- Card -->
+        <div class="card" style="box-shadow: var(--shadow-xl);">
+            <div class="card-body">
+                <!-- Logo -->
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <a href="<?php echo BASE_URL; ?>/" class="navbar-brand" style="font-size: 1.875rem; margin-bottom: 1rem; display: inline-block;">IdeaSync</a>
+                    <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text-primary);">Create Your Account</h1>
+                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">Join the campus collaboration platform</p>
                 </div>
 
-                <!-- Name -->
-                <div class="input-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                <!-- Error Message -->
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+                        <span style="flex: 1;"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Register Form -->
+                <form method="POST" action="<?php echo BASE_URL; ?>/src/controllers/auth.php">
+                    <input type="hidden" name="action" value="register">
+
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="full_name" class="form-input" placeholder="Your full name" required style="font-size: 16px;">
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-input" placeholder="you@college.edu" required style="font-size: 16px;">
+                    </div>
+
+                    <!-- Roll Number -->
+                    <div class="form-group">
+                        <label class="form-label">Roll Number (Optional)</label>
+                        <input type="text" name="roll_number" class="form-input" placeholder="LID001" style="font-size: 16px;">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-input" placeholder="Minimum 8 characters" required style="font-size: 16px;">
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" name="password_confirm" class="form-input" placeholder="Confirm password" required style="font-size: 16px;">
+                    </div>
+
+                    <!-- User Type -->
+                    <div class="form-group">
+                        <label class="form-label">What are you?</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <label style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--color-border); border-radius: var(--radius-lg); cursor: pointer;">
+                                <input type="radio" name="user_type" value="visionary" required style="width: 18px; height: 18px; margin-right: 0.5rem; accent-color: var(--color-accent-600);">
+                                <span>💡 Visionary</span>
+                            </label>
+                            <label style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--color-border); border-radius: var(--radius-lg); cursor: pointer;">
+                                <input type="radio" name="user_type" value="builder" required style="width: 18px; height: 18px; margin-right: 0.5rem; accent-color: var(--color-accent-600);">
+                                <span>🔨 Builder</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Terms -->
+                    <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start;">
+                        <input type="checkbox" id="terms" name="terms" required style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-accent-600); margin-top: 2px;">
+                        <label for="terms" style="margin-left: 0.5rem; cursor: pointer; font-size: 0.875rem; color: var(--color-text-secondary);">
+                            I agree to the <a href="#" style="color: var(--color-accent-600);">Terms of Service</a> and <a href="#" style="color: var(--color-accent-600);">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <!-- Create Account Button -->
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1rem;">Create Free Account</button>
+                </form>
+
+                <!-- Divider -->
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
+                    <span style="color: var(--color-text-secondary); font-size: 0.875rem;">or</span>
+                    <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
                 </div>
 
-                <!-- Email -->
-                <div class="input-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
-                </div>
-
-                <!-- Branch -->
-                <div class="input-group">
-                    <label for="branch">Branch</label>
-                    <select id="branch" name="branch" required>
-                        <option value="">Select your branch</option>
-                        <option value="CSE">Computer Science & Engineering</option>
-                        <option value="ECE">Electronics & Communication</option>
-                        <option value="ME">Mechanical Engineering</option>
-                        <option value="CE">Civil Engineering</option>
-                        <option value="EE">Electrical Engineering</option>
-                        <option value="MBA">MBA</option>
-                        <option value="OTHER">Other</option>
-                    </select>
-                </div>
-
-                <!-- Year -->
-                <div class="input-group">
-                    <label for="year">Year of Study</label>
-                    <select id="year" name="year" required>
-                        <option value="">Select your year</option>
-                        <option value="1">1st Year</option>
-                        <option value="2">2nd Year</option>
-                        <option value="3">3rd Year</option>
-                        <option value="4">4th Year</option>
-                    </select>
-                </div>
-
-                <!-- Password -->
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="••••••••"
-                           required minlength="8" title="Password must be at least 8 characters">
-                </div>
-
-                <!-- Confirm Password -->
-                <div class="input-group">
-                    <label for="password_confirm">Confirm Password</label>
-                    <input type="password" id="password_confirm" name="password_confirm" placeholder="••••••••"
-                           required minlength="8">
-                </div>
-
-                <!-- Password Requirements -->
-                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p class="text-sm text-blue-900 font-medium mb-2">Password requirements:</p>
-                    <ul class="text-xs text-blue-800 space-y-1">
-                        <li>✓ At least 8 characters</li>
-                        <li>✓ Passwords must match</li>
-                    </ul>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary w-full mt-6">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                    </svg>
-                    Create Account
+                <!-- GitHub Button -->
+                <button type="button" class="btn btn-ghost btn-block" style="cursor: pointer; margin-bottom: 2rem;">
+                    <span style="margin-right: 0.5rem;">🐙</span> Sign up with GitHub
                 </button>
 
-                <!-- Login Link -->
-                <p class="text-center text-gray-600 text-sm">
-                    Already have an account?
-                    <a href="<?php echo BASE_URL; ?>/?page=login" class="text-blue-500 font-medium hover:text-blue-600 transition">
-                        Sign in
-                    </a>
-                </p>
-            </form>
-
-            <!-- Divider -->
-            <div class="mt-6 flex items-center gap-3">
-                <div class="flex-1 h-px bg-gray-300"></div>
-                <span class="text-xs text-gray-500 uppercase">Join as Visionary or Builder</span>
-                <div class="flex-1 h-px bg-gray-300"></div>
-            </div>
-
-            <!-- User Type Info -->
-            <div class="mt-6 grid grid-cols-2 gap-4">
-                <div class="p-3 bg-white border border-gray-200 rounded-lg">
-                    <h3 class="text-sm font-bold text-gray-900 mb-1">Visionary</h3>
-                    <p class="text-xs text-gray-600">Have an idea? Post it and find collaborators</p>
-                </div>
-                <div class="p-3 bg-white border border-gray-200 rounded-lg">
-                    <h3 class="text-sm font-bold text-gray-900 mb-1">Builder</h3>
-                    <p class="text-xs text-gray-600">Explore ideas and collaborate on projects</p>
+                <!-- Sign In Link -->
+                <div style="text-align: center; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">
+                        Already have an account?
+                        <a href="<?php echo BASE_URL; ?>/?page=login" style="color: var(--color-accent-600); font-weight: 600;">Sign in</a>
+                    </p>
                 </div>
             </div>
+        </div>
 
-            <!-- Footer -->
-            <p class="text-center text-xs text-gray-500 mt-6">
-                By registering, you agree to our
-                <a href="#" class="text-blue-500 hover:underline">Terms of Service</a> and
-                <a href="#" class="text-blue-500 hover:underline">Privacy Policy</a>
-            </p>
+        <!-- Footer Link -->
+        <div style="text-align: center; margin-top: 2rem; color: white; opacity: 0.8; font-size: 0.875rem;">
+            <a href="<?php echo BASE_URL; ?>/" style="color: white; text-decoration: underline;">← Back to Home</a>
         </div>
     </div>
 
-    <style>
-        .min-h-screen {
-            min-height: 100vh;
-        }
-
-        .bg-gradient-to-br {
-            background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
-        }
-
-        .from-blue-50 {
-            --tw-gradient-from: #eff6ff;
-            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(239, 246, 255, 0));
-        }
-
-        .to-purple-50 {
-            --tw-gradient-to: #faf5ff;
-        }
-
-        .flex {
-            display: flex;
-        }
-
-        .items-center {
-            align-items: center;
-        }
-
-        .justify-center {
-            justify-content: center;
-        }
-
-        .py-12 {
-            padding-top: 3rem;
-            padding-bottom: 3rem;
-        }
-
-        .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-        .w-full {
-            width: 100%;
-        }
-
-        .max-w-md {
-            max-width: 28rem;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .mb-8 {
-            margin-bottom: 2rem;
-        }
-
-        .mb-6 {
-            margin-bottom: 1.5rem;
-        }
-
-        .mb-4 {
-            margin-bottom: 1rem;
-        }
-
-        .mb-2 {
-            margin-bottom: 0.5rem;
-        }
-
-        .text-3xl {
-            font-size: 1.875rem;
-        }
-
-        .font-bold {
-            font-weight: 700;
-        }
-
-        .text-2xl {
-            font-size: 1.5rem;
-        }
-
-        .text-gray-900 {
-            color: #111827;
-        }
-
-        .text-gray-600 {
-            color: #4b5563;
-        }
-
-        .space-y-4 > * + * {
-            margin-top: 1rem;
-        }
-
-        .p-4 {
-            padding: 1rem;
-        }
-
-        .bg-red-50 {
-            background-color: #fef2f2;
-        }
-
-        .border {
-            border: 1px solid #e5e7eb;
-        }
-
-        .border-red-200 {
-            border-color: #fecaca;
-        }
-
-        .rounded-lg {
-            border-radius: 0.5rem;
-        }
-
-        .flex-shrink-0 {
-            flex-shrink: 0;
-        }
-
-        .mt-0.5 {
-            margin-top: 0.125rem;
-        }
-
-        .gap-3 {
-            gap: 0.75rem;
-        }
-
-        .text-red-500 {
-            color: #ef4444;
-        }
-
-        .text-red-800 {
-            color: #991b1b;
-        }
-
-        .text-sm {
-            font-size: 0.875rem;
-        }
-
-        .text-xs {
-            font-size: 0.75rem;
-        }
-
-        .mt-6 {
-            margin-top: 1.5rem;
-        }
-
-        .w-full {
-            width: 100%;
-        }
-
-        .inline-block {
-            display: inline-block;
-        }
-
-        .gap-4 {
-            gap: 1rem;
-        }
-
-        .grid {
-            display: grid;
-        }
-
-        .grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .bg-white {
-            background-color: #ffffff;
-        }
-
-        .bg-blue-50 {
-            background-color: #eff6ff;
-        }
-
-        .border-blue-200 {
-            border-color: #bfdbfe;
-        }
-
-        .text-blue-900 {
-            color: #111e3d;
-        }
-
-        .font-medium {
-            font-weight: 500;
-        }
-
-        .text-blue-800 {
-            color: #1e40af;
-        }
-
-        .text-blue-500 {
-            color: #3b82f6;
-        }
-
-        .hover\:text-blue-600:hover {
-            color: #2563eb;
-        }
-
-        .transition {
-            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
-        }
-
-        .h-px {
-            height: 1px;
-        }
-
-        .bg-gray-300 {
-            background-color: #d1d5db;
-        }
-
-        .uppercase {
-            text-transform: uppercase;
-        }
-
-        .text-gray-500 {
-            color: #6b7280;
-        }
-
-        .p-3 {
-            padding: 0.75rem;
-        }
-
-        .bg-gradient-to-r {
-            background-image: linear-gradient(to right, var(--tw-gradient-stops));
-        }
-
-        .bg-clip-text {
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .from-blue-500 {
-            --tw-gradient-from: #3b82f6;
-            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(59, 130, 246, 0));
-        }
-
-        .to-purple-500 {
-            --tw-gradient-to: #8b5cf6;
-        }
-
-        .hover\:underline:hover {
-            text-decoration: line-through: underline;
-        }
-    </style>
 </body>
 </html>
