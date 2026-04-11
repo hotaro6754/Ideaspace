@@ -8,9 +8,6 @@ RUN a2enmod mpm_prefork
 # Install MySQL extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Enable PHP module
-RUN a2enmod php8.3
-
 # Enable mod_rewrite
 RUN a2enmod rewrite
 
