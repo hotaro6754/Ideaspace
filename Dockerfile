@@ -1,7 +1,15 @@
 FROM php:8.3-apache
 
-# Install MySQL extension
+# CRITICAL: Fix Apache MPM conflict (must be FIRST)
+# Disable conflicting MPM modules and enable prefork (required for PHP)
+RUN a2dismod mpm_event mpm_worker || true
+RUN a2enmod mpm_prefork
+
+# Install MySQL extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
+
+# Enable PHP module
+RUN a2enmod php8.3
 
 # Enable mod_rewrite
 RUN a2enmod rewrite
@@ -20,6 +28,7 @@ RUN mkdir -p /var/www/html/uploads && chown www-data:www-data /var/www/html/uplo
 
 # Configure Apache DocumentRoot to point to public
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+ENV PORT=80
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
