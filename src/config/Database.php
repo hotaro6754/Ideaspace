@@ -17,11 +17,25 @@ class Database {
 
     public function __construct() {
         // Load configuration from environment variables with fallbacks
-        $this->host = Env::get('DB_HOST', 'localhost');
-        $this->db_name = Env::get('DB_NAME', 'ideaspace_db');
-        $this->user = Env::get('DB_USER', 'root');
-        $this->password = Env::get('DB_PASSWORD', '');
-        $this->port = (int)Env::get('DB_PORT', 3306);
+        // Support both standard DB_* and Railway MYSQL* variables
+        $this->host = Env::get('DB_HOST', Env::get('MYSQLHOST', 'localhost'));
+        $this->db_name = Env::get('DB_NAME', Env::get('MYSQLDATABASE', 'ideaspace_db'));
+        $this->user = Env::get('DB_USER', Env::get('MYSQLUSER', 'root'));
+        $this->password = Env::get('DB_PASSWORD', Env::get('MYSQLPASSWORD', ''));
+        $this->port = (int)Env::get('DB_PORT', Env::get('MYSQLPORT', 3306));
+
+        // Handle MYSQL_URL if present (Railway often provides this)
+        $mysql_url = Env::get('MYSQL_URL');
+        if ($mysql_url) {
+            $url = parse_url($mysql_url);
+            if ($url) {
+                $this->host = $url['host'] ?? $this->host;
+                $this->port = $url['port'] ?? $this->port;
+                $this->user = $url['user'] ?? $this->user;
+                $this->password = $url['pass'] ?? $this->password;
+                $this->db_name = ltrim($url['path'] ?? '', '/') ?: $this->db_name;
+            }
+        }
     }
 
     public function connect() {
@@ -40,7 +54,7 @@ class Database {
             if ($this->conn->connect_error) {
                 // Log error without exposing details to user
                 error_log("Database Connection Failed: " . $this->conn->connect_error);
-                throw new Exception("Database connection failed");
+                throw new Exception("Database connection failed: " . $this->conn->connect_error);
             }
 
             // Set charset to utf8mb4 for better emoji/unicode support
@@ -88,4 +102,3 @@ function getConnection() {
     }
     return $conn;
 }
-?>

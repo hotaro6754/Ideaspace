@@ -1,142 +1,146 @@
+<?php
+/**
+ * IdeaSync - Professional Builder Profile
+ */
+require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../services/GitHubAPI.php';
+
+$user_id = (int)($_GET['id'] ?? $_SESSION['user_id'] ?? 0);
+if ($user_id === 0) {
+    header('Location: ' . BASE_URL . '/?page=login');
+    exit();
+}
+
+$conn = getConnection();
+$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+
+if (!$user) {
+    header('Location: ' . BASE_URL . '/?page=ideas');
+    exit();
+}
+
+// GitHub Data (Mocked or Fetched)
+$github = null;
+if ($user['github_username']) {
+    try {
+        $ghApi = new GitHubAPI();
+        $github = $ghApi->getUserData($user['github_username']);
+    } catch (Exception $e) {
+        // Fallback
+    }
+}
+
+function getTierName($tier) {
+    return ['INITIATE', 'CONTRIBUTOR', 'BUILDER', 'ARCHITECT', 'LEGEND'][$tier-1] ?? 'INITIATE';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - IdeaSync</title>
+    <title><?php echo htmlspecialchars($user['name']); ?> Profile | IdeaSync</title>
     <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
-    <!-- Navigation Header -->
-    <header>
-        <nav>
-            <a href="<?php echo BASE_URL; ?>/?page=home" class="logo">IdeaSync</a>
-            <ul class="nav-menu">
-                <li><a href="<?php echo BASE_URL; ?>/?page=home">Home</a></li>
-                <li><a href="<?php echo BASE_URL; ?>/?page=ideas">Ideas</a></li>
-                <?php if (isLoggedIn()): ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=dashboard">Dashboard</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=profile" class="active">Profile</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=logout">Logout</a></li>
-                <?php else: ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=login">Sign In</a></li>
-                <?php endif; ?>
-            </ul>
-        </nav>
+<body class="bg-primary text-primary">
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <a href="/" class="logo">IDEASYNC</a>
+            <div class="flex gap-4 items-center">
+                <a href="/?page=feed" class="text-secondary text-sm">Feed</a>
+                <div class="user-avatar"><?php echo strtoupper(substr($user['name'], 0, 1)); ?></div>
+            </div>
+        </div>
     </header>
 
-    <?php
-    if (!isLoggedIn()) {
-        redirect(BASE_URL . '/?page=login');
-    }
-
-    $current_user = getCurrentUser();
-    if (!$current_user) {
-        redirect(BASE_URL . '/?page=login');
-    }
-    ?>
-
-    <!-- Profile Container -->
-    <div style="background: #f9fafb; min-height: calc(100vh - 80px); padding: 2rem;">
-        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
-            <!-- Profile Header -->
-            <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 2rem;">
-                <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; flex-shrink: 0;">
-                    👤
-                </div>
-                <div style="flex: 1;">
-                    <h1 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">
-                        <?php echo htmlspecialchars($current_user['name']); ?>
-                    </h1>
-                    <p style="color: #6b7280; margin-bottom: 1rem; display: grid; gap: 0.5rem;">
-                        <span>Roll: <?php echo htmlspecialchars($current_user['roll_number']); ?></span>
-                        <span><?php echo htmlspecialchars($current_user['branch']); ?> • Year <?php echo htmlspecialchars($current_user['year']); ?></span>
-                    </p>
-                </div>
-                <a href="#" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; border-radius: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.25s ease;">
-                    Edit Profile
-                </a>
-            </div>
-
-            <!-- Profile Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                <!-- Quick Links -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">Quick Links</h2>
-                    <div style="display: grid; gap: 1rem;">
-                        <a href="<?php echo BASE_URL; ?>/?page=profile-applications" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; text-decoration: none; transition: all 0.3s ease;" class="quick-link">
-                            <div style="font-size: 1.5rem;">📝</div>
-                            <div>
-                                <div style="font-weight: 600; color: #111827;">My Applications</div>
-                                <div style="color: #9ca3af; font-size: 0.875rem;">View collaboration requests</div>
-                            </div>
-                        </a>
-                        <a href="<?php echo BASE_URL; ?>/?page=profile-collaborations" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; text-decoration: none; transition: all 0.3s ease;" class="quick-link">
-                            <div style="font-size: 1.5rem;">🤝</div>
-                            <div>
-                                <div style="font-weight: 600; color: #111827;">My Collaborations</div>
-                                <div style="color: #9ca3af; font-size: 0.875rem;">Teams you're working on</div>
-                            </div>
-                        </a>
-                        <a href="<?php echo BASE_URL; ?>/?page=leaderboard" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; text-decoration: none; transition: all 0.3s ease;" class="quick-link">
-                            <div style="font-size: 1.5rem;">🏆</div>
-                            <div>
-                                <div style="font-weight: 600; color: #111827;">Leaderboard</div>
-                                <div style="color: #9ca3af; font-size: 0.875rem;">View top builders</div>
-                            </div>
-                        </a>
+    <main class="container py-20">
+        <div class="flex gap-12">
+            <!-- Left: Stats & Info -->
+            <div style="width: 300px;">
+                <div class="text-center mb-8">
+                    <div class="mx-auto mb-4" style="width: 96px; height: 96px; border-radius: 50%; background-color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; border: 4px solid var(--bg-secondary);">
+                        <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
                     </div>
+                    <h2 class="mb-1"><?php echo htmlspecialchars($user['name']); ?></h2>
+                    <p class="text-muted text-sm mb-4"><?php echo $user['roll_number']; ?> • <?php echo $user['branch']; ?></p>
+                    <span class="badge badge-accent"><?php echo getTierName($user['tier']); ?></span>
                 </div>
 
-                <!-- Skills Section -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">Skills</h2>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 99px; font-size: 0.875rem; background: #dbeafe; color: #1e40af; font-weight: 500;">Python</span>
-                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 99px; font-size: 0.875rem; background: #dbeafe; color: #1e40af; font-weight: 500;">JavaScript</span>
-                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 99px; font-size: 0.875rem; background: #dbeafe; color: #1e40af; font-weight: 500;">React</span>
+                <div class="card mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs uppercase tracking-widest text-muted">Builder Score</span>
+                        <span class="text-accent font-bold"><?php echo $user['total_points']; ?></span>
                     </div>
-                    <p style="color: #9ca3af; font-size: 0.875rem;">Add more skills to your profile</p>
+                    <div class="health-bar-container">
+                        <div class="health-bar-fill" style="width: <?php echo ($user['total_points'] % 200) / 2; ?>%; background-color: var(--accent);"></div>
+                    </div>
+                    <p class="text-[10px] text-muted mt-2"><?php echo 200 - ($user['total_points'] % 200); ?> points to next tier</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <button class="btn btn-secondary w-full">Edit Profile</button>
+                    <button class="btn btn-ghost w-full">Share Profile</button>
                 </div>
             </div>
 
-            <!-- GitHub Stats -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">GitHub Stats</h2>
-                    <div style="display: grid; gap: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">
-                            <span style="color: #6b7280;">Repositories</span>
-                            <span style="font-size: 1.5rem; font-weight: 700; color: #111827;">0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">
-                            <span style="color: #6b7280;">Followers</span>
-                            <span style="font-size: 1.5rem; font-weight: 700; color: #111827;">0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="color: #6b7280;">Languages</span>
-                            <span style="font-size: 1.5rem; font-weight: 700; color: #111827;">-</span>
+            <!-- Right: Repos & Projects -->
+            <div style="flex: 1;">
+                <?php if ($github): ?>
+                    <div class="mb-12">
+                        <h3 class="mb-6 flex items-center gap-2">
+                            <i data-lucide="github" size="20"></i>
+                            GitHub Activity
+                        </h3>
+                        <div class="grid grid-2">
+                            <?php foreach ($github['topRepos'] as $repo): ?>
+                                <a href="<?php echo $repo['url']; ?>" target="_blank" class="card hover:border-accent">
+                                    <div class="flex justify-between mb-2">
+                                        <h4 class="text-sm font-bold"><?php echo htmlspecialchars($repo['name']); ?></h4>
+                                        <div class="flex items-center gap-1 text-xs text-muted">
+                                            <i data-lucide="star" size="12"></i>
+                                            <?php echo $repo['stars']; ?>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-secondary mb-4 line-clamp-2"><?php echo htmlspecialchars($repo['description'] ?: 'No description'); ?></p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="badge text-[10px]"><?php echo $repo['language']; ?></span>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
                         </div>
                     </div>
-                    <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 1rem;">Link your GitHub to sync stats</p>
-                </div>
-            </div>
 
-            <!-- Projects Section -->
-            <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem;">
-                <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">Recent Projects</h2>
-                <div style="text-align: center; padding: 3rem; color: #9ca3af;">
-                    <p style="font-size: 1rem;">No projects yet. Start collaborating!</p>
-                </div>
+                    <div>
+                        <h3 class="mb-6">Top Languages</h3>
+                        <div class="flex gap-4">
+                            <?php foreach ($github['languages'] as $lang): ?>
+                                <div class="flex-1">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span><?php echo $lang['lang']; ?></span>
+                                        <span class="text-muted"><?php echo $lang['percentage']; ?>%</span>
+                                    </div>
+                                    <div class="health-bar-container" style="height: 4px;">
+                                        <div class="health-bar-fill" style="width: <?php echo $lang['percentage']; ?>%; background-color: var(--accent);"></div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="card p-20 text-center">
+                        <i data-lucide="github" class="mx-auto mb-4 text-muted" size="48"></i>
+                        <h3 class="mb-2">Connect GitHub</h3>
+                        <p class="text-secondary mb-6">Sync your repositories to show off your building skills.</p>
+                        <button class="btn btn-primary">Connect Account</button>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
-    </div>
-
-    <!-- Footer -->
-    <footer style="background: #111827; color: white; padding: 2rem 0; text-align: center; border-top: 1px solid #374151; margin-top: 2rem;">
-        <div style="max-width: 1400px; margin: 0 auto; padding: 0 1.5rem;">
-            <p style="margin: 0; font-size: 0.875rem;">© 2024 IdeaSync - Built for campus collaboration</p>
-        </div>
-    </footer>
+    </main>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

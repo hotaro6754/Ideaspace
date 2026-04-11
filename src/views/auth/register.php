@@ -2,123 +2,105 @@
 /**
  * IdeaSync - Professional Register Page
  */
+require_once __DIR__ . '/../../config/Database.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - IdeaSync</title>
+    <title>Join IdeaSync | Lendi Innovation Platform</title>
     <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body style="background: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-accent-600) 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+<body class="bg-primary text-primary">
+    <div class="flex" style="min-height: 100vh;">
+        <!-- Left Panel -->
+        <div style="flex: 1; background-color: var(--bg-secondary); border-right: 1px solid var(--border);" class="flex flex-col justify-center p-20">
+            <a href="/" class="logo mb-12">IDEASYNC</a>
+            <h1 class="mb-6">Turn your ideas into production code.</h1>
+            <p class="text-secondary text-lg mb-8">Join the community of builders at Lendi Institute of Engineering and Technology.</p>
 
-    <div style="width: 100%; max-width: 480px;">
-        <!-- Card -->
-        <div class="card" style="box-shadow: var(--shadow-xl);">
-            <div class="card-body">
-                <!-- Logo -->
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <a href="<?php echo BASE_URL; ?>/" class="navbar-brand" style="font-size: 1.875rem; margin-bottom: 1rem; display: inline-block;">IdeaSync</a>
-                    <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text-primary);">Create Your Account</h1>
-                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">Join the campus collaboration platform</p>
-                </div>
-
-                <!-- Error Message -->
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-error" style="margin-bottom: 1.5rem;">
-                        <span style="flex: 1;"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
+            <div class="card p-5" style="background-color: var(--bg-tertiary);">
+                <p class="text-sm italic mb-4">"IdeaSync is where I found my co-founders for our AI startup. It's the GitHub of our campus."</p>
+                <div class="flex items-center gap-3">
+                    <div class="user-avatar">H</div>
+                    <div>
+                        <div class="text-xs font-semibold">Harshith</div>
+                        <div class="text-[10px] text-muted">CSE 3rd Year</div>
                     </div>
-                <?php endif; ?>
-
-                <!-- Register Form -->
-                <form method="POST" action="<?php echo BASE_URL; ?>/src/controllers/auth.php">
-                    <input type="hidden" name="action" value="register">
-
-                    <!-- Full Name -->
-                    <div class="form-group">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" name="full_name" class="form-input" placeholder="Your full name" required style="font-size: 16px;">
-                    </div>
-
-                    <!-- Email -->
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" name="email" class="form-input" placeholder="you@college.edu" required style="font-size: 16px;">
-                    </div>
-
-                    <!-- Roll Number -->
-                    <div class="form-group">
-                        <label class="form-label">Roll Number (Optional)</label>
-                        <input type="text" name="roll_number" class="form-input" placeholder="LID001" style="font-size: 16px;">
-                    </div>
-
-                    <!-- Password -->
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-input" placeholder="Minimum 8 characters" required style="font-size: 16px;">
-                    </div>
-
-                    <!-- Confirm Password -->
-                    <div class="form-group">
-                        <label class="form-label">Confirm Password</label>
-                        <input type="password" name="password_confirm" class="form-input" placeholder="Confirm password" required style="font-size: 16px;">
-                    </div>
-
-                    <!-- User Type -->
-                    <div class="form-group">
-                        <label class="form-label">What are you?</label>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <label style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--color-border); border-radius: var(--radius-lg); cursor: pointer;">
-                                <input type="radio" name="user_type" value="visionary" required style="width: 18px; height: 18px; margin-right: 0.5rem; accent-color: var(--color-accent-600);">
-                                <span>💡 Visionary</span>
-                            </label>
-                            <label style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--color-border); border-radius: var(--radius-lg); cursor: pointer;">
-                                <input type="radio" name="user_type" value="builder" required style="width: 18px; height: 18px; margin-right: 0.5rem; accent-color: var(--color-accent-600);">
-                                <span>🔨 Builder</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Terms -->
-                    <div style="margin-bottom: 1.5rem; display: flex; align-items: flex-start;">
-                        <input type="checkbox" id="terms" name="terms" required style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-accent-600); margin-top: 2px;">
-                        <label for="terms" style="margin-left: 0.5rem; cursor: pointer; font-size: 0.875rem; color: var(--color-text-secondary);">
-                            I agree to the <a href="#" style="color: var(--color-accent-600);">Terms of Service</a> and <a href="#" style="color: var(--color-accent-600);">Privacy Policy</a>
-                        </label>
-                    </div>
-
-                    <!-- Create Account Button -->
-                    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1rem;">Create Free Account</button>
-                </form>
-
-                <!-- Divider -->
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                    <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
-                    <span style="color: var(--color-text-secondary); font-size: 0.875rem;">or</span>
-                    <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
-                </div>
-
-                <!-- GitHub Button -->
-                <button type="button" class="btn btn-ghost btn-block" style="cursor: pointer; margin-bottom: 2rem;">
-                    <span style="margin-right: 0.5rem;">🐙</span> Sign up with GitHub
-                </button>
-
-                <!-- Sign In Link -->
-                <div style="text-align: center; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
-                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">
-                        Already have an account?
-                        <a href="<?php echo BASE_URL; ?>/?page=login" style="color: var(--color-accent-600); font-weight: 600;">Sign in</a>
-                    </p>
                 </div>
             </div>
         </div>
 
-        <!-- Footer Link -->
-        <div style="text-align: center; margin-top: 2rem; color: white; opacity: 0.8; font-size: 0.875rem;">
-            <a href="<?php echo BASE_URL; ?>/" style="color: white; text-decoration: underline;">← Back to Home</a>
+        <!-- Right Panel -->
+        <div style="flex: 1.2;" class="flex items-center justify-center p-20">
+            <div style="width: 100%; max-width: 440px;">
+                <h2 class="mb-2">Create your account</h2>
+                <p class="text-secondary text-sm mb-8">Already building? <a href="/?page=login">Sign in here</a></p>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="card mb-6" style="border-color: var(--color-error); background: rgba(239, 68, 68, 0.05);">
+                        <p class="text-xs" style="color: var(--color-error);"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></p>
+                    </div>
+                <?php endif; ?>
+
+                <form action="/src/controllers/auth.php" method="POST">
+                    <input type="hidden" name="action" value="register">
+
+                    <div class="grid grid-2">
+                        <div class="input-group">
+                            <label>Full Name</label>
+                            <input type="text" name="full_name" class="form-input" placeholder="Ravi Kumar" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Roll Number</label>
+                            <input type="text" name="roll_number" class="form-input" placeholder="21B21A0501" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>College Email (@lendi.org)</label>
+                        <input type="email" name="email" class="form-input" placeholder="ravi@lendi.org" required>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="input-group">
+                            <label>Branch</label>
+                            <select name="branch" class="form-select">
+                                <option value="CSE">CSE</option>
+                                <option value="ECE">ECE</option>
+                                <option value="EEE">EEE</option>
+                                <option value="MECH">MECH</option>
+                                <option value="CIVIL">CIVIL</option>
+                                <option value="IT">IT</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Year</label>
+                            <select name="year" class="form-select">
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full py-3 mt-4">Start Building</button>
+
+                    <p class="mt-6 text-[10px] text-muted text-center">
+                        By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                    </p>
+                </form>
+            </div>
         </div>
     </div>
-
+    <script>lucide.createIcons();</script>
 </body>
 </html>
