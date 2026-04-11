@@ -28,9 +28,13 @@ class Database {
         $this->conn = null;
 
         try {
+            // Use 127.0.0.1 instead of localhost if localhost is specified
+            // This forces TCP/IP connection instead of socket, avoiding permission issues
+            $connect_host = ($this->host === 'localhost') ? '127.0.0.1' : $this->host;
+
             // Suppress warnings to handle errors gracefully
             $this->conn = @new mysqli(
-                $this->host,
+                $connect_host,
                 $this->user,
                 $this->password,
                 $this->db_name,
