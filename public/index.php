@@ -4,16 +4,12 @@
  * Main Entry Point
  */
 
-session_start();
-
-// Security headers
+// CRITICAL: Set content type FIRST before any output
+header("Content-Type: text/html; charset=utf-8", true);
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
-header("X-XSS-Protection: 1; mode=block");
-header("Referrer-Policy: strict-origin-when-cross-origin");
 
-// Include core files
-require_once __DIR__ . '/../src/config/Database.php';
+session_start();
 
 // Define base paths dynamically so the app works in any environment.
 // Priority: APP_URL env var > inferred from the current HTTP request.
@@ -31,6 +27,8 @@ if (!empty(getenv('APP_URL'))) {
         $scheme = 'https';
     } elseif (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
         $scheme = 'https';
+    } elseif (($_SERVER['SERVER_PORT'] ?? 80) == 443) {
+        $scheme = 'https';
     } else {
         $scheme = 'http';
     }
@@ -39,6 +37,9 @@ if (!empty(getenv('APP_URL'))) {
 }
 define('BASE_URL', $base_url);
 define('ASSETS_URL', BASE_URL . '/assets');
+
+// Include core files
+require_once __DIR__ . '/../src/config/Database.php';
 
 // Helper function for secure output
 function sanitize($data) {
@@ -92,6 +93,10 @@ $routes = [
     'admin' => 'src/views/admin/dashboard.php',
     'admin-users' => 'src/views/admin/users.php',
     'admin-reports' => 'src/views/admin/reports.php',
+    'agents' => 'src/views/agents/dashboard.php',
+    'agents-onboarding' => 'src/views/agents/onboarding.php',
+    'workflow' => 'src/views/workflow.php',
+    'role-dashboard' => 'src/views/role-dashboard.php',
 ];
 
 // Determine which file to load

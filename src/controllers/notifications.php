@@ -57,7 +57,7 @@ class NotificationsController {
 
         // Verify notification belongs to user
         $notif = $this->notification->getById($notification_id);
-        if (!$notif || $notif['user_id'] !== $user_id) {
+        if (!$notif || $notif['recipient_user_id'] !== $user_id) {
             return ['success' => false, 'error' => 'Notification not found'];
         }
 
@@ -102,7 +102,7 @@ class NotificationsController {
 
         // Verify notification belongs to user
         $notif = $this->notification->getById($notification_id);
-        if (!$notif || $notif['user_id'] !== $user_id) {
+        if (!$notif || $notif['recipient_user_id'] !== $user_id) {
             return ['success' => false, 'error' => 'Notification not found'];
         }
 

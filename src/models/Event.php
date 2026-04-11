@@ -57,7 +57,7 @@ class Event {
             return ['success' => false, 'error' => 'Database error'];
         }
 
-        $stmt->bind_param("iisssssii", $creator_id, $collaboration_id, $title, $description, $start_time, $end_time, $event_type, $location, $is_virtual, $max_attendees);
+        $stmt->bind_param("iissssssii", $creator_id, $collaboration_id, $title, $description, $start_time, $end_time, $event_type, $location, $is_virtual, $max_attendees);
 
         if ($stmt->execute()) {
             $event_id = $stmt->insert_id;

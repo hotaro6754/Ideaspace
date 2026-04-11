@@ -76,7 +76,16 @@ class Database {
     }
 }
 
-// Initialize database connection
+// Initialize database connection (lazy loading - only connect when needed)
 $db = new Database();
-$conn = $db->connect();
+$conn = null; // Don't connect immediately - wait until it's actually used
+
+// Set global connection helper
+function getConnection() {
+    global $db, $conn;
+    if ($conn === null) {
+        $conn = $db->connect();
+    }
+    return $conn;
+}
 ?>
