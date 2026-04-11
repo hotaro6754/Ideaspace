@@ -58,11 +58,9 @@ class Database {
             // Log error but don't expose technical details
             error_log("Database Error: " . $e->getMessage());
 
-            if (Env::get('APP_DEBUG') === 'true' || Env::get('APP_ENV') === 'development') {
-                die("Database connection failed: " . $e->getMessage());
-            } else {
-                die("Database connection failed. Please contact administrator.");
-            }
+            // Don't die - just log and return null connection
+            // This allows the app to continue and show graceful error to user
+            return null;
         }
     }
 
@@ -90,6 +88,6 @@ function getConnection() {
     if ($conn === null) {
         $conn = $db->connect();
     }
-    return $conn;
+    return $conn; // May be null if connection failed
 }
 ?>
