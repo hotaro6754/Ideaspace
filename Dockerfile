@@ -1,14 +1,34 @@
-FROM php:8.2-cli
+FROM php:8.3-apache
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libmariadb-dev-compat \
-    libmariadb-dev \
-    && docker-php-ext-install pdo pdo_mysql mysqli
+# Install MySQL extension
+RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-WORKDIR /app
+# Enable mod_rewrite
+RUN a2enmod rewrite
 
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy application
 COPY . .
 
-# Use shell form for CMD to allow environment variable expansion
-CMD php -S 0.0.0.0:${PORT:-8080} -t public public/router.php
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html
+
+# Create uploads directory
+RUN mkdir -p /var/www/html/uploads && chown www-data:www-data /var/www/html/uploads
+
+# Configure Apache DocumentRoot to point to public
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost/ || exit 1
+
+# Expose port
+EXPOSE 80
+
+# Start Apache
+CMD ["apache2-foreground"]
