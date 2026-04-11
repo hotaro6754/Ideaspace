@@ -225,7 +225,7 @@ class Message {
             return [];
         }
 
-        $stmt->bind_param("iiiiisi", $user_id, $user_id, $user_id, $user_id, $search, $limit);
+        $stmt->bind_param("iiiisi", $user_id, $user_id, $user_id, $user_id, $search, $limit);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }

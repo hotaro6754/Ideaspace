@@ -1,7 +1,7 @@
 <?php
 /**
  * IdeaSync - Campus Collaboration Platform
- * Main Entry Point
+ * Main Entry Point (Vercel API)
  */
 
 // CRITICAL: Set content type FIRST before any output
@@ -20,39 +20,32 @@ define('ASSETS_URL', BASE_URL . '/assets');
 // Include core files
 require_once __DIR__ . '/../src/config/Database.php';
 
-// Helper function for secure output
+// Helper functions
 function sanitize($data) {
     return htmlspecialchars($data ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-// Helper function for URL redirection
 function redirect($url) {
     header("Location: " . $url);
     exit();
 }
 
-// Check if user is logged in
 function isLoggedIn() {
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 }
 
-// Get current user info
-function getCurrentUser() {
-    if (isLoggedIn()) {
-        global $conn;
-        $user_id = $_SESSION['user_id'];
-        $query = "SELECT * FROM users WHERE id = ?";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
-    }
-    return null;
-}
-
 // Simple routing
+$request_uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $page = $_GET['page'] ?? 'home';
-$action = $_GET['action'] ?? null;
+
+// Handle direct controller/view access via URL rewrites
+if (strpos($request_uri, '/src/controllers/') === 0 || strpos($request_uri, '/src/views/') === 0) {
+    $requested_file = __DIR__ . '/..' . $request_uri;
+    if (file_exists($requested_file) && is_file($requested_file) && pathinfo($requested_file, PATHINFO_EXTENSION) === 'php') {
+        include $requested_file;
+        exit();
+    }
+}
 
 // Routes mapping
 $routes = [
@@ -61,7 +54,7 @@ $routes = [
     'login' => 'src/views/auth/login.php',
     'logout' => 'src/controllers/auth.php',
     'dashboard' => 'src/views/dashboard.php',
-    'ideas' => ($_GET['action'] === 'create') ? 'src/views/ideas/create.php' : 'src/views/ideas/list.php',
+    'ideas' => (($_GET['action'] ?? '') === 'create') ? 'src/views/ideas/create.php' : 'src/views/ideas/list.php',
     'idea-detail' => 'src/views/ideas/detail.php',
     'profile' => 'src/views/profile.php',
     'profile-applications' => 'src/views/profile/applications.php',
