@@ -1,15 +1,33 @@
+# Git
 .git
 .gitignore
-.env
-.env.local
-.env.*.local
-node_modules
-npm-debug.log
-.DS_Store
-logs
-*.log
-.claude
+
+# Development
 .vscode
 .idea
+.DS_Store
 *.swp
-*.swo
+
+# Node
+node_modules/
+
+# Composer
+composer.lock
+vendor/
+
+# Testing
+tests/
+*.log
+
+# Documentation
+docs/
+
+# Environment
+.env
+
+# Temporary
+tmp/
+temp/
+
+# OS files
+Thumbs.db
