@@ -250,6 +250,10 @@ DB_PASSWORD=your_password
 
 # Application
 APP_ENV=production
+# APP_URL controls the canonical base URL (BASE_URL) used throughout the app.
+# Set to your production domain so links and asset URLs point to the right place.
+# If omitted, the URL is inferred from the current HTTP request (including
+# X-Forwarded-Proto for HTTPS detection behind reverse proxies).
 APP_URL=https://ideasync.yourdomain.com
 APP_DEBUG=false
 

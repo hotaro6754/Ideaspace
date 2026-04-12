@@ -22,10 +22,31 @@ header("X-Frame-Options: SAMEORIGIN");
 
 session_start();
 
-// Define base paths dynamically
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
-define('BASE_URL', $protocol . '://' . $host);
+// Define base paths dynamically so the app works in any environment.
+// Priority: APP_URL env var > inferred from the current HTTP request.
+if (!empty(getenv('APP_URL'))) {
+    $base_url = rtrim(getenv('APP_URL'), '/');
+} elseif (!empty($_ENV['APP_URL'])) {
+    $base_url = rtrim($_ENV['APP_URL'], '/');
+} else {
+    // Infer scheme from the current request.
+    // NOTE: X-Forwarded-Proto is only checked as a convenience for local/trusted
+    // environments. In production, always set APP_URL instead of relying on
+    // request headers, which can be spoofed by untrusted clients.
+    $forwarded_proto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
+    if ($forwarded_proto === 'https') {
+        $scheme = 'https';
+    } elseif (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        $scheme = 'https';
+    } elseif (($_SERVER['SERVER_PORT'] ?? 80) == 443) {
+        $scheme = 'https';
+    } else {
+        $scheme = 'http';
+    }
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+    $base_url = $scheme . '://' . $host;
+}
+define('BASE_URL', $base_url);
 define('ASSETS_URL', BASE_URL . '/assets');
 
 // Include core files with error handling
