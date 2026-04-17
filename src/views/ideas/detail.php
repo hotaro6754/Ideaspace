@@ -123,6 +123,11 @@ $user = getCurrentUser();
                     <div class="absolute -bottom-4 -right-4 text-accent-500/10 text-8xl -rotate-12 group-hover:rotate-0 transition-transform">
                         <i class="fas fa-award"></i>
                     </div>
+                <?php
+                require_once __DIR__ . "/../components/zeroslop_scorecard.php";
+                renderZeroSlopScorecard(["backend" => 24, "frontend" => 18, "data" => 15, "connect" => 14, "quality" => 15, "evidence" => 10]);
+                ?>
+                <div class="h-8"></div>
                     <h3 class="font-bold mb-4 uppercase text-[10px] tracking-widest text-accent-400">Project Quality</h3>
                     <div class="text-3xl font-extrabold mb-2 italic">A+ Grade</div>
                     <p class="text-xs text-slate-400 leading-relaxed relative z-10">This project has passed all Zero Slop quality gates and is considered production-ready.</p>

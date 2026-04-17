@@ -99,6 +99,7 @@ $routes = [
     'admin' => 'src/views/admin/dashboard.php',
     'admin-users' => 'src/views/admin/users.php',
     'admin-reports' => 'src/views/admin/reports.php',
+    'admin-audit' => 'src/views/admin/audit.php',
     'agents' => 'src/views/agents/dashboard.php',
     'agents-onboarding' => 'src/views/agents/onboarding.php',
     'workflow' => 'src/views/workflow.php',

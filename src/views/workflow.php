@@ -107,6 +107,15 @@ if (!$user) redirect(BASE_URL . '/?page=login');
                     <div class="flex items-center gap-2 text-green-500">
                         <i class="fas fa-shield-check text-xs"></i>
                         <span class="text-[8px] font-bold uppercase tracking-widest">Zero Slop Certified</span>
+                        <div class="mt-4 pt-4 border-t border-white/5">
+                            <div class="flex justify-between text-[8px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                                <span>Build Confidence</span>
+                                <span class="text-primary">96/100</span>
+                            </div>
+                            <div class="h-1 w-full bg-background rounded-full overflow-hidden">
+                                <div class="h-full bg-primary" style="width: 96%"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
