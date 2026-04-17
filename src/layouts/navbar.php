@@ -1,197 +1,112 @@
 <?php
-/**
- * navbar.php - Main Navigation Component
- * Reusable across all pages
- */
-
 $current_user = getCurrentUser();
 ?>
+<nav class="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20">
+            <div class="flex items-center">
+                <a href="<?php echo BASE_URL; ?>" class="flex items-center gap-3 group">
+                    <div class="bg-primary p-2 rounded-xl group-hover:scale-110 transition-all shadow-lg shadow-primary/20">
+                        <i class="fas fa-lightbulb text-background text-lg"></i>
+                    </div>
+                    <span class="text-2xl font-black text-white tracking-tighter">IdeaSync</span>
+                </a>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        .navbar {
-            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-decoration: none;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .navbar-menu {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar-menu a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
-
-        .navbar-menu a:hover {
-            opacity: 0.8;
-        }
-
-        .navbar-user {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #06B6D4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 60px;
-            right: 20px;
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-            min-width: 200px;
-            display: none;
-            z-index: 1000;
-        }
-
-        .dropdown-menu.active {
-            display: block;
-        }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: #1E293B;
-            text-decoration: none;
-            border-bottom: 1px solid #F1F5F9;
-        }
-
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown-menu a:hover {
-            background: #F1F5F9;
-        }
-
-        .navbar-mobile-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            .navbar-mobile-toggle {
-                display: block;
-            }
-
-            .navbar-menu {
-                position: absolute;
-                top: 60px;
-                left: 0;
-                right: 0;
-                background: #0F172A;
-                flex-direction: column;
-                gap: 0;
-                display: none;
-                width: 100%;
-            }
-
-            .navbar-menu.active {
-                display: flex;
-            }
-
-            .navbar-menu a {
-                padding: 1rem 2rem;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-            }
-        }
-    </style>
-</head>
-<body>
-<nav class="navbar">
-    <a href="<?php echo BASE_URL; ?>" class="navbar-brand">
-        <i class="fas fa-lightbulb"></i>
-        IdeaSync
-    </a>
-
-    <button class="navbar-mobile-toggle" onclick="toggleMenu()">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <ul class="navbar-menu" id="navbarMenu">
-        <?php if ($current_user): ?>
-            <li><a href="<?php echo BASE_URL; ?>/ideas">Ideas</a></li>
-            <li><a href="<?php echo BASE_URL; ?>/agents/dashboard">Dashboard</a></li>
-            <li><a href="<?php echo BASE_URL; ?>/workflow">Workflow</a></li>
-            <li><a href="<?php echo BASE_URL; ?>/leaderboard">Leaderboard</a></li>
-            <li><a href="<?php echo BASE_URL; ?>/messages">Messages</a></li>
-        <?php else: ?>
-            <li><a href="<?php echo BASE_URL; ?>/ideas">Browse Ideas</a></li>
-        <?php endif; ?>
-    </ul>
-
-    <div class="navbar-user">
-        <?php if ($current_user): ?>
-            <div class="user-avatar" onclick="toggleDropdown()" title="<?php echo $current_user['name']; ?>">
-                <?php echo strtoupper(substr($current_user['name'], 0, 1)); ?>
+                <div class="hidden md:ml-12 md:flex md:space-x-8">
+                    <?php if ($current_user): ?>
+                        <a href="<?php echo BASE_URL; ?>/?page=ideas" class="text-[11px] font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-[0.2em]">Explore</a>
+                        <a href="<?php echo BASE_URL; ?>/?page=agents" class="text-[11px] font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-[0.2em]">Agents</a>
+                        <a href="<?php echo BASE_URL; ?>/?page=workflow" class="text-[11px] font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-[0.2em]">Workflow</a>
+                        <a href="<?php echo BASE_URL; ?>/?page=leaderboard" class="text-[11px] font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-[0.2em]">Leaderboard</a>
+                    <?php else: ?>
+                        <a href="<?php echo BASE_URL; ?>/?page=ideas" class="text-[11px] font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-[0.2em]">Projects</a>
+                        <a href="#features" class="text-[11px] font-bold text-slate-400 hover:text-primary transition-colors uppercase tracking-[0.2em]">Features</a>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="dropdown-menu" id="dropdownMenu">
-                <a href="<?php echo BASE_URL; ?>/profile">My Profile</a>
-                <a href="<?php echo BASE_URL; ?>/preferences">Preferences</a>
-                <a href="<?php echo BASE_URL; ?>/auth/logout">Logout</a>
+
+            <div class="flex items-center gap-6">
+                <?php if ($current_user): ?>
+                    <div class="hidden md:flex items-center gap-6">
+                         <a href="<?php echo BASE_URL; ?>/?page=notifications" class="text-slate-500 hover:text-primary transition-colors">
+                            <i class="fas fa-bell"></i>
+                         </a>
+                         <a href="<?php echo BASE_URL; ?>/?page=messages" class="text-slate-500 hover:text-primary transition-colors">
+                            <i class="fas fa-envelope"></i>
+                         </a>
+                    </div>
+
+                    <div class="relative ml-3">
+                        <button id="userAvatarBtn" class="flex items-center gap-2 focus:outline-none group">
+                            <div class="h-10 w-10 rounded-xl bg-surface-container-high border border-white/10 flex items-center justify-center text-white font-bold text-sm group-hover:border-primary/50 transition-all">
+                                <?php echo strtoupper(substr($current_user['name'], 0, 1)); ?>
+                            </div>
+                        </button>
+
+                        <div id="userDropdown" class="hidden absolute right-0 mt-4 w-56 bg-surface-container-low rounded-2xl shadow-2xl border border-white/5 py-2 ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]">
+                            <div class="px-6 py-4 border-b border-white/5">
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Authenticated as</p>
+                                <p class="text-sm font-bold text-white truncate"><?php echo sanitize($current_user['name']); ?></p>
+                            </div>
+                            <div class="p-2 space-y-1">
+                                <a href="<?php echo BASE_URL; ?>/?page=profile" class="flex items-center gap-3 px-4 py-3 text-sm text-slate-400 hover:bg-surface-container-high hover:text-white rounded-xl transition-all">
+                                    <i class="fas fa-user-circle w-4"></i> Profile
+                                </a>
+                                <a href="<?php echo BASE_URL; ?>/?page=profile-collaborations" class="flex items-center gap-3 px-4 py-3 text-sm text-slate-400 hover:bg-surface-container-high hover:text-white rounded-xl transition-all">
+                                    <i class="fas fa-handshake w-4"></i> Collaborations
+                                </a>
+                                <div class="h-px bg-white/5 mx-4 my-2"></div>
+                                <a href="<?php echo BASE_URL; ?>/?page=logout" class="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-all font-bold">
+                                    <i class="fas fa-sign-out-alt w-4"></i> Sign out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <a href="<?php echo BASE_URL; ?>/?page=login" class="text-xs font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-widest">Login</a>
+                    <a href="<?php echo BASE_URL; ?>/?page=register" class="btn-primary !px-5 !py-2.5 text-xs">Join Network</a>
+                <?php endif; ?>
+
+                <button type="button" class="md:hidden p-2 rounded-xl text-slate-500 hover:text-primary transition-colors" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-surface-container-low border-t border-white/5 px-4 pt-4 pb-10 space-y-1 shadow-2xl">
+         <?php if ($current_user): ?>
+            <a href="<?php echo BASE_URL; ?>/?page=ideas" class="block px-4 py-4 rounded-xl text-base font-bold text-slate-300 hover:bg-surface-container-high">Explore Ideas</a>
+            <a href="<?php echo BASE_URL; ?>/?page=agents" class="block px-4 py-4 rounded-xl text-base font-bold text-slate-300 hover:bg-surface-container-high">Agent Intel</a>
+            <a href="<?php echo BASE_URL; ?>/?page=workflow" class="block px-4 py-4 rounded-xl text-base font-bold text-slate-300 hover:bg-surface-container-high">Build Workflow</a>
+            <a href="<?php echo BASE_URL; ?>/?page=logout" class="block px-4 py-4 rounded-xl text-base font-bold text-red-400 hover:bg-red-500/10">Sign Out</a>
         <?php else: ?>
-            <a href="<?php echo BASE_URL; ?>/auth/login" style="color: white; text-decoration: none;">Login</a>
+            <a href="<?php echo BASE_URL; ?>/?page=ideas" class="block px-4 py-4 rounded-xl text-base font-bold text-slate-300 hover:bg-surface-container-high">Browse Projects</a>
+            <a href="<?php echo BASE_URL; ?>/?page=login" class="block px-4 py-4 rounded-xl text-base font-bold text-slate-300 hover:bg-surface-container-high">Login</a>
         <?php endif; ?>
     </div>
 </nav>
 
 <script>
-    function toggleMenu() {
-        document.getElementById('navbarMenu').classList.toggle('active');
+    function toggleMobileMenu() {
+        document.getElementById('mobileMenu').classList.toggle('hidden');
     }
 
-    function toggleDropdown() {
-        document.getElementById('dropdownMenu').classList.toggle('active');
-    }
+    // User dropdown logic
+    const avatarBtn = document.getElementById('userAvatarBtn');
+    const dropdown = document.getElementById('userDropdown');
 
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('.navbar-user')) {
-            document.getElementById('dropdownMenu').classList.remove('active');
-        }
-    });
+    if (avatarBtn && dropdown) {
+        avatarBtn.onclick = (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        };
+
+        window.onclick = (e) => {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        };
+    }
 </script>
-</body>
-</html>

@@ -1,204 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management - Admin Panel</title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
-    <style>
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .admin-table thead {
-            background: #f9fafb;
-            border-bottom: 2px solid #e5e7eb;
-        }
-        .admin-table th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: #6b7280;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-        }
-        .admin-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .admin-table tbody tr:hover {
-            background: #f9fafb;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-        .status-active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .status-inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .user-type-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-        .user-type-user {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .user-type-moderator {
-            background: #fce7f3;
-            color: #831843;
-        }
-        .user-type-admin {
-            background: #fef3c7;
-            color: #92400e;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation Header -->
-    <header>
-        <nav>
-            <a href="<?php echo BASE_URL; ?>/?page=home" class="logo">IdeaSync</a>
-            <ul class="nav-menu">
-                <li><a href="<?php echo BASE_URL; ?>/?page=home">Home</a></li>
-                <li><a href="<?php echo BASE_URL; ?>/?page=ideas">Ideas</a></li>
-                <?php if (isLoggedIn()): ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=dashboard">Dashboard</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=profile">Profile</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=logout">Logout</a></li>
-                <?php else: ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=login">Sign In</a></li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-    </header>
+<?php
+ob_start();
+$user = getCurrentUser();
+?>
 
-    <?php
-    if (!isLoggedIn() || $_SESSION['user_type'] !== 'admin') {
-        http_response_code(403);
-        include __DIR__ . '/../404.php';
-        exit();
-    }
-
-    require_once __DIR__ . '/../../config/Database.php';
-
-    $db = new Database();
-    $conn = $db->connect();
-
-    // Get all users
-    $query = "SELECT id, name, roll_number, email, branch, year, user_type, created_at, is_active
-              FROM users
-              ORDER BY created_at DESC
-              LIMIT 100";
-
-    $stmt = $conn->prepare($query);
-    $stmt->execute();
-    $users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-    // Get statistics
-    $statsQuery = "SELECT
-                    COUNT(*) as total_users,
-                    COUNT(CASE WHEN user_type = 'admin' THEN 1 END) as admins,
-                    COUNT(CASE WHEN user_type = 'moderator' THEN 1 END) as moderators,
-                    COUNT(CASE WHEN is_active = 1 THEN 1 END) as active_users
-                   FROM users";
-
-    $stmt = $conn->prepare($statsQuery);
-    $stmt->execute();
-    $stats = $stmt->get_result()->fetch_assoc();
-    ?>
-
-    <!-- Container -->
-    <div style="background: #f9fafb; min-height: calc(100vh - 80px); padding: 2rem;">
-        <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 1.5rem;">
-            <!-- Header -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <div>
-                    <h1 style="font-size: 2rem; font-weight: 700; color: #111827; margin: 0;">User Management</h1>
-                    <p style="color: #6b7280; margin: 0.5rem 0 0 0;">Manage platform users and permissions</p>
-                </div>
-                <a href="<?php echo BASE_URL; ?>/?page=admin" class="btn btn-ghost">Back to Admin</a>
-            </div>
-
-            <!-- Statistics -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;">
-                    <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Total Users</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #3b82f6;"><?php echo $stats['total_users']; ?></div>
-                </div>
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;">
-                    <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Active Users</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #10b981;"><?php echo $stats['active_users']; ?></div>
-                </div>
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;">
-                    <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Admins</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #f59e0b;"><?php echo $stats['admins']; ?></div>
-                </div>
-                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;">
-                    <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Moderators</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #ec4899;"><?php echo $stats['moderators']; ?></div>
-                </div>
-            </div>
-
-            <!-- Users Table -->
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: auto;">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Roll Number</th>
-                            <th>Email</th>
-                            <th>Branch</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Joined</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $user): ?>
-                            <tr>
-                                <td style="font-weight: 600;"><?php echo sanitize($user['name']); ?></td>
-                                <td><?php echo sanitize($user['roll_number']); ?></td>
-                                <td style="font-size: 0.875rem; color: #6b7280;"><?php echo sanitize($user['email']); ?></td>
-                                <td><?php echo sanitize($user['branch']); ?></td>
-                                <td>
-                                    <span class="user-type-badge user-type-<?php echo strtolower($user['user_type']); ?>">
-                                        <?php echo ucfirst($user['user_type']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="status-badge status-<?php echo $user['is_active'] ? 'active' : 'inactive'; ?>">
-                                        <?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?>
-                                    </span>
-                                </td>
-                                <td style="font-size: 0.875rem; color: #6b7280;">
-                                    <?php echo date('M d, Y', strtotime($user['created_at'])); ?>
-                                </td>
-                                <td>
-                                    <a href="<?php echo BASE_URL; ?>/?page=profile&user_id=<?php echo $user['id']; ?>" class="btn btn-secondary btn-sm">View</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+        <div>
+            <h1 class="text-3xl font-black text-white tracking-tight mb-2 uppercase">Builder <span class="text-primary italic">Directory</span></h1>
+            <p class="text-slate-500 font-medium">Manage and vet members of the IdeaSync ecosystem.</p>
+        </div>
+        <div class="flex gap-3">
+             <div class="relative group">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors"></i>
+                <input type="text" placeholder="Search builders..." class="pl-11 pr-4 py-3 bg-surface-container-high border border-white/5 rounded-2xl w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm text-white transition-all">
+             </div>
         </div>
     </div>
-</body>
-</html>
+
+    <div class="bg-surface-container-low rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-surface-container-high/50 border-b border-white/5">
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Builder</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Designation</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Activity</th>
+                        <th class="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    <?php for($i=1; $i<=8; $i++): ?>
+                    <tr class="hover:bg-white/5 transition-colors group">
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-4">
+                                <div class="h-10 w-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-slate-400 group-hover:text-primary transition-colors border border-white/5">
+                                    <?php echo ['AS', 'MK', 'RV', 'SK', 'IS', 'AM', 'PK', 'NS'][$i-1]; ?>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-white"><?php echo ['Aryan Sharma', 'Meera Kapoor', 'Rahul Verma', 'Sneha Kapur', 'Ishaan Shah', 'Ananya Misra', 'Priya Kant', 'Nitin Singh'][$i-1]; ?></p>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Joined 2mo ago</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <span class="text-xs font-bold text-slate-400"><?php echo ['Full-Stack Dev', 'UI Designer', 'IoT Expert', 'Data Scientist', 'Backend Dev', 'Mobile Dev', 'Product Manager', 'Security Lead'][$i-1]; ?></span>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-2">
+                                <div class="h-1.5 w-1.5 rounded-full bg-green-500"></div>
+                                <span class="text-[10px] font-black text-green-500 uppercase tracking-widest">Verified</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <span class="text-xs font-bold text-white"><?php echo rand(10, 50); ?> Commits</span>
+                        </td>
+                        <td class="px-8 py-6">
+                            <button class="h-8 w-8 rounded-lg bg-surface-container-high text-slate-500 hover:text-white flex items-center justify-center transition-colors">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <?php endfor; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../../layouts/main.php';
+?>

@@ -1,98 +1,71 @@
 <?php
-/**
- * IdeaSync - Professional Login Page
- */
+require_once __DIR__ . '/../../helpers/Security.php';
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - IdeaSync</title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
-</head>
-<body style="background: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-accent-600) 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;">
 
-    <div style="width: 100%; max-width: 420px;">
-        <!-- Card -->
-        <div class="card" style="box-shadow: var(--shadow-xl);">
-            <div class="card-body">
-                <!-- Logo -->
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <a href="<?php echo BASE_URL; ?>/" class="navbar-brand" style="font-size: 1.875rem; margin-bottom: 1rem; display: inline-block;">IdeaSync</a>
-                    <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text-primary);">Welcome Back</h1>
-                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">Sign in to continue building</p>
-                </div>
-
-                <!-- Messages -->
-                <?php if (isset($_SESSION['message'])): ?>
-                    <div class="alert alert-success" style="margin-bottom: 1.5rem;">
-                        <span style="flex: 1;"><?php echo htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?></span>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-error" style="margin-bottom: 1.5rem;">
-                        <span style="flex: 1;"><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Login Form -->
-                <form method="POST" action="<?php echo BASE_URL; ?>/src/controllers/auth.php" style="margin-bottom: 1.5rem;">
-                    <input type="hidden" name="action" value="login">
-
-                    <!-- Email/Roll -->
-                    <div class="form-group">
-                        <label class="form-label">Email or Roll Number</label>
-                        <input type="text" name="identifier" class="form-input" placeholder="you@college.edu or LID001" required autofocus style="font-size: 16px;">
-                    </div>
-
-                    <!-- Password -->
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <label class="form-label" style="margin-bottom: 0;">Password</label>
-                            <a href="<?php echo BASE_URL; ?>/?page=forgot-password" style="font-size: 0.875rem; color: var(--color-accent-600);">Forgot?</a>
-                        </div>
-                        <input type="password" name="password" class="form-input" placeholder="••••••••" required style="font-size: 16px;">
-                    </div>
-
-                    <!-- Remember Me -->
-                    <div style="margin-bottom: 1.5rem; display: flex; align-items: center;">
-                        <input type="checkbox" id="remember" name="remember" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-accent-600);">
-                        <label for="remember" style="margin-left: 0.5rem; cursor: pointer; font-size: 0.875rem; color: var(--color-text-secondary);">Remember me</label>
-                    </div>
-
-                    <!-- Sign In Button -->
-                    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1rem;">Sign In</button>
-                </form>
-
-                <!-- Divider -->
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                    <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
-                    <span style="color: var(--color-text-secondary); font-size: 0.875rem;">or</span>
-                    <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
-                </div>
-
-                <!-- GitHub Button -->
-                <button type="button" class="btn btn-ghost btn-block" style="cursor: pointer; margin-bottom: 2rem;">
-                    <span style="margin-right: 0.5rem;">🐙</span> Continue with GitHub
-                </button>
-
-                <!-- Sign Up Link -->
-                <div style="text-align: center; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
-                    <p style="color: var(--color-text-secondary); font-size: 0.875rem;">
-                        Don't have an account?
-                        <a href="<?php echo BASE_URL; ?>/?page=register" style="color: var(--color-accent-600); font-weight: 600;">Create one free</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer Link -->
-        <div style="text-align: center; margin-top: 2rem; color: white; opacity: 0.8; font-size: 0.875rem;">
-            <a href="<?php echo BASE_URL; ?>/" style="color: white; text-decoration: underline;">← Back to Home</a>
-        </div>
+<div class="min-h-[calc(100vh-80px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background relative overflow-hidden">
+    <div class="absolute inset-0 -z-10">
+        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/10 rounded-full blur-3xl"></div>
     </div>
 
-</body>
-</html>
+    <div class="max-w-md w-full space-y-8 animate-fade-in-up">
+        <div class="text-center">
+            <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary text-background text-2xl mb-6 shadow-lg shadow-primary/30">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h2 class="text-3xl font-black text-white tracking-tight">Access Ecosystem</h2>
+            <p class="mt-2 text-sm text-slate-500 font-medium">
+                New builder?
+                <a href="<?php echo BASE_URL; ?>/?page=register" class="font-bold text-primary hover:text-white transition-colors">Join the network</a>
+            </p>
+        </div>
+
+        <div class="bg-surface-container-low p-10 rounded-[2.5rem] shadow-2xl border border-white/5">
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-bold flex items-center gap-3">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+                </div>
+            <?php endif; ?>
+
+            <form class="space-y-6" action="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=login" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo Security::getCsrfToken(); ?>">
+
+                <div>
+                    <label for="email" class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Identity (Email)</label>
+                    <div class="relative group">
+                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors text-sm"></i>
+                        <input id="email" name="email" type="email" required
+                               class="block w-full pl-12 pr-4 py-4 bg-surface-container-high border border-white/5 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                               placeholder="builder@university.edu">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-3 ml-1">
+                        <label for="password" class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Key (Password)</label>
+                        <a href="<?php echo BASE_URL; ?>/?page=forgot-password" class="text-[10px] font-bold text-primary uppercase tracking-widest hover:text-white transition-colors">Lost Key?</a>
+                    </div>
+                    <div class="relative group">
+                        <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors text-sm"></i>
+                        <input id="password" name="password" type="password" required
+                               class="block w-full pl-12 pr-4 py-4 bg-surface-container-high border border-white/5 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                               placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full btn-primary py-4 uppercase tracking-[0.2em] text-xs font-black">
+                        Authorize Access
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../../layouts/main.php';
+?>
