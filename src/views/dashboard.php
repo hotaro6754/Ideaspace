@@ -1,283 +1,134 @@
 <?php
-/**
- * IdeaSync - Professional Dashboard
- */
-
-if (!isLoggedIn()) {
-    redirect(BASE_URL . '/?page=login');
-}
-
-$current_user = getCurrentUser();
-if (!$current_user) {
-    redirect(BASE_URL . '/?page=login');
-}
+ob_start();
+$user = getCurrentUser();
+// Mock recommendations for high-end look
+$recommendations = [
+    ['id' => 1, 'title' => 'Campus AI Study Buddy', 'match_percentage' => 94, 'creator_name' => 'Aryan Sharma', 'creator_rank' => 'Elite', 'total_upvotes' => 156, 'applicant_count' => 12, 'domain' => 'AI / ML'],
+    ['id' => 2, 'title' => 'Decentralized P2P Loans', 'match_percentage' => 88, 'creator_name' => 'Ravi Kumar', 'creator_rank' => 'Builder', 'total_upvotes' => 89, 'applicant_count' => 5, 'domain' => 'Fintech'],
+    ['id' => 3, 'title' => 'Smart Attendance System', 'match_percentage' => 82, 'creator_name' => 'Priya Das', 'creator_rank' => 'Legend', 'total_upvotes' => 210, 'applicant_count' => 18, 'domain' => 'Engineering']
+];
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - IdeaSync</title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
-</head>
-<body>
-    <!-- NAVBAR -->
-    <header class="navbar">
-        <div class="container">
-            <div class="flex-between">
-                <a href="<?php echo BASE_URL; ?>/" class="navbar-brand">IdeaSync</a>
-                <nav class="navbar-menu" id="navMenu">
-                    <a href="<?php echo BASE_URL; ?>/?page=ideas">Ideas</a>
-                    <a href="<?php echo BASE_URL; ?>/?page=dashboard" class="active">Dashboard</a>
-                    <a href="<?php echo BASE_URL; ?>/?page=messages">Messages</a>
-                    <a href="<?php echo BASE_URL; ?>/?page=profile">Profile</a>
-                </nav>
-                <div class="flex gap-4" style="align-items: center;">
-                    <button style="background: none; border: none; font-size: 1.25rem; cursor: pointer;">🔔</button>
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-accent-600); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
-                        <?php echo strtoupper(substr($current_user['name'], 0, 1)); ?>
+
+<div class="max-w-screen-xl mx-auto px-6 py-12">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 animate-fade-in">
+        <div>
+            <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-3">Builder Dashboard</p>
+            <h1 class="text-4xl font-bold text-white tracking-tight">Welcome back, <?php echo $user ? explode(' ', $user['name'])[0] : 'Builder'; ?></h1>
+        </div>
+        <div class="flex items-center gap-3">
+             <div class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 flex items-center gap-3">
+                <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Builder Rank</span>
+                <span class="text-xs font-bold text-white">#12 Global</span>
+             </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="mb-20 animate-fade-up animate-delay-100">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-xl font-semibold text-white">Recommended for you</h2>
+            <a href="<?php echo BASE_URL; ?>/?page=ideas" class="text-xs font-medium text-zinc-400 hover:text-white transition-colors">View all</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <?php foreach($recommendations as $idea): ?>
+            <div class="premium-card p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                            <?php echo $idea['domain']; ?>
+                        </span>
+                        <span class="text-xs font-bold text-white"><?php echo $idea['match_percentage']; ?>% Match</span>
                     </div>
-                    <a href="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=logout" style="font-size: 0.875rem; color: var(--color-accent-600);">Logout</a>
+                    <h3 class="text-lg font-bold text-white mb-2"><?php echo $idea['title']; ?></h3>
+                    <p class="text-xs text-zinc-500 mb-6">By <?php echo $idea['creator_name']; ?> • <?php echo $idea['creator_rank']; ?></p>
                 </div>
+                <div class="flex items-center gap-3 mt-4">
+                    <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" class="btn-primary w-full !text-xs !py-2">Apply Now</a>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+        <!-- Left: Collaborations -->
+        <div class="md:col-span-8 animate-fade-up animate-delay-200">
+            <h2 class="text-xl font-semibold text-white mb-8">Active Collaborations</h2>
+            <div class="space-y-4">
+                <?php for($i=0; $i<2; $i++): ?>
+                <div class="premium-card p-6 flex items-center justify-between group">
+                    <div class="flex items-center gap-6">
+                        <div class="h-12 w-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white">
+                            <i class="fas fa-code text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white mb-1">AI-Powered Study Platform</h4>
+                            <p class="text-xs text-zinc-500">3 members • 12 commits this week</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="px-2 py-0.5 rounded bg-zinc-800 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Active</span>
+                        <i class="fas fa-chevron-right text-zinc-700 group-hover:text-white transition-colors text-xs"></i>
+                    </div>
+                </div>
+                <?php endfor; ?>
+            </div>
+
+            <div class="mt-12 p-8 rounded-2xl bg-white/[0.02] border border-white/5 text-center">
+                <p class="text-sm text-zinc-500 mb-6">You have 2 pending applications waiting for review.</p>
+                <a href="<?php echo BASE_URL; ?>/?page=profile&action=applications" class="text-xs font-bold text-white uppercase tracking-widest hover:underline underline-offset-4">View Applications</a>
             </div>
         </div>
-    </header>
 
-    <!-- MAIN CONTENT -->
-    <div style="background: var(--color-bg-secondary); min-height: calc(100vh - 80px); padding: 2rem 1rem;">
-        <div class="container" style="max-width: 1280px;">
-
-            <!-- WELCOME SECTION -->
-            <div class="card card-accent" style="background: var(--gradient-primary); color: white; border: none; margin-bottom: 2rem; border-left: 4px solid white;">
-                <div class="card-body">
-                    <h1 style="color: white; margin-bottom: 0.5rem; font-size: 2rem;">Welcome back, <?php echo htmlspecialchars($current_user['name']); ?>! 👋</h1>
-                    <p style="color: rgba(255, 255, 255, 0.9); margin: 0;">Keep building amazing things with your team</p>
-                </div>
-            </div>
-
-            <!-- QUICK STATS ROW -->
-            <div class="grid grid-cols-4" style="margin-bottom: 2rem; gap: 1rem;">
-                <div class="card">
-                    <div class="card-body" style="text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">💡</div>
-                        <div style="font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">Your Ideas</div>
-                        <div style="font-size: 1.875rem; font-weight: 700; color: var(--color-accent-600);">12</div>
+        <!-- Right: Sidebar -->
+        <div class="md:col-span-4 space-y-10 animate-fade-up animate-delay-300">
+            <!-- Progress -->
+            <div class="premium-card p-8">
+                <h3 class="text-sm font-bold text-white mb-8 uppercase tracking-widest">Your Progress</h3>
+                <div class="flex flex-col items-center text-center mb-10">
+                    <div class="h-24 w-24 rounded-full border-4 border-white/5 border-t-white flex items-center justify-center mb-6">
+                        <span class="text-2xl font-bold text-white">70<span class="text-xs text-zinc-500">%</span></span>
                     </div>
+                    <p class="text-sm font-bold text-white mb-2 uppercase tracking-widest">Builder</p>
+                    <p class="text-xs text-zinc-500">30 points to ARCHITECT</p>
                 </div>
-                <div class="card">
-                    <div class="card-body" style="text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
-                        <div style="font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">Active Teams</div>
-                        <div style="font-size: 1.875rem; font-weight: 700; color: var(--color-accent-600);">5</div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-zinc-500">Ideas Posted</span>
+                        <span class="text-white font-medium">12</span>
                     </div>
-                </div>
-                <div class="card">
-                    <div class="card-body" style="text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
-                        <div style="font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">Applications</div>
-                        <div style="font-size: 1.875rem; font-weight: 700; color: var(--color-accent-600);">8</div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-zinc-500">Collaborations</span>
+                        <span class="text-white font-medium">5</span>
                     </div>
-                </div>
-                <div class="card">
-                    <div class="card-body" style="text-align: center;">
-                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⭐</div>
-                        <div style="font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">Builder Rank</div>
-                        <div style="font-size: 1.875rem; font-weight: 700; color: var(--color-accent-600);">Builder</div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-zinc-500">Upvotes</span>
+                        <span class="text-white font-medium">156</span>
                     </div>
                 </div>
             </div>
 
-            <!-- QUICK ACTIONS -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
-                <a href="<?php echo BASE_URL; ?>/?page=ideas&action=create" class="btn btn-primary btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">
-                    <span style="font-size: 1.25rem;">💡</span> Post New Idea
-                </a>
-                <a href="<?php echo BASE_URL; ?>/?page=ideas" class="btn btn-tertiary btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">
-                    <span style="font-size: 1.25rem;">🔍</span> Browse Ideas
-                </a>
-                <a href="<?php echo BASE_URL; ?>/?page=messages" class="btn btn-tertiary btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">
-                    <span style="font-size: 1.25rem;">💬</span> Team Channels
-                </a>
-            </div>
-
-            <!-- PERSONALIZED FEED SECTION -->
-            <?php
-            // Include recommendation engine
-            require_once $GLOBALS['BASE_DIR'] ?? __DIR__ . '/../../src/models/IdeaRecommendation.php';
-
-            try {
-                $db = new Database();
-                $conn = $db->getConnection();
-                $recommender = new IdeaRecommendation($conn);
-
-                $recommended_ideas = $recommender->getRecommendedIdeas($current_user['id'], 5);
-            } catch (Exception $e) {
-                error_log("Recommendation error: " . $e->getMessage());
-                $recommended_ideas = [];
-            }
-            ?>
-
-            <?php if (!empty($recommended_ideas)): ?>
-            <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--color-accent-100), var(--color-accent-50)); border-left: 4px solid var(--color-accent-600);">
-                <div class="card-header" style="padding-bottom: 1rem;">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.5rem;">✨</span> Ideas For You
-                        </h2>
-                        <a href="<?php echo BASE_URL; ?>/?page=ideas&view=for-you" style="font-size: 0.875rem; color: var(--color-accent-600); text-decoration: none; font-weight: 600;">See all →</a>
+            <!-- Events -->
+            <div>
+                <h3 class="text-sm font-bold text-white mb-6 uppercase tracking-widest">Upcoming Events</h3>
+                <div class="space-y-4">
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                        <p class="text-xs font-bold text-white mb-1">Hackathon 2024</p>
+                        <p class="text-[10px] text-zinc-500 uppercase font-semibold">March 15 • Auditorium</p>
                     </div>
-                </div>
-                <div class="card-body">
-                    <p style="color: var(--color-text-secondary); margin-bottom: 1rem; font-size: 0.875rem;">Based on your skills and interests</p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-                        <?php foreach ($recommended_ideas as $idea): ?>
-                        <div style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1rem; transition: all 0.2s; hover:n box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                            <!-- Match Score Badge -->
-                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                                <div>
-                                    <h4 style="margin: 0 0 0.25rem 0; font-size: 1rem;">
-                                        <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" style="text-decoration: none; color: inherit;">
-                                            <?php echo htmlspecialchars(substr($idea['title'], 0, 40)); ?>...
-                                        </a>
-                                    </h4>
-                                </div>
-                            </div>
-
-                            <!-- Skill Match Indicator -->
-                            <div style="margin-bottom: 0.75rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                                    <span style="font-size: 0.75rem; color: var(--color-text-secondary);">Skill Match</span>
-                                    <span style="font-size: 0.875rem; font-weight: 600; color: var(--color-success-600);"><?php echo $idea['match_percentage']; ?>%</span>
-                                </div>
-                                <div style="width: 100%; height: 4px; background: var(--color-border); border-radius: 2px; overflow: hidden;">
-                                    <div style="height: 100%; width: <?php echo $idea['match_percentage']; ?>%; background: var(--color-success-500);"></div>
-                                </div>
-                            </div>
-
-                            <!-- Meta Info -->
-                            <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.75rem;">
-                                <div>👤 <?php echo htmlspecialchars($idea['creator_name']); ?> • ⭐ <?php echo htmlspecialchars($idea['creator_rank'] ?? 'Member'); ?></div>
-                                <div>⬆️ <?php echo htmlspecialchars($idea['total_upvotes']); ?> upvotes • 👥 <?php echo htmlspecialchars($idea['applicant_count']); ?> applied</div>
-                            </div>
-
-                            <!-- Domain Badge -->
-                            <div style="margin-bottom: 0.75rem;">
-                                <span class="badge badge-secondary" style="font-size: 0.75rem;">
-                                    <?php echo htmlspecialchars($idea['domain']); ?>
-                                </span>
-                            </div>
-
-                            <!-- Apply Button -->
-                            <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" class="btn btn-primary btn-sm" style="width: 100%; text-align: center;">Apply</a>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <!-- MAIN GRID -->
-            <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 2rem;">
-                <!-- LEFT COLUMN -->
-                <div>
-                    <!-- Recent Activity -->
-                    <div class="card" style="margin-bottom: 2rem;">
-                        <div class="card-header">
-                            <h2>My Active Collaborations</h2>
-                        </div>
-                        <div class="card-body">
-                            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                                <!-- Collaboration Item -->
-                                <div style="padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <h4 style="margin-bottom: 0.25rem;">AI-Powered Study Platform</h4>
-                                        <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">3 members • 5 commits</p>
-                                    </div>
-                                    <div style="display: flex; gap: 0.5rem;">
-                                        <span class="badge badge-primary">Active</span>
-                                    </div>
-                                </div>
-                                <div style="padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <h4 style="margin-bottom: 0.25rem;">Campus Event Planner</h4>
-                                        <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">5 members • Team lead</p>
-                                    </div>
-                                    <div style="display: flex; gap: 0.5rem;">
-                                        <span class="badge badge-success">On Track</span>
-                                    </div>
-                                </div>
-                                <div style="padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); display: flex; justify-content: space-between; align-items: center;">
-                                    <div>
-                                        <h4 style="margin-bottom: 0.25rem;">Green Energy Solution</h4>
-                                        <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0;">4 members • Seeking funding</p>
-                                    </div>
-                                    <div style="display: flex; gap: 0.5rem;">
-                                        <span class="badge badge-warning">Review</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pending Applications -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Pending Applications</h2>
-                        </div>
-                        <div class="card-body">
-                            <p style="color: var(--color-text-secondary); text-align: center; padding: 2rem 0;">
-                                You have 2 pending applications. <a href="<?php echo BASE_URL; ?>/?page=profile&action=applications" style="color: var(--color-accent-600);">View all →</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RIGHT SIDEBAR -->
-                <div>
-                    <!-- Upcoming Events -->
-                    <div class="card" style="margin-bottom: 2rem;">
-                        <div class="card-header">
-                            <h3>Upcoming Events</h3>
-                        </div>
-                        <div class="card-body">
-                            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                                <div style="padding: 1rem; background: var(--color-bg-secondary); border-radius: var(--radius-base);">
-                                    <p style="margin: 0; font-weight: 600; font-size: 0.875rem;">Hackathon 2024</p>
-                                    <p style="margin: 0; font-size: 0.75rem; color: var(--color-text-secondary);">Mar 15, 2024</p>
-                                </div>
-                                <div style="padding: 1rem; background: var(--color-bg-secondary); border-radius: var(--radius-base);">
-                                    <p style="margin: 0; font-weight: 600; font-size: 0.875rem;">Mentorship Roundtable</p>
-                                    <p style="margin: 0; font-size: 0.75rem; color: var(--color-text-secondary);">Mar 20, 2024</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Builder Rank Progress -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Your Progress</h3>
-                        </div>
-                        <div class="card-body">
-                            <div style="text-align: center; margin-bottom: 1.5rem;">
-                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏗️</div>
-                                <div style="font-weight: 700; font-size: 1.125rem; color: var(--color-text-primary);">Builder</div>
-                                <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0.5rem 0 0 0;">70 / 100 points to ARCHITECT</p>
-                            </div>
-                            <div style="background: var(--color-bg-secondary); border-radius: var(--radius-full); height: 8px; overflow: hidden; margin-bottom: 1rem;">
-                                <div style="background: var(--color-accent-600); height: 100%; width: 70%;"></div>
-                            </div>
-                            <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.875rem;">
-                                <li style="padding: 0.25rem 0;">✓ 12 ideas posted</li>
-                                <li style="padding: 0.25rem 0;">✓ 5 collaborations</li>
-                                <li style="padding: 0.25rem 0;">○ Reach 100 upvotes</li>
-                            </ul>
-                        </div>
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                        <p class="text-xs font-bold text-white mb-1">Mentorship Roundtable</p>
+                        <p class="text-[10px] text-zinc-500 uppercase font-semibold">March 20 • Online</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../layouts/main.php';
+?>

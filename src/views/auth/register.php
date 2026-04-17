@@ -3,77 +3,63 @@ require_once __DIR__ . '/../../helpers/Security.php';
 ob_start();
 ?>
 
-<div class="min-h-[calc(100vh-80px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-background relative overflow-hidden">
-    <div class="absolute inset-0 -z-10">
-        <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/10 rounded-full blur-3xl"></div>
-    </div>
-
-    <div class="max-w-md w-full space-y-8 animate-fade-in-up">
-        <div class="text-center">
-            <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary text-background text-2xl mb-6 shadow-lg shadow-primary/30">
-                <i class="fas fa-user-plus"></i>
+<div class="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-6">
+    <div class="max-w-md w-full space-y-10">
+        <div class="text-center animate-fade-in">
+            <div class="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-white text-black mb-6">
+                <i class="fas fa-user-plus text-sm"></i>
             </div>
-            <h2 class="text-3xl font-black text-white tracking-tight">Initiate Protocol</h2>
-            <p class="mt-2 text-sm text-slate-500 font-medium">
-                Already registered?
-                <a href="<?php echo BASE_URL; ?>/?page=login" class="font-bold text-primary hover:text-white transition-colors">Sign in here</a>
+            <h2 class="text-3xl font-bold text-white tracking-tight">Create your account</h2>
+            <p class="mt-3 text-sm text-zinc-400">
+                Already part of the network?
+                <a href="<?php echo BASE_URL; ?>/?page=login" class="font-medium text-white hover:underline underline-offset-4">Sign in</a>
             </p>
         </div>
 
-        <div class="bg-surface-container-low p-10 rounded-[2.5rem] shadow-2xl border border-white/5">
+        <div class="premium-card p-8 animate-fade-up">
             <?php if (isset($_SESSION['error'])): ?>
-                <div class="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-bold flex items-center gap-3">
-                    <i class="fas fa-circle-exclamation"></i>
+                <div class="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs font-medium flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle"></i>
                     <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
                 </div>
             <?php endif; ?>
 
-            <form class="space-y-5" action="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=register" method="POST">
+            <form class="space-y-6" action="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=register" method="POST">
                 <input type="hidden" name="csrf_token" value="<?php echo Security::getCsrfToken(); ?>">
 
                 <div>
-                    <label for="name" class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Full Designation</label>
-                    <div class="relative group">
-                        <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors text-sm"></i>
-                        <input id="name" name="name" type="text" required
-                               class="block w-full pl-12 pr-4 py-4 bg-surface-container-high border border-white/5 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
-                               placeholder="Aryan Sharma">
-                    </div>
+                    <label for="name" class="form-label">Full Name</label>
+                    <input id="name" name="name" type="text" required
+                           class="form-input"
+                           placeholder="Aryan Sharma">
                 </div>
 
                 <div>
-                    <label for="email" class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Campus Identity</label>
-                    <div class="relative group">
-                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors text-sm"></i>
-                        <input id="email" name="email" type="email" required
-                               class="block w-full pl-12 pr-4 py-4 bg-surface-container-high border border-white/5 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
-                               placeholder="you@university.edu">
-                    </div>
+                    <label for="email" class="form-label">Campus Email</label>
+                    <input id="email" name="email" type="email" required
+                           class="form-input"
+                           placeholder="name@university.edu">
                 </div>
 
                 <div>
-                    <label for="password" class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">Secure Key</label>
-                    <div class="relative group">
-                        <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors text-sm"></i>
-                        <input id="password" name="password" type="password" required
-                               class="block w-full pl-12 pr-4 py-4 bg-surface-container-high border border-white/5 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
-                               placeholder="Min. 8 characters">
-                    </div>
+                    <label for="password" class="form-label">Password</label>
+                    <input id="password" name="password" type="password" required
+                           class="form-input"
+                           placeholder="Min. 8 characters">
                 </div>
 
                 <div class="pt-2">
                     <label class="flex items-start cursor-pointer group">
-                        <input type="checkbox" required class="mt-1 h-4 w-4 bg-surface-container-high border-white/10 rounded text-primary focus:ring-primary/20 transition-all">
-                        <span class="ml-3 block text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-normal group-hover:text-slate-300 transition-colors">
-                            I accept the <a href="#" class="text-primary hover:underline">Build Protocols</a> & <a href="#" class="text-primary hover:underline">Privacy Rules</a>.
+                        <input type="checkbox" required class="mt-1 h-4 w-4 bg-white/5 border-white/10 rounded text-black focus:ring-zinc-500">
+                        <span class="ml-3 block text-xs text-zinc-500 leading-normal group-hover:text-zinc-300 transition-colors">
+                            I accept the <a href="#" class="text-zinc-400 underline underline-offset-2">Build Protocols</a> and <a href="#" class="text-zinc-400 underline underline-offset-2">Privacy Rules</a>.
                         </span>
                     </label>
                 </div>
 
                 <div class="pt-4">
-                    <button type="submit" class="w-full btn-primary py-4 uppercase tracking-[0.2em] text-xs font-black">
-                        Initialize Profile
+                    <button type="submit" class="btn-primary w-full py-2.5">
+                        Create Account
                     </button>
                 </div>
             </form>

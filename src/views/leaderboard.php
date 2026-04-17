@@ -2,89 +2,83 @@
 ob_start();
 ?>
 
-<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="text-center mb-16">
-        <h2 class="text-base font-semibold text-accent-600 tracking-wide uppercase mb-3">Community Rankings</h2>
-        <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight">The <span class="text-accent-600">Builder</span> Elite</h1>
-        <p class="text-slate-500 mt-4 text-lg max-w-2xl mx-auto">Celebrating the top contributors and innovators shaping the campus future.</p>
+<div class="max-w-screen-xl mx-auto px-6 py-20">
+    <div class="text-center mb-24 animate-fade-in">
+        <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-4">Rankings</p>
+        <h1 class="text-4xl md:text-6xl font-bold text-white tracking-tight mb-8">The Builder Elite</h1>
+        <p class="text-zinc-400 text-lg max-w-xl mx-auto">Celebrating the top contributors shaping the campus ecosystem.</p>
     </div>
 
     <!-- Top 3 Podium -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-24 items-end animate-fade-up animate-delay-100">
         <!-- #2 -->
-        <div class="md:mt-12 flex flex-col items-center">
+        <div class="order-2 md:order-1 flex flex-col items-center p-8 premium-card">
             <div class="relative mb-6">
-                <div class="h-24 w-24 rounded-[2rem] bg-gradient-to-tr from-slate-200 to-slate-400 p-1 shadow-xl">
-                    <div class="h-full w-full rounded-[1.8rem] bg-white flex items-center justify-center text-slate-400 font-bold text-2xl">MK</div>
-                </div>
-                <div class="absolute -bottom-3 -right-3 h-10 w-10 bg-slate-300 rounded-full border-4 border-slate-50 flex items-center justify-center text-white font-black text-sm">2</div>
+                <div class="h-20 w-20 rounded-full bg-zinc-800 border-2 border-zinc-500 flex items-center justify-center text-zinc-300 font-bold text-xl shadow-lg shadow-zinc-500/10">MK</div>
+                <div class="absolute -bottom-2 -right-2 h-8 w-8 bg-zinc-600 rounded-full border-2 border-[#09090b] flex items-center justify-center text-white font-bold text-xs">2</div>
             </div>
-            <h3 class="font-bold text-slate-900">Meera Kapoor</h3>
-            <p class="text-xs text-accent-600 font-bold mb-4">Silver Builder</p>
-            <div class="text-2xl font-black text-slate-900">2,840 <span class="text-[10px] text-slate-400 uppercase tracking-widest">pts</span></div>
+            <h3 class="font-bold text-white mb-1">Meera Kapoor</h3>
+            <p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mb-4">Silver Builder</p>
+            <div class="text-xl font-bold text-white">2,840 <span class="text-[10px] text-zinc-600 uppercase">pts</span></div>
         </div>
 
         <!-- #1 -->
-        <div class="flex flex-col items-center scale-110">
-            <div class="relative mb-6">
-                 <div class="absolute -top-10 left-1/2 -translate-x-1/2 text-amber-400 text-4xl animate-bounce">
+        <div class="order-1 md:order-2 flex flex-col items-center p-12 premium-card bg-white/[0.03] border-white/20 scale-105 relative z-10 shadow-premium">
+            <div class="relative mb-8">
+                 <div class="absolute -top-12 left-1/2 -translate-x-1/2 text-white text-3xl animate-bounce">
                     <i class="fas fa-crown"></i>
                 </div>
-                <div class="h-32 w-32 rounded-[2.5rem] bg-gradient-to-tr from-amber-300 to-amber-500 p-1.5 shadow-2xl shadow-amber-500/20">
-                    <div class="h-full w-full rounded-[2.3rem] bg-white flex items-center justify-center text-amber-500 font-bold text-3xl">AS</div>
-                </div>
-                <div class="absolute -bottom-3 -right-3 h-12 w-12 bg-amber-400 rounded-full border-4 border-slate-50 flex items-center justify-center text-white font-black text-sm">1</div>
+                <div class="h-28 w-28 rounded-full bg-white flex items-center justify-center text-black font-bold text-3xl shadow-xl">AS</div>
+                <div class="absolute -bottom-2 -right-2 h-10 w-10 bg-white rounded-full border-4 border-[#09090b] flex items-center justify-center text-black font-bold text-sm">1</div>
             </div>
-            <h3 class="font-bold text-slate-900 text-lg">Aryan Sharma</h3>
-            <p class="text-xs text-amber-600 font-bold mb-4">Master Builder</p>
-            <div class="text-3xl font-black text-slate-900">4,120 <span class="text-[10px] text-slate-400 uppercase tracking-widest">pts</span></div>
+            <h3 class="font-bold text-white text-xl mb-1">Aryan Sharma</h3>
+            <p class="text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-6">Elite Builder</p>
+            <div class="text-3xl font-bold text-white tracking-tighter">4,120 <span class="text-xs text-zinc-600 uppercase">pts</span></div>
         </div>
 
         <!-- #3 -->
-        <div class="md:mt-16 flex flex-col items-center">
+        <div class="order-3 md:order-3 flex flex-col items-center p-8 premium-card">
             <div class="relative mb-6">
-                <div class="h-20 w-20 rounded-[1.5rem] bg-gradient-to-tr from-orange-200 to-orange-400 p-1 shadow-lg">
-                    <div class="h-full w-full rounded-[1.3rem] bg-white flex items-center justify-center text-orange-400 font-bold text-xl">RV</div>
-                </div>
-                <div class="absolute -bottom-2 -right-2 h-8 w-8 bg-orange-300 rounded-full border-4 border-slate-50 flex items-center justify-center text-white font-black text-xs">3</div>
+                <div class="h-16 w-16 rounded-full bg-zinc-800 border-2 border-zinc-600 flex items-center justify-center text-zinc-300 font-bold text-lg">RV</div>
+                <div class="absolute -bottom-1 -right-1 h-7 w-7 bg-zinc-700 rounded-full border-2 border-[#09090b] flex items-center justify-center text-white font-bold text-[10px]">3</div>
             </div>
-            <h3 class="font-bold text-slate-900">Rahul Verma</h3>
-            <p class="text-xs text-orange-600 font-bold mb-4">Rising Star</p>
-            <div class="text-xl font-black text-slate-900">2,410 <span class="text-[10px] text-slate-400 uppercase tracking-widest">pts</span></div>
+            <h3 class="font-bold text-white mb-1">Rahul Verma</h3>
+            <p class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mb-4">Rising Star</p>
+            <div class="text-lg font-bold text-white">2,410 <span class="text-[10px] text-zinc-600 uppercase">pts</span></div>
         </div>
     </div>
 
     <!-- Leaderboard Table -->
-    <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-        <div class="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
-            <h3 class="font-bold text-slate-900">All Rankings</h3>
-            <div class="flex gap-2">
-                <button class="px-4 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold text-slate-600 shadow-sm">Monthly</button>
-                <button class="px-4 py-2 bg-slate-900 rounded-xl text-xs font-bold text-white shadow-lg shadow-slate-900/20">All Time</button>
+    <div class="premium-card overflow-hidden animate-fade-up animate-delay-200">
+        <div class="p-6 border-b border-white/5 bg-white/[0.01] flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white uppercase tracking-widest">Global Rankings</h3>
+            <div class="flex gap-1 p-1 bg-white/5 rounded-lg border border-white/10">
+                <button class="px-4 py-1.5 text-[10px] font-bold text-zinc-500 hover:text-white transition-colors">Monthly</button>
+                <button class="px-4 py-1.5 bg-white text-black text-[10px] font-bold rounded">All Time</button>
             </div>
         </div>
-        <div class="divide-y divide-slate-50">
+        <div class="divide-y divide-white/5">
             <?php for($i=4; $i<=10; $i++): ?>
-            <div class="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors group">
-                <div class="flex items-center gap-6">
-                    <span class="text-sm font-black text-slate-300 w-4"><?php echo $i; ?></span>
-                    <div class="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-400 group-hover:bg-white transition-colors">
+            <div class="p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors group">
+                <div class="flex items-center gap-8">
+                    <span class="text-xs font-bold text-zinc-700 w-4 tracking-tighter">#<?php echo $i; ?></span>
+                    <div class="h-10 w-10 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center font-bold text-zinc-500 group-hover:border-white/20 transition-all">
                         <?php echo ['SK', 'IS', 'AM', 'PK', 'NS', 'DK', 'VJ'][$i-4]; ?>
                     </div>
                     <div>
-                        <h4 class="font-bold text-slate-900 text-sm"><?php echo ['Sneha Kapur', 'Ishaan Shah', 'Ananya Misra', 'Priya Kant', 'Nitin Singh', 'Deepa Kaur', 'Vivek Jain'][$i-4]; ?></h4>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"><?php echo rand(5, 15); ?> Projects Contributed</p>
+                        <h4 class="font-bold text-white text-sm"><?php echo ['Sneha Kapur', 'Ishaan Shah', 'Ananya Misra', 'Priya Kant', 'Nitin Singh', 'Deepa Kaur', 'Vivek Jain'][$i-4]; ?></h4>
+                        <p class="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest"><?php echo rand(5, 15); ?> Contributions</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <div class="font-black text-slate-900 text-sm"><?php echo 2400 - ($i * 100) + rand(10, 90); ?></div>
-                    <div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Points</div>
+                    <div class="font-bold text-white text-sm tracking-tight"><?php echo 2400 - ($i * 100) + rand(10, 90); ?></div>
+                    <div class="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Points</div>
                 </div>
             </div>
             <?php endfor; ?>
         </div>
-        <div class="p-6 bg-slate-50/50 text-center">
-            <button class="text-sm font-bold text-accent-600 hover:text-accent-500 transition-colors">Load more rankings</button>
+        <div class="p-6 border-t border-white/5 bg-white/[0.01] text-center">
+            <button class="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-[0.2em]">Load more</button>
         </div>
     </div>
 </div>
