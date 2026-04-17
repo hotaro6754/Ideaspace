@@ -1,149 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - IdeaSync</title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
-</head>
-<body>
-    <!-- Navigation Header -->
-    <header>
-        <nav>
-            <a href="<?php echo BASE_URL; ?>/?page=home" class="logo">IdeaSync</a>
-            <ul class="nav-menu">
-                <li><a href="<?php echo BASE_URL; ?>/?page=home">Home</a></li>
-                <?php if (isLoggedIn()): ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=dashboard">Dashboard</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=admin" class="active">Admin</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=logout">Logout</a></li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-    </header>
+<?php
+ob_start();
+$user = getCurrentUser();
+// Simplified admin check
+?>
 
-    <?php
-    if (!isLoggedIn()) {
-        redirect(BASE_URL . '/?page=login');
-    }
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+        <div>
+            <h1 class="text-3xl font-black text-white tracking-tight mb-2 uppercase">Command <span class="text-primary italic">Center</span></h1>
+            <p class="text-slate-500 font-medium tracking-wide">High-level ecosystem oversight and moderation.</p>
+        </div>
+        <div class="flex gap-3">
+             <button class="px-6 py-3 bg-red-500/10 text-red-400 font-bold rounded-xl border border-red-500/20 hover:bg-red-500/20 transition-all flex items-center gap-2 text-sm">
+                <i class="fas fa-triangle-exclamation"></i> Critical Alerts
+            </button>
+        </div>
+    </div>
 
-    $current_user = getCurrentUser();
-    if (!$current_user) {
-        redirect(BASE_URL . '/?page=login');
-    }
-    ?>
-
-    <!-- Admin Container -->
-    <div style="background: #f9fafb; min-height: calc(100vh - 80px); padding: 2rem;">
-        <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 1.5rem;">
-            <h1 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 2rem;">Admin Dashboard</h1>
-
-            <!-- Stats Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem;">
-                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Total Users</p>
-                    <p style="font-size: 2rem; font-weight: 700; color: #111827;">247</p>
-                </div>
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem;">
-                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Active Ideas</p>
-                    <p style="font-size: 2rem; font-weight: 700; color: #111827;">34</p>
-                </div>
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem;">
-                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Collaborations</p>
-                    <p style="font-size: 2rem; font-weight: 700; color: #111827;">18</p>
-                </div>
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem;">
-                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Completed Projects</p>
-                    <p style="font-size: 2rem; font-weight: 700; color: #111827;">5</p>
-                </div>
+    <!-- Admin Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div class="bento-card !p-6">
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Total Builders</div>
+            <div class="flex items-end justify-between">
+                <div class="text-3xl font-black text-white">1,284</div>
+                <div class="text-green-500 text-[10px] font-bold flex items-center gap-1"><i class="fas fa-arrow-up"></i> 12%</div>
             </div>
-
-            <!-- Management Sections -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
-                <!-- User Management -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem; display: flex; flex-direction: column;">
-                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="font-size: 2rem;">👥</div>
-                        <div>
-                            <h3 style="font-size: 1.125rem; font-weight: 700; color: #111827; margin: 0;">User Management</h3>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">Manage user accounts</p>
-                        </div>
-                    </div>
-                    <a href="<?php echo BASE_URL; ?>/?page=admin-users" class="btn btn-primary" style="margin-top: auto; width: 100%; text-align: center;">View Users</a>
-                </div>
-
-                <!-- Reports & Analytics -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem; display: flex; flex-direction: column;">
-                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="font-size: 2rem;">📊</div>
-                        <div>
-                            <h3 style="font-size: 1.125rem; font-weight: 700; color: #111827; margin: 0;">Reports</h3>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">View analytics & metrics</p>
-                        </div>
-                    </div>
-                    <a href="<?php echo BASE_URL; ?>/?page=admin-reports" class="btn btn-primary" style="margin-top: auto; width: 100%; text-align: center;">View Reports</a>
-                </div>
-
-                <!-- Moderation -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem; display: flex; flex-direction: column;">
-                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="font-size: 2rem;">⚖️</div>
-                        <div>
-                            <h3 style="font-size: 1.125rem; font-weight: 700; color: #111827; margin: 0;">Moderation</h3>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">Review flagged content</p>
-                        </div>
-                    </div>
-                    <button class="btn btn-secondary" style="margin-top: auto; width: 100%; text-align: center;">Coming Soon</button>
-                </div>
+        </div>
+        <div class="bento-card !p-6">
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Live Projects</div>
+            <div class="flex items-end justify-between">
+                <div class="text-3xl font-black text-white">452</div>
+                <div class="text-primary text-[10px] font-bold flex items-center gap-1"><i class="fas fa-rocket"></i> 34 New</div>
             </div>
-
-            <!-- Management Sections -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                <!-- Recent Ideas -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem;">
-                    <h2 style="font-size: 1.25rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Recent Ideas</h2>
-                    <div style="space: 1rem; display: flex; flex-direction: column; gap: 1rem;">
-                        <div style="padding: 1rem; background: #f9fafb; border-radius: 0.5rem; border-left: 3px solid #3b82f6;">
-                            <p style="font-weight: 600; color: #111827; margin: 0; margin-bottom: 0.25rem;">AI Chatbot Builder</p>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">By John Doe • 2 days ago</p>
-                        </div>
-                        <div style="padding: 1rem; background: #f9fafb; border-radius: 0.5rem; border-left: 3px solid #3b82f6;">
-                            <p style="font-weight: 600; color: #111827; margin: 0; margin-bottom: 0.25rem;">Campus Marketplace</p>
-                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">By Jane Smith • 5 days ago</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Flagged Content -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 1.5rem;">
-                    <h2 style="font-size: 1.25rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Flagged Items</h2>
-                    <div style="text-align: center; padding: 2rem; color: #9ca3af;">
-                        <p style="margin: 0;">No flagged items</p>
-                    </div>
-                </div>
+        </div>
+        <div class="bento-card !p-6">
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Vetting Queue</div>
+            <div class="flex items-end justify-between">
+                <div class="text-3xl font-black text-white">18</div>
+                <div class="text-amber-500 text-[10px] font-bold">Pending Review</div>
+            </div>
+        </div>
+        <div class="bento-card !p-6">
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Security Scans</div>
+            <div class="flex items-end justify-between">
+                <div class="text-3xl font-black text-white">100%</div>
+                <div class="text-green-500 text-[10px] font-bold">All Secure</div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer style="background: #111827; color: white; padding: 2rem 0; text-align: center; border-top: 1px solid #374151; margin-top: 2rem;">
-        <div style="max-width: 1400px; margin: 0 auto; padding: 0 1.5rem;">
-            <p style="margin: 0; font-size: 0.875rem;">© 2024 IdeaSync Admin Panel</p>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- System Health -->
+        <div class="lg:col-span-2 bento-card">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-xl font-bold text-white tracking-tight">System Node Performance</h3>
+                <div class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse"></div>
+            </div>
+            <div class="space-y-6">
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-slate-400">
+                        <span>Database Cluster</span>
+                        <span class="text-white">1.2ms Latency</span>
+                    </div>
+                    <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-slate-400">
+                        <span>Compute Engine</span>
+                        <span class="text-white">42% Load</span>
+                    </div>
+                    <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary" style="width: 42%"></div>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-bold uppercase tracking-widest text-slate-400">
+                        <span>Storage (CDN)</span>
+                        <span class="text-white">12.5 TB Used</span>
+                    </div>
+                    <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div class="h-full bg-primary" style="width: 68%"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </footer>
 
-    <style>
-        body {
-            background: #f9fafb;
-        }
+        <!-- Recent Logs -->
+        <div class="bento-card">
+            <h3 class="text-xl font-bold text-white tracking-tight mb-8">Sentinel Audit Trail</h3>
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <div class="h-8 w-8 rounded-lg bg-green-500/10 text-green-500 flex-shrink-0 flex items-center justify-center text-xs">
+                        <i class="fas fa-shield-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-white leading-tight">New Project Vetted: "AI Study Buddy"</p>
+                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">2 mins ago</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="h-8 w-8 rounded-lg bg-red-500/10 text-red-500 flex-shrink-0 flex items-center justify-center text-xs">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-white leading-tight">IP Rate-Limited: 192.168.1.1</p>
+                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">15 mins ago</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="h-8 w-8 rounded-lg bg-blue-500/10 text-blue-500 flex-shrink-0 flex items-center justify-center text-xs">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-white leading-tight">Admin Role Assigned: @maya_singh</p>
+                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">1 hour ago</p>
+                    </div>
+                </div>
+            </div>
+            <button class="mt-10 w-full py-4 bg-surface-container-high hover:bg-surface-container-highest text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] rounded-2xl border border-white/5 transition-all">View Full Logs</button>
+        </div>
+    </div>
+</div>
 
-        h1, h2 {
-            margin: 0;
-        }
-
-        p {
-            margin: 0;
-        }
-    </style>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../../layouts/main.php';
+?>

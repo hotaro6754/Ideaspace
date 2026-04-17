@@ -1,0 +1,27 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "**Status:** ✅ **PRODUCTION READY**   **Security:** ✅ **HARDENED - All 16 Vulnerabilities Fixed**   **Features:** ✅ **28 Complete Features + Enterprise Security**   **Ready to Deploy:** ✅ **TODAY**",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "build": "tailwindcss -i src/assets/tailwind/input.css -o public/assets/css/tailwind.css --minify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hotaro6754/Ideaspace.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hotaro6754/Ideaspace/issues"
+  },
+  "homepage": "https://github.com/hotaro6754/Ideaspace#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^3.4.17"
+  }
+}

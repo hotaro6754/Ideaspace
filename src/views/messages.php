@@ -1,342 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages - IdeaSync</title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
-    <style>
-        .messages-container {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 1.5rem;
-            height: calc(100vh - 150px);
-        }
-        @media (max-width: 768px) {
-            .messages-container {
-                grid-template-columns: 1fr;
-            }
-            .conversation-panel {
-                display: none;
-            }
-            .conversation-panel.active {
-                display: flex;
-            }
-        }
-        .conversations-list {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        .conversation-item {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        .conversation-item:hover {
-            background: #f9fafb;
-        }
-        .conversation-item.active {
-            background: #eff6ff;
-            border-left: 4px solid #3b82f6;
-        }
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
-        .conversation-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .conversation-name {
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 0.25rem;
-        }
-        .conversation-preview {
-            color: #9ca3af;
-            font-size: 0.875rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .conversation-panel {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .conversation-header {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            justify-content: space-between;
-        }
-        .messages-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .message-group {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        .message-group.own {
-            justify-content: flex-end;
-        }
-        .message-bubble {
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            max-width: 70%;
-            word-wrap: break-word;
-        }
-        .message-bubble.other {
-            background: #f3f4f6;
-            color: #111827;
-        }
-        .message-bubble.own {
-            background: #3b82f6;
-            color: white;
-        }
-        .message-time {
-            font-size: 0.75rem;
-            color: #9ca3af;
-            margin-top: 0.25rem;
-        }
-        .message-input-area {
-            padding: 1rem;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 1rem;
-        }
-        .message-input {
-            flex: 1;
-            display: flex;
-            gap: 0.5rem;
-        }
-        .message-input input {
-            flex: 1;
-        }
-        .empty-state {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            color: #9ca3af;
-            height: 100%;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation Header -->
-    <header>
-        <nav>
-            <a href="<?php echo BASE_URL; ?>/?page=home" class="logo">IdeaSync</a>
-            <ul class="nav-menu">
-                <li><a href="<?php echo BASE_URL; ?>/?page=home">Home</a></li>
-                <li><a href="<?php echo BASE_URL; ?>/?page=ideas">Ideas</a></li>
-                <?php if (isLoggedIn()): ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=dashboard" class="active">Dashboard</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=profile">Profile</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=logout">Logout</a></li>
-                <?php else: ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=login">Sign In</a></li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-    </header>
+<?php
+ob_start();
+$user = getCurrentUser();
+if (!$user) redirect(BASE_URL . '/?page=login');
+?>
 
-    <?php
-    if (!isLoggedIn()) {
-        http_response_code(401);
-        include __DIR__ . '/../404.php';
-        exit();
-    }
-
-    require_once __DIR__ . '/../../config/Database.php';
-    require_once __DIR__ . '/../../models/Message.php';
-    require_once __DIR__ . '/../../models/User.php';
-
-    $db = new Database();
-    $conn = $db->connect();
-    $msgModel = new Message($conn);
-    $userModel = new User($conn);
-
-    $user_id = $_SESSION['user_id'];
-
-    // Get user's conversations
-    $conversations = $msgModel->getUserConversations($user_id, 20, 0);
-
-    // Get selected conversation
-    $selected_user_id = (int)($_GET['user_id'] ?? 0);
-    $messages = [];
-    $selected_user = null;
-
-    if ($selected_user_id > 0) {
-        $messages = $msgModel->getConversation($user_id, $selected_user_id, 50, 0);
-        $selected_user = $userModel->getById($selected_user_id);
-
-        // Mark conversation as read
-        $msgModel->markConversationAsRead($user_id, $selected_user_id);
-    }
-    ?>
-
-    <!-- Container -->
-    <div style="background: #f9fafb; min-height: calc(100vh - 80px); padding: 2rem;">
-        <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 1.5rem;">
-            <!-- Header -->
-            <div style="margin-bottom: 2rem;">
-                <h1 style="font-size: 2rem; font-weight: 700; color: #111827; margin: 0;">Messages</h1>
-                <p style="color: #6b7280;">Direct messaging with collaborators</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 h-[calc(100vh-140px)]">
+    <div class="bg-surface-container-low rounded-[2.5rem] shadow-2xl border border-white/5 overflow-hidden flex h-full">
+        <!-- Sidebar: Conversations -->
+        <div class="w-full md:w-96 border-r border-white/5 flex flex-col">
+            <div class="p-8 border-b border-white/5">
+                <h1 class="text-2xl font-black text-white tracking-tight mb-6">Channels</h1>
+                <div class="relative group">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors"></i>
+                    <input type="text" placeholder="Search conversations..." class="w-full pl-11 pr-4 py-3 bg-surface-container-high border border-white/5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm text-white">
+                </div>
             </div>
 
-            <!-- Messages Container -->
-            <div class="messages-container">
-                <!-- Conversations List -->
-                <div class="conversations-list">
-                    <?php if (empty($conversations)): ?>
-                        <div class="empty-state" style="height: 100%; justify-content: center;">
-                            <div style="font-size: 2.5rem; margin-bottom: 1rem;">💬</div>
-                            <p style="text-align: center;">No conversations yet. Start collaborating to message users!</p>
-                        </div>
-                    <?php else: ?>
-                        <?php foreach ($conversations as $conv):
-                            // Determine other user ID
-                            $other_id = ($conv['sender_id'] === $user_id) ? $conv['recipient_id'] : $conv['sender_id'];
-                            $other_user = $userModel->getById($other_id);
-                            $initials = substr($other_user['name'], 0, 1);
-                            $is_active = ($selected_user_id === $other_id);
-                        ?>
-                            <div class="conversation-item <?php echo $is_active ? 'active' : ''; ?>" onclick="selectConversation(<?php echo $other_id; ?>)">
-                                <div class="avatar"><?php echo strtoupper($initials); ?></div>
-                                <div class="conversation-info">
-                                    <div class="conversation-name"><?php echo sanitize($other_user['name']); ?></div>
-                                    <div class="conversation-preview"><?php echo sanitize(substr($conv['content'], 0, 50)); ?>...</div>
-                                </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                <!-- Channel Item -->
+                <div class="p-4 bg-surface-container-highest rounded-2xl border border-primary/20 cursor-pointer">
+                    <div class="flex gap-4">
+                        <div class="h-12 w-12 rounded-xl bg-primary text-background flex items-center justify-center font-bold">#</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <h3 class="font-bold text-white text-sm truncate">Campus AI Assistant</h3>
+                                <span class="text-[10px] text-primary font-bold">12:45 PM</span>
                             </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                            <p class="text-xs text-slate-400 truncate">Rohan: I've updated the RAG pipeline...</p>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Conversation Panel -->
-                <div class="conversation-panel <?php echo $selected_user ? 'active' : ''; ?>">
-                    <?php if ($selected_user): ?>
-                        <!-- Header -->
-                        <div class="conversation-header">
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <div class="avatar" style="width: 40px; height: 40px; font-size: 1rem;"><?php echo strtoupper(substr($selected_user['name'], 0, 1)); ?></div>
-                                <div>
-                                    <div style="font-weight: 600; color: #111827;"><?php echo sanitize($selected_user['name']); ?></div>
-                                    <div style="color: #9ca3af; font-size: 0.875rem;"><?php echo sanitize($selected_user['roll_number']); ?></div>
-                                </div>
+                <!-- Direct Message Item -->
+                <div class="p-4 hover:bg-surface-container-high rounded-2xl transition-all cursor-pointer group">
+                    <div class="flex gap-4">
+                        <div class="h-12 w-12 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-slate-400 group-hover:bg-primary group-hover:text-background transition-colors">SK</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <h3 class="font-bold text-white text-sm truncate">Sneha Kapur</h3>
+                                <span class="text-[10px] text-slate-500 font-bold tracking-widest">Yesterday</span>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/?page=profile&user_id=<?php echo $selected_user['id']; ?>" class="btn btn-ghost btn-sm">View Profile</a>
+                            <p class="text-xs text-slate-500 truncate">Looking forward to the meeting tomorrow!</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <!-- Messages -->
-                        <div class="messages-area" id="messages-area">
-                            <?php if (empty($messages)): ?>
-                                <div style="text-align: center; color: #9ca3af; margin: auto;">
-                                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">👋</div>
-                                    <p>Start a conversation!</p>
-                                </div>
-                            <?php else: ?>
-                                <?php foreach ($messages as $msg):
-                                    $is_own = ($msg['sender_id'] === $user_id);
-                                ?>
-                                    <div class="message-group <?php echo $is_own ? 'own' : ''; ?>">
-                                        <div>
-                                            <div class="message-bubble <?php echo $is_own ? 'own' : 'other'; ?>">
-                                                <?php echo sanitize($msg['content']); ?>
-                                            </div>
-                                            <div class="message-time"><?php echo date('M d, Y H:i', strtotime($msg['created_at'])); ?></div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>
+        <!-- Main: Chat Area -->
+        <div class="hidden md:flex flex-1 flex-col bg-surface-container/30">
+            <!-- Chat Header -->
+            <div class="p-8 border-b border-white/5 flex items-center justify-between bg-surface-container-low">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 rounded-xl bg-primary text-background flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20">#</div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">Campus AI Assistant</h2>
+                        <p class="text-xs text-primary font-bold tracking-widest uppercase">General Channel • 12 Members</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="h-10 w-10 rounded-xl bg-surface-container-high text-slate-400 flex items-center justify-center hover:text-white transition-colors">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    <button class="h-10 w-10 rounded-xl bg-surface-container-high text-slate-400 flex items-center justify-center hover:text-white transition-colors">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </div>
 
-                        <!-- Input Area -->
-                        <div class="message-input-area">
-                            <div class="message-input">
-                                <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off">
-                                <button class="btn btn-primary btn-sm" onclick="sendMessage(<?php echo $selected_user_id; ?>)">Send</button>
-                            </div>
+            <!-- Messages Area -->
+            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+                <!-- Message Left -->
+                <div class="flex gap-4 max-w-2xl">
+                    <div class="h-10 w-10 rounded-xl bg-slate-800 flex-shrink-0 flex items-center justify-center font-bold text-slate-400">RK</div>
+                    <div>
+                        <div class="flex items-baseline gap-3 mb-2">
+                            <span class="font-bold text-white text-sm">Rohan Kumar</span>
+                            <span class="text-[10px] text-slate-500 font-bold tracking-widest uppercase">12:30 PM</span>
                         </div>
-                    <?php else: ?>
-                        <div class="empty-state">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">💭</div>
-                            <p>Select a conversation to start messaging</p>
+                        <div class="bg-surface-container-high p-4 rounded-2xl rounded-tl-none border border-white/5">
+                            <p class="text-sm text-slate-300 leading-relaxed">Hey team, I've successfully integrated the OpenAI GPT-4o model into the backend. The response latency is significantly lower now.</p>
                         </div>
-                    <?php endif; ?>
+                        <div class="flex gap-2 mt-2">
+                            <span class="px-2 py-1 rounded-lg bg-surface-container-highest text-[10px] text-slate-400 font-bold border border-white/5">🔥 4</span>
+                            <span class="px-2 py-1 rounded-lg bg-surface-container-highest text-[10px] text-slate-400 font-bold border border-white/5">🚀 2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message Right (You) -->
+                <div class="flex gap-4 max-w-2xl ml-auto flex-row-reverse">
+                    <div class="h-10 w-10 rounded-xl bg-primary flex-shrink-0 flex items-center justify-center font-bold text-background shadow-lg shadow-primary/20">AS</div>
+                    <div class="text-right">
+                        <div class="flex items-baseline justify-end gap-3 mb-2">
+                            <span class="text-[10px] text-slate-500 font-bold tracking-widest uppercase">12:45 PM</span>
+                            <span class="font-bold text-white text-sm">You</span>
+                        </div>
+                        <div class="bg-primary p-4 rounded-2xl rounded-tr-none text-background font-medium text-sm shadow-xl shadow-primary/10">
+                            Great work Rohan! Let's test the RAG pipeline with the campus library dataset next. I'll prepare the embeddings this afternoon.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Input -->
+            <div class="p-8 border-t border-white/5 bg-surface-container-low">
+                <div class="bg-surface-container-high border border-white/5 rounded-[1.5rem] p-2 flex items-center gap-2 group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                    <button class="h-12 w-12 rounded-xl text-slate-500 hover:text-primary transition-colors">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <input type="text" placeholder="Send a message to #campus-ai-assistant..." class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-white px-2">
+                    <div class="flex items-center gap-2 pr-2">
+                        <button class="h-10 w-10 text-slate-500 hover:text-primary transition-colors">
+                            <i class="fas fa-smile"></i>
+                        </button>
+                        <button class="h-12 w-12 bg-primary text-background rounded-xl flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-primary/20">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        function selectConversation(userId) {
-            window.location.href = '<?php echo BASE_URL; ?>/?page=messages&user_id=' + userId;
-        }
-
-        function sendMessage(recipientId) {
-            const content = document.getElementById('message-input').value.trim();
-            if (!content) return;
-
-            const formData = new FormData();
-            formData.append('recipient_id', recipientId);
-            formData.append('content', content);
-
-            fetch('<?php echo BASE_URL; ?>/src/controllers/messages.php?action=send', {
-                method: 'POST',
-                body: formData
-            }).then(response => response.json()).then(data => {
-                if (data.success) {
-                    document.getElementById('message-input').value = '';
-                    // Reload messages
-                    location.reload();
-                } else {
-                    alert(data.error);
-                }
-            });
-        }
-
-        // Allow sending with Enter key
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                const btn = document.querySelector('.message-input-area .btn');
-                if (btn) btn.click();
-            }
-        });
-
-        // Auto-scroll to bottom
-        const messagesArea = document.getElementById('messages-area');
-        if (messagesArea) {
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-    </script>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../layouts/main.php';
+?>

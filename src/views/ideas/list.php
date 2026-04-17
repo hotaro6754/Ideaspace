@@ -1,269 +1,113 @@
 <?php
-/**
- * IdeaSync - Ideas Marketplace
- */
-
-require_once __DIR__ . '/../../models/Idea.php';
-require_once __DIR__ . '/../../models/IdeaRecommendation.php';
-
-$db = new Database();
-$conn = $db->connect();
-$ideaModel = new Idea($conn);
-$recommender = new IdeaRecommendation($conn);
-
-// Get filter parameters
-$domain = $_GET['domain'] ?? '';
-$status = $_GET['status'] ?? '';
-$search = $_GET['search'] ?? '';
-$sort = $_GET['sort'] ?? 'newest'; // New sort parameter
-$page = (int)($_GET['p'] ?? 1);
-$per_page = 12;
-$offset = ($page - 1) * $per_page;
-
-// Build filters
-$filters = [];
-if (!empty($domain)) $filters['domain'] = $domain;
-if (!empty($status)) $filters['status'] = $status;
-if (!empty($search)) $filters['search'] = $search;
-
-// Fetch ideas based on sort
-try {
-    if ($sort === 'trending' || $sort === 'most-applied' || $sort === 'upvotes') {
-        $ideas = $recommender->getIdeasSorted($sort, $offset, $per_page, $domain ?? null);
-        $total = count($recommender->getIdeasSorted($sort, 0, 1000, $domain ?? null)); // Simplified total count
-    } else {
-        $ideas = $ideaModel->getAll($per_page, $offset, $filters);
-        $total = $ideaModel->getTotal($filters);
-    }
-} catch (Exception $e) {
-    error_log("Error fetching ideas: " . $e->getMessage());
-    $ideas = $ideaModel->getAll($per_page, $offset, $filters);
-    $total = $ideaModel->getTotal($filters);
-}
-
-$total_pages = ceil($total / $per_page);
-
-// Domain colors
-$domain_colors = [
-    'Technology' => '#06B6D4',
-    'Business' => '#10B981',
-    'Health' => '#EC4899',
-    'Education' => '#8B5CF6',
-    'Environment' => '#14B8A6',
-    'Other' => '#64748B'
-];
-
-// Initialize recommender for skill matching
-$current_user = isLoggedIn() ? getCurrentUser() : null;
-$recommender_available = $current_user !== null;
+ob_start();
+$user = getCurrentUser();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ideas - IdeaSync</title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
-</head>
-<body>
-    <!-- NAVBAR -->
-    <header class="navbar">
-        <div class="container">
-            <div class="flex-between">
-                <a href="<?php echo BASE_URL; ?>/" class="navbar-brand">IdeaSync</a>
-                <nav class="navbar-menu" id="navMenu">
-                    <a href="<?php echo BASE_URL; ?>/">Home</a>
-                    <a href="<?php echo BASE_URL; ?>/?page=ideas" class="active">Ideas</a>
-                    <?php if (isLoggedIn()): ?>
-                        <a href="<?php echo BASE_URL; ?>/?page=dashboard">Dashboard</a>
-                        <a href="<?php echo BASE_URL; ?>/?page=profile">Profile</a>
-                    <?php endif; ?>
-                </nav>
-                <div class="flex gap-4" style="align-items: center;">
-                    <?php if (isLoggedIn()): ?>
-                        <a href="<?php echo BASE_URL; ?>/?page=ideas&action=create" class="btn btn-primary btn-sm">+ Post Idea</a>
-                        <a href="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=logout" class="btn btn-ghost btn-sm">Logout</a>
-                    <?php else: ?>
-                        <a href="<?php echo BASE_URL; ?>/?page=login" class="btn btn-ghost btn-sm">Sign In</a>
-                        <a href="<?php echo BASE_URL; ?>/?page=register" class="btn btn-primary btn-sm">Join</a>
-                    <?php endif; ?>
-                </div>
-            </div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+        <div class="max-w-2xl">
+            <h1 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight leading-tight">Explore <span class="text-accent-600 italic font-serif">Brilliant</span> Ideas</h1>
+            <p class="text-slate-500 text-lg">Discover projects from campus builders and find your next big collaboration.</p>
         </div>
-    </header>
-
-    <!-- MAIN CONTENT -->
-    <div style="background: var(--color-bg-secondary); min-height: calc(100vh - 80px); padding: 2rem 1rem;">
-        <div class="container" style="max-width: 1280px;">
-
-            <!-- HEADER -->
-            <div style="margin-bottom: 2rem;">
-                <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Ideas Marketplace</h1>
-                <p style="color: var(--color-text-secondary); margin: 0;">Browse <?php echo $total; ?> innovative ideas from your campus</p>
-            </div>
-
-            <!-- SEARCH & FILTERS -->
-            <div class="card" style="margin-bottom: 2rem;">
-                <div class="card-body">
-                    <form method="GET" style="display: grid; gap: 1rem;">
-                        <input type="hidden" name="page" value="ideas">
-
-                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 1rem; align-items: end;">
-                            <!-- Search -->
-                            <div>
-                                <label class="form-label">Search Ideas</label>
-                                <input type="text" name="search" class="form-input" placeholder="Search by title..." value="<?php echo htmlspecialchars($search); ?>" style="margin-bottom: 0;">
-                            </div>
-
-                            <!-- Domain Filter -->
-                            <div>
-                                <label class="form-label">Domain</label>
-                                <select name="domain" class="form-input" style="margin-bottom: 0;">
-                                    <option value="">All Domains</option>
-                                    <option value="Technology" <?php echo $domain === 'Technology' ? 'selected' : ''; ?>>Technology</option>
-                                    <option value="Business" <?php echo $domain === 'Business' ? 'selected' : ''; ?>>Business</option>
-                                    <option value="Health" <?php echo $domain === 'Health' ? 'selected' : ''; ?>>Health</option>
-                                    <option value="Education" <?php echo $domain === 'Education' ? 'selected' : ''; ?>>Education</option>
-                                    <option value="Environment" <?php echo $domain === 'Environment' ? 'selected' : ''; ?>>Environment</option>
-                                </select>
-                            </div>
-
-                            <!-- Status Filter -->
-                            <div>
-                                <label class="form-label">Status</label>
-                                <select name="status" class="form-input" style="margin-bottom: 0;">
-                                    <option value="">All Status</option>
-                                    <option value="open" <?php echo $status === 'open' ? 'selected' : ''; ?>>Open</option>
-                                    <option value="in_progress" <?php echo $status === 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
-                                    <option value="closed" <?php echo $status === 'closed' ? 'selected' : ''; ?>>Closed</option>
-                                </select>
-                            </div>
-
-                            <!-- Sort Filter -->
-                            <div>
-                                <label class="form-label">Sort By</label>
-                                <select name="sort" class="form-input" style="margin-bottom: 0;">
-                                    <option value="newest" <?php echo $sort === 'newest' ? 'selected' : ''; ?>>Newest</option>
-                                    <option value="trending" <?php echo $sort === 'trending' ? 'selected' : ''; ?>>Trending 🔥</option>
-                                    <option value="most-applied" <?php echo $sort === 'most-applied' ? 'selected' : ''; ?>>Most Applied</option>
-                                    <option value="upvotes" <?php echo $sort === 'upvotes' ? 'selected' : ''; ?>>Top Upvoted</option>
-                                </select>
-                            </div>
-
-                            <!-- Search Button -->
-                            <div>
-                                <button type="submit" class="btn btn-primary btn-block" style="margin-bottom: 0;">Search</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- IDEAS GRID -->
-            <?php if (!empty($ideas)): ?>
-                <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                    <?php foreach ($ideas as $idea):
-                        // Calculate skill match if user is logged in
-                        $match_percentage = 0;
-                        if ($recommender_available && isset($idea['skills_needed'])) {
-                            $match_percentage = $recommender->calculateSkillMatch(
-                                $recommender->getUserSkills_Helper($current_user['id']),
-                                json_decode($idea['skills_needed'], true) ?? []
-                            );
-                        }
-
-                        // Check if trending
-                        $is_trending = $recommender->isTrending($idea['id']);
-                    ?>
-                        <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" style="text-decoration: none; color: inherit;">
-                            <div class="card" style="height: 100%; transition: all var(--transition-base); cursor: pointer; position: relative;">
-                                <!-- Trending Badge -->
-                                <?php if ($is_trending): ?>
-                                <div style="position: absolute; top: 0.75rem; right: 0.75rem; background: linear-gradient(135deg, #ff6b6b, #ff8a65); color: white; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; z-index: 10;">
-                                    🔥 Trending
-                                </div>
-                                <?php endif; ?>
-
-                                <div class="card-body">
-                                    <!-- Domain Badge -->
-                                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                                        <span class="badge" style="background-color: <?php echo $domain_colors[$idea['domain']] ?? '#64748B'; ?>25; color: <?php echo $domain_colors[$idea['domain']] ?? '#64748B'; ?>; border: 1px solid <?php echo $domain_colors[$idea['domain']] ?? '#64748B'; ?>33;">
-                                            <?php echo htmlspecialchars($idea['domain']); ?>
-                                        </span>
-                                        <span class="badge badge-gray" style="text-transform: capitalize;"><?php echo htmlspecialchars($idea['status'] ?? 'open'); ?></span>
-
-                                        <!-- Skill Match Badge (showing for logged-in users) -->
-                                        <?php if ($recommender_available && $match_percentage > 0): ?>
-                                        <span class="badge" style="background-color: var(--color-success-100); color: var(--color-success-700); border: 1px solid var(--color-success-300);">
-                                            ✓ <?php echo $match_percentage; ?>% match
-                                        </span>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <!-- Title -->
-                                    <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text-primary); line-height: 1.4;">
-                                        <?php echo htmlspecialchars(substr($idea['title'], 0, 50)); ?>
-                                    </h3>
-
-                                    <!-- Description -->
-                                    <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.5;">
-                                        <?php echo htmlspecialchars(substr($idea['description'], 0, 100)); ?>...
-                                    </p>
-
-                                    <!-- Creator -->
-                                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem;">
-                                        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--color-accent-600); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.75rem;">
-                                            <?php echo strtoupper(substr($idea['creator_name'] ?? 'U', 0, 1)); ?>
-                                        </div>
-                                        <span style="color: var(--color-text-secondary);">By <?php echo htmlspecialchars(substr($idea['creator_name'], 0, 20)); ?></span>
-                                    </div>
-
-                                    <!-- Stats -->
-                                    <div style="display: flex; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-border); color: var(--color-text-secondary); font-size: 0.875rem;">
-                                        <span>⭐ <?php echo $idea['upvotes'] ?? 0; ?> upvotes</span>
-                                        <span>👥 <?php echo $idea['application_count'] ?? 0; ?> applicants</span>
-                                        <span>💬 <?php echo $idea['comment_count'] ?? 0; ?> comments</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-
-                <!-- PAGINATION -->
-                <?php if ($total_pages > 1): ?>
-                    <div class="pagination" style="margin-bottom: 2rem;">
-                        <?php if ($page > 1): ?>
-                            <a href="<?php echo BASE_URL; ?>/?page=ideas&search=<?php echo urlencode($search); ?>&domain=<?php echo urlencode($domain); ?>&status=<?php echo urlencode($status); ?>&p=<?php echo $page - 1; ?>">← Previous</a>
-                        <?php endif; ?>
-
-                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                            <?php if ($i === $page): ?>
-                                <span class="active"><?php echo $i; ?></span>
-                            <?php else: ?>
-                                <a href="<?php echo BASE_URL; ?>/?page=ideas&search=<?php echo urlencode($search); ?>&domain=<?php echo urlencode($domain); ?>&status=<?php echo urlencode($status); ?>&p=<?php echo $i; ?>"><?php echo $i; ?></a>
-                            <?php endif; ?>
-                        <?php endfor; ?>
-
-                        <?php if ($page < $total_pages): ?>
-                            <a href="<?php echo BASE_URL; ?>/?page=ideas&search=<?php echo urlencode($search); ?>&domain=<?php echo urlencode($domain); ?>&status=<?php echo urlencode($status); ?>&p=<?php echo $page + 1; ?>">Next →</a>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-            <?php else: ?>
-                <div class="card" style="text-align: center; padding: 3rem;">
-                    <p style="font-size: 1.5rem; margin-bottom: 1rem;">📭</p>
-                    <h2>No ideas found</h2>
-                    <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">Try adjusting your filters or search terms</p>
-                    <?php if (isLoggedIn()): ?>
-                        <a href="<?php echo BASE_URL; ?>/?page=ideas&action=create" class="btn btn-primary">Post the First Idea</a>
-                    <?php else: ?>
-                        <a href="<?php echo BASE_URL; ?>/?page=register" class="btn btn-primary">Create Account to Post</a>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
+        <div class="flex flex-col sm:flex-row gap-4">
+             <div class="relative group">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent-600 transition-colors"></i>
+                <input type="text" placeholder="Search ideas..." class="pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-accent-600/20 focus:border-accent-600 transition-all text-sm">
+             </div>
+             <a href="<?php echo BASE_URL; ?>/?page=ideas&action=create" class="inline-flex items-center justify-center px-6 py-3 bg-accent-600 text-white font-bold rounded-2xl hover:bg-accent-700 transition-all shadow-xl shadow-accent-500/20">
+                <i class="fas fa-plus mr-2 text-xs"></i> Post Idea
+            </a>
         </div>
     </div>
 
-</body>
-</html>
+    <!-- Category Pills -->
+    <div class="flex flex-wrap gap-2 mb-10 overflow-x-auto pb-2 scrollbar-hide">
+        <button class="px-5 py-2 rounded-xl bg-slate-900 text-white font-bold text-sm shadow-lg shadow-slate-900/20 transition-all">All Projects</button>
+        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">AI / ML</button>
+        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">Fintech</button>
+        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">EdTech</button>
+        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">Sustainability</button>
+        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">IoT</button>
+    </div>
+
+    <!-- Ideas Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <?php for($i=1; $i<=6; $i++): ?>
+        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden flex flex-col">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-accent-50 text-accent-600 flex items-center justify-center font-bold text-xs ring-1 ring-accent-100">
+                             <?php echo ['AI', 'FT', 'ED', 'ST', 'IO', 'WEB'][$i-1]; ?>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Posted by</p>
+                            <p class="text-xs font-bold text-slate-900">Aryan Sharma</p>
+                        </div>
+                    </div>
+                    <button class="h-8 w-8 rounded-full hover:bg-slate-50 text-slate-300 hover:text-red-500 transition-colors">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                </div>
+
+                <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-accent-600 transition-colors line-clamp-1">
+                    <?php echo [
+                        'Campus AI Study Buddy',
+                        'Decentralized Peer-to-Peer Loans',
+                        'Smart Attendance with QR',
+                        'Vertical Farming for Hostels',
+                        'Smart Water Management',
+                        'AI Resume Optimizer'
+                    ][$i-1]; ?>
+                </h3>
+
+                <p class="text-slate-500 text-sm leading-relaxed line-clamp-3 mb-8">
+                    An innovative solution to tackle daily campus problems using modern technology and collaborative building. Join us in shaping the future!
+                </p>
+
+                <div class="flex items-center gap-4 mt-auto">
+                    <div class="flex -space-x-2">
+                        <div class="h-6 w-6 rounded-full bg-slate-200 border-2 border-white ring-1 ring-slate-100 flex items-center justify-center text-[8px] font-bold">AS</div>
+                        <div class="h-6 w-6 rounded-full bg-accent-500 border-2 border-white ring-1 ring-accent-100 flex items-center justify-center text-[8px] text-white font-bold">RK</div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400">3 Open Roles</span>
+                </div>
+            </div>
+
+            <div class="mt-auto px-8 py-5 bg-slate-50/50 border-t border-slate-50 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                        <i class="fas fa-arrow-up text-accent-500"></i> <?php echo rand(20, 200); ?>
+                    </span>
+                    <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                        <i class="fas fa-comment text-slate-400"></i> <?php echo rand(5, 30); ?>
+                    </span>
+                </div>
+                <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $i; ?>" class="text-xs font-extrabold text-accent-600 group-hover:translate-x-1 transition-transform uppercase tracking-wider">
+                    Join Team <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+        <?php endfor; ?>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-16 flex justify-center">
+        <nav class="flex items-center gap-2 p-1 bg-white border border-slate-100 rounded-2xl shadow-sm">
+            <button class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="h-10 w-10 flex items-center justify-center rounded-xl bg-accent-600 text-white font-bold shadow-lg shadow-accent-600/20">1</button>
+            <button class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-600 font-bold">2</button>
+            <button class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-600 font-bold">3</button>
+            <button class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </nav>
+    </div>
+</div>
+
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../../layouts/main.php';
+?>
