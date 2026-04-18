@@ -1,142 +1,104 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - IdeaSync</title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/main.css">
-</head>
-<body>
-    <!-- Navigation Header -->
-    <header>
-        <nav>
-            <a href="<?php echo BASE_URL; ?>/?page=home" class="logo">IdeaSync</a>
-            <ul class="nav-menu">
-                <li><a href="<?php echo BASE_URL; ?>/?page=home">Home</a></li>
-                <li><a href="<?php echo BASE_URL; ?>/?page=ideas">Ideas</a></li>
-                <?php if (isLoggedIn()): ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=dashboard">Dashboard</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=profile" class="active">Profile</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>/src/controllers/auth.php?action=logout">Logout</a></li>
-                <?php else: ?>
-                    <li><a href="<?php echo BASE_URL; ?>/?page=login">Sign In</a></li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-    </header>
+<?php
+ob_start();
+if (!isLoggedIn()) {
+    redirect(BASE_URL . '/?page=login');
+}
+$current_user = getCurrentUser();
+?>
 
-    <?php
-    if (!isLoggedIn()) {
-        redirect(BASE_URL . '/?page=login');
-    }
-
-    $current_user = getCurrentUser();
-    if (!$current_user) {
-        redirect(BASE_URL . '/?page=login');
-    }
-    ?>
-
-    <!-- Profile Container -->
-    <div style="background: #f9fafb; min-height: calc(100vh - 80px); padding: 2rem;">
-        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
-            <!-- Profile Header -->
-            <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 2rem;">
-                <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; flex-shrink: 0;">
-                    👤
-                </div>
-                <div style="flex: 1;">
-                    <h1 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">
-                        <?php echo htmlspecialchars($current_user['name']); ?>
-                    </h1>
-                    <p style="color: #6b7280; margin-bottom: 1rem; display: grid; gap: 0.5rem;">
-                        <span>Roll: <?php echo htmlspecialchars($current_user['roll_number']); ?></span>
-                        <span><?php echo htmlspecialchars($current_user['branch']); ?> • Year <?php echo htmlspecialchars($current_user['year']); ?></span>
-                    </p>
-                </div>
-                <a href="#" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; border-radius: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.25s ease;">
-                    Edit Profile
-                </a>
+<div class="max-w-screen-xl mx-auto px-6 py-12">
+    <!-- Profile Header -->
+    <div class="premium-card p-10 mb-10 flex flex-col md:flex-row items-center gap-10 animate-fade-in">
+        <div class="h-32 w-32 rounded-full bg-white flex items-center justify-center text-black text-4xl font-bold shadow-premium">
+            <?php echo ($current_user ? strtoupper(substr($current_user['name'], 0, 1)) : 'U'); ?>
+        </div>
+        <div class="flex-1 text-center md:text-left">
+            <div class="inline-flex items-center gap-2 px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">
+                Verified Builder
             </div>
+            <h1 class="text-4xl font-bold text-white mb-2"><?php echo htmlspecialchars($current_user['name']); ?></h1>
+            <p class="text-zinc-400 font-medium">
+                <?php echo htmlspecialchars($current_user['roll_number']); ?> • <?php echo htmlspecialchars($current_user['branch']); ?> • Year <?php echo htmlspecialchars($current_user['year']); ?>
+            </p>
+        </div>
+        <a href="#" class="btn-primary !px-6">Edit Profile</a>
+    </div>
 
-            <!-- Profile Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                <!-- Quick Links -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">Quick Links</h2>
-                    <div style="display: grid; gap: 1rem;">
-                        <a href="<?php echo BASE_URL; ?>/?page=profile-applications" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; text-decoration: none; transition: all 0.3s ease;" class="quick-link">
-                            <div style="font-size: 1.5rem;">📝</div>
-                            <div>
-                                <div style="font-weight: 600; color: #111827;">My Applications</div>
-                                <div style="color: #9ca3af; font-size: 0.875rem;">View collaboration requests</div>
-                            </div>
-                        </a>
-                        <a href="<?php echo BASE_URL; ?>/?page=profile-collaborations" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; text-decoration: none; transition: all 0.3s ease;" class="quick-link">
-                            <div style="font-size: 1.5rem;">🤝</div>
-                            <div>
-                                <div style="font-weight: 600; color: #111827;">My Collaborations</div>
-                                <div style="color: #9ca3af; font-size: 0.875rem;">Teams you're working on</div>
-                            </div>
-                        </a>
-                        <a href="<?php echo BASE_URL; ?>/?page=leaderboard" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 0.75rem; text-decoration: none; transition: all 0.3s ease;" class="quick-link">
-                            <div style="font-size: 1.5rem;">🏆</div>
-                            <div>
-                                <div style="font-weight: 600; color: #111827;">Leaderboard</div>
-                                <div style="color: #9ca3af; font-size: 0.875rem;">View top builders</div>
-                            </div>
-                        </a>
-                    </div>
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+        <!-- Main Info -->
+        <div class="md:col-span-8 space-y-10 animate-fade-up animate-delay-100">
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-6">
+                <div class="premium-card p-8 text-center">
+                    <p class="text-3xl font-bold text-white mb-1">12</p>
+                    <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Ideas</p>
                 </div>
-
-                <!-- Skills Section -->
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">Skills</h2>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 99px; font-size: 0.875rem; background: #dbeafe; color: #1e40af; font-weight: 500;">Python</span>
-                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 99px; font-size: 0.875rem; background: #dbeafe; color: #1e40af; font-weight: 500;">JavaScript</span>
-                        <span style="display: inline-block; padding: 0.5rem 1rem; border-radius: 99px; font-size: 0.875rem; background: #dbeafe; color: #1e40af; font-weight: 500;">React</span>
-                    </div>
-                    <p style="color: #9ca3af; font-size: 0.875rem;">Add more skills to your profile</p>
+                <div class="premium-card p-8 text-center">
+                    <p class="text-3xl font-bold text-white mb-1">5</p>
+                    <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Projects</p>
                 </div>
-            </div>
-
-            <!-- GitHub Stats -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">GitHub Stats</h2>
-                    <div style="display: grid; gap: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">
-                            <span style="color: #6b7280;">Repositories</span>
-                            <span style="font-size: 1.5rem; font-weight: 700; color: #111827;">0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">
-                            <span style="color: #6b7280;">Followers</span>
-                            <span style="font-size: 1.5rem; font-weight: 700; color: #111827;">0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="color: #6b7280;">Languages</span>
-                            <span style="font-size: 1.5rem; font-weight: 700; color: #111827;">-</span>
-                        </div>
-                    </div>
-                    <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 1rem;">Link your GitHub to sync stats</p>
+                <div class="premium-card p-8 text-center">
+                    <p class="text-3xl font-bold text-white mb-1">156</p>
+                    <p class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Upvotes</p>
                 </div>
             </div>
 
             <!-- Projects Section -->
-            <div style="background: white; border-radius: 1rem; border: 1px solid #e5e7eb; padding: 2rem;">
-                <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 1.5rem;">Recent Projects</h2>
-                <div style="text-align: center; padding: 3rem; color: #9ca3af;">
-                    <p style="font-size: 1rem;">No projects yet. Start collaborating!</p>
+            <section>
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-xl font-semibold text-white">Recent Projects</h2>
+                    <a href="#" class="text-xs font-medium text-zinc-400 hover:text-white transition-colors">View all</a>
+                </div>
+                <div class="space-y-4">
+                    <div class="premium-card p-6 flex items-center justify-between group">
+                        <div class="flex items-center gap-6">
+                            <div class="h-10 w-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white">
+                                <i class="fas fa-microchip text-xs"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white mb-1">Campus AI Study Buddy</h4>
+                                <p class="text-xs text-zinc-500">March 2024 • Completed</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-zinc-700 group-hover:text-white transition-colors text-xs"></i>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="md:col-span-4 space-y-10 animate-fade-up animate-delay-200">
+            <!-- Skills -->
+            <div class="premium-card p-8">
+                <h3 class="text-sm font-bold text-white mb-8 uppercase tracking-widest">Skills</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 rounded bg-white/5 border border-white/10 text-xs text-zinc-300">Python</span>
+                    <span class="px-3 py-1 rounded bg-white/5 border border-white/10 text-xs text-zinc-300">React</span>
+                    <span class="px-3 py-1 rounded bg-white/5 border border-white/10 text-xs text-zinc-300">Tailwind</span>
+                    <span class="px-3 py-1 rounded bg-white/5 border border-white/10 text-xs text-zinc-300">PHP</span>
+                </div>
+            </div>
+
+            <!-- Social/Links -->
+            <div class="premium-card p-8">
+                <h3 class="text-sm font-bold text-white mb-8 uppercase tracking-widest">Network</h3>
+                <div class="space-y-6">
+                    <a href="#" class="flex items-center gap-4 text-zinc-400 hover:text-white transition-colors">
+                        <i class="fab fa-github"></i>
+                        <span class="text-xs font-medium">github.com/<?php echo strtolower(explode(' ', $current_user['name'])[0]); ?></span>
+                    </a>
+                    <a href="#" class="flex items-center gap-4 text-zinc-400 hover:text-white transition-colors">
+                        <i class="fab fa-twitter"></i>
+                        <span class="text-xs font-medium">twitter.com/<?php echo strtolower(explode(' ', $current_user['name'])[0]); ?></span>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Footer -->
-    <footer style="background: #111827; color: white; padding: 2rem 0; text-align: center; border-top: 1px solid #374151; margin-top: 2rem;">
-        <div style="max-width: 1400px; margin: 0 auto; padding: 0 1.5rem;">
-            <p style="margin: 0; font-size: 0.875rem;">© 2024 IdeaSync - Built for campus collaboration</p>
-        </div>
-    </footer>
-</body>
-</html>
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../layouts/main.php';
+?>

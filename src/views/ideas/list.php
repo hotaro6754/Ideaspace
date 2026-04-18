@@ -3,107 +3,97 @@ ob_start();
 $user = getCurrentUser();
 ?>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+<div class="max-w-screen-xl mx-auto px-6 py-16">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20 animate-fade-in">
         <div class="max-w-2xl">
-            <h1 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight leading-tight">Explore <span class="text-accent-600 italic font-serif">Brilliant</span> Ideas</h1>
-            <p class="text-slate-500 text-lg">Discover projects from campus builders and find your next big collaboration.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Discover Ideas</h1>
+            <p class="text-zinc-400 text-lg">Browse vetted projects from the campus builder network.</p>
         </div>
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex items-center gap-4">
              <div class="relative group">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent-600 transition-colors"></i>
-                <input type="text" placeholder="Search ideas..." class="pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-accent-600/20 focus:border-accent-600 transition-all text-sm">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-white transition-colors text-xs"></i>
+                <input type="text" placeholder="Search..." class="form-input !pl-10 !py-2.5 !w-64">
              </div>
-             <a href="<?php echo BASE_URL; ?>/?page=ideas&action=create" class="inline-flex items-center justify-center px-6 py-3 bg-accent-600 text-white font-bold rounded-2xl hover:bg-accent-700 transition-all shadow-xl shadow-accent-500/20">
-                <i class="fas fa-plus mr-2 text-xs"></i> Post Idea
+             <a href="<?php echo BASE_URL; ?>/?page=ideas&action=create" class="btn-primary">
+                Post Project
             </a>
         </div>
     </div>
 
-    <!-- Category Pills -->
-    <div class="flex flex-wrap gap-2 mb-10 overflow-x-auto pb-2 scrollbar-hide">
-        <button class="px-5 py-2 rounded-xl bg-slate-900 text-white font-bold text-sm shadow-lg shadow-slate-900/20 transition-all">All Projects</button>
-        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">AI / ML</button>
-        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">Fintech</button>
-        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">EdTech</button>
-        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">Sustainability</button>
-        <button class="px-5 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-all">IoT</button>
+    <!-- Category Filter -->
+    <div class="flex items-center gap-3 mb-12 overflow-x-auto pb-4 animate-fade-in animate-delay-100 no-scrollbar">
+        <button class="px-4 py-1.5 rounded-full bg-white text-black text-xs font-semibold whitespace-nowrap">All Projects</button>
+        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs font-semibold hover:bg-white/10 transition-colors whitespace-nowrap">Engineering</button>
+        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs font-semibold hover:bg-white/10 transition-colors whitespace-nowrap">Design</button>
+        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs font-semibold hover:bg-white/10 transition-colors whitespace-nowrap">Business</button>
+        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs font-semibold hover:bg-white/10 transition-colors whitespace-nowrap">Social Impact</button>
     </div>
 
     <!-- Ideas Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-up animate-delay-200">
         <?php for($i=1; $i<=6; $i++): ?>
-        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden flex flex-col">
-            <div class="p-8">
-                <div class="flex items-center justify-between mb-6">
+        <div class="premium-card group">
+            <div class="p-8 h-full flex flex-col">
+                <div class="flex items-start justify-between mb-8">
                     <div class="flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-xl bg-accent-50 text-accent-600 flex items-center justify-center font-bold text-xs ring-1 ring-accent-100">
-                             <?php echo ['AI', 'FT', 'ED', 'ST', 'IO', 'WEB'][$i-1]; ?>
+                        <div class="h-9 w-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-[10px]">
+                             <?php echo ['AI', 'FT', 'ED', 'ST', 'IO', 'WB'][$i-1]; ?>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Posted by</p>
-                            <p class="text-xs font-bold text-slate-900">Aryan Sharma</p>
+                            <p class="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-0.5">Vetted by</p>
+                            <p class="text-xs font-medium text-white">Aryan Sharma</p>
                         </div>
                     </div>
-                    <button class="h-8 w-8 rounded-full hover:bg-slate-50 text-slate-300 hover:text-red-500 transition-colors">
-                        <i class="fas fa-heart"></i>
+                    <button class="text-zinc-500 hover:text-white transition-colors">
+                        <i class="far fa-bookmark text-xs"></i>
                     </button>
                 </div>
 
-                <h3 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-accent-600 transition-colors line-clamp-1">
+                <h3 class="text-xl font-bold text-white mb-4 group-hover:text-zinc-300 transition-colors leading-tight">
                     <?php echo [
                         'Campus AI Study Buddy',
                         'Decentralized Peer-to-Peer Loans',
-                        'Smart Attendance with QR',
-                        'Vertical Farming for Hostels',
+                        'Smart Attendance System',
+                        'Vertical Farming Initiative',
                         'Smart Water Management',
                         'AI Resume Optimizer'
                     ][$i-1]; ?>
                 </h3>
 
-                <p class="text-slate-500 text-sm leading-relaxed line-clamp-3 mb-8">
-                    An innovative solution to tackle daily campus problems using modern technology and collaborative building. Join us in shaping the future!
+                <p class="text-zinc-400 text-sm leading-relaxed line-clamp-2 mb-8">
+                    An innovative approach to solving complex campus challenges using high-end engineering and collaborative design.
                 </p>
 
-                <div class="flex items-center gap-4 mt-auto">
-                    <div class="flex -space-x-2">
-                        <div class="h-6 w-6 rounded-full bg-slate-200 border-2 border-white ring-1 ring-slate-100 flex items-center justify-center text-[8px] font-bold">AS</div>
-                        <div class="h-6 w-6 rounded-full bg-accent-500 border-2 border-white ring-1 ring-accent-100 flex items-center justify-center text-[8px] text-white font-bold">RK</div>
+                <div class="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex -space-x-1.5">
+                            <div class="h-6 w-6 rounded-full border border-[#09090b] bg-zinc-800 flex items-center justify-center text-[8px] font-bold">AS</div>
+                            <div class="h-6 w-6 rounded-full border border-[#09090b] bg-zinc-700 flex items-center justify-center text-[8px] font-bold">RK</div>
+                        </div>
+                        <span class="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">3 Open slots</span>
                     </div>
-                    <span class="text-[10px] font-bold text-slate-400">3 Open Roles</span>
+                    <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $i; ?>" class="text-[10px] font-bold text-white uppercase tracking-widest hover:translate-x-1 transition-transform inline-flex items-center gap-2">
+                        View <i class="fas fa-arrow-right text-[8px]"></i>
+                    </a>
                 </div>
-            </div>
-
-            <div class="mt-auto px-8 py-5 bg-slate-50/50 border-t border-slate-50 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
-                        <i class="fas fa-arrow-up text-accent-500"></i> <?php echo rand(20, 200); ?>
-                    </span>
-                    <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
-                        <i class="fas fa-comment text-slate-400"></i> <?php echo rand(5, 30); ?>
-                    </span>
-                </div>
-                <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $i; ?>" class="text-xs font-extrabold text-accent-600 group-hover:translate-x-1 transition-transform uppercase tracking-wider">
-                    Join Team <i class="fas fa-arrow-right ml-1"></i>
-                </a>
             </div>
         </div>
         <?php endfor; ?>
     </div>
 
     <!-- Pagination -->
-    <div class="mt-16 flex justify-center">
-        <nav class="flex items-center gap-2 p-1 bg-white border border-slate-100 rounded-2xl shadow-sm">
-            <button class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors">
-                <i class="fas fa-chevron-left"></i>
+    <div class="mt-20 flex justify-center animate-fade-in animate-delay-300">
+        <div class="flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-lg">
+            <button class="h-8 w-8 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">
+                <i class="fas fa-chevron-left text-[10px]"></i>
             </button>
-            <button class="h-10 w-10 flex items-center justify-center rounded-xl bg-accent-600 text-white font-bold shadow-lg shadow-accent-600/20">1</button>
-            <button class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-600 font-bold">2</button>
-            <button class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-600 font-bold">3</button>
-            <button class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors">
-                <i class="fas fa-chevron-right"></i>
+            <button class="h-8 w-8 flex items-center justify-center bg-white text-black text-xs font-bold rounded-md">1</button>
+            <button class="h-8 w-8 flex items-center justify-center text-zinc-400 text-xs font-bold hover:bg-white/5 rounded-md transition-colors">2</button>
+            <button class="h-8 w-8 flex items-center justify-center text-zinc-400 text-xs font-bold hover:bg-white/5 rounded-md transition-colors">3</button>
+            <button class="h-8 w-8 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">
+                <i class="fas fa-chevron-right text-[10px]"></i>
             </button>
-        </nav>
+        </div>
     </div>
 </div>
 
