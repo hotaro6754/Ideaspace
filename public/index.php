@@ -23,7 +23,7 @@ header("X-Frame-Options: SAMEORIGIN");
 session_start();
 
 // Define base paths dynamically
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
+$protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
 define('BASE_URL', $protocol . '://' . $host);
 define('ASSETS_URL', BASE_URL . '/assets');
@@ -88,7 +88,7 @@ $routes = [
     'login' => 'src/views/auth/login.php',
     'logout' => 'src/controllers/auth.php',
     'dashboard' => 'src/views/dashboard.php',
-    'ideas' => ($_GET['action'] === 'create') ? 'src/views/ideas/create.php' : 'src/views/ideas/list.php',
+    'ideas' => ($action === 'create') ? 'src/views/ideas/create.php' : 'src/views/ideas/list.php',
     'idea-detail' => 'src/views/ideas/detail.php',
     'profile' => 'src/views/profile.php',
     'profile-applications' => 'src/views/profile/applications.php',
