@@ -7,10 +7,12 @@
 
 @layer base {
   body {
-    @apply bg-background text-foreground transition-colors duration-200 selection:bg-white selection:text-black;
+    @apply bg-background text-foreground transition-colors duration-200 selection:bg-primary selection:text-white;
   }
 }
 
-@layer components {
-  /* High-end overrides if needed */
+@layer utilities {
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
 }

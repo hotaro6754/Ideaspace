@@ -8,31 +8,29 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#09090b', // Zinc-950
-        foreground: '#fafafa',
+        background: '#ffffff', // Clean white background for academic feel
+        foreground: '#0f172a', // Slate-900
         primary: {
-          DEFAULT: '#ffffff',
-          foreground: '#09090b',
+          DEFAULT: '#004a99', // LIET Blue
+          foreground: '#ffffff',
+          light: '#0056b3',
+          dark: '#003366',
         },
         secondary: {
-          DEFAULT: '#27272a', // Zinc-800
-          foreground: '#fafafa',
+          DEFAULT: '#ed1c24', // LIET Red
+          foreground: '#ffffff',
         },
         muted: {
-          DEFAULT: '#27272a',
-          foreground: '#a1a1aa', // Zinc-400
+          DEFAULT: '#f8fafc', // Slate-50
+          foreground: '#64748b', // Slate-500
         },
         accent: {
-          DEFAULT: '#3f3f46', // Zinc-700
-          foreground: '#fafafa',
+          DEFAULT: '#f1f5f9', // Slate-100
+          foreground: '#0f172a',
         },
-        border: 'rgba(255, 255, 255, 0.1)',
-        input: 'rgba(255, 255, 255, 0.05)',
-        ring: '#ffffff',
-        brand: {
-          DEFAULT: '#4cd7f6', // Keep the signature cyan but use it sparingly
-          foreground: '#09090b',
-        }
+        border: '#e2e8f0', // Slate-200
+        input: '#f8fafc',
+        ring: '#004a99',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -45,24 +43,12 @@ module.exports = {
         'sm': '0.25rem',
         'xl': '0.75rem',
         '2xl': '1rem',
-      },
-      animation: {
-        'fade-in': 'fadeIn 0.5s ease-out forwards',
-        'fade-up': 'fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-      },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        fadeUp: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
+        '3xl': '1.5rem',
       },
       boxShadow: {
-        'subtle': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-        'premium': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'premium': '0 10px 15px -3px rgba(0, 74, 153, 0.05), 0 4px 6px -2px rgba(0, 74, 153, 0.02)',
+        'subtle': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
       },
     },
   },
