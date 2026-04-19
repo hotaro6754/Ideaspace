@@ -17,13 +17,19 @@ header("Content-Type: text/html; charset=utf-8", true);
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Define base paths dynamically
 $protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443 ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
-define('BASE_URL', $protocol . '://' . $host);
-define('ASSETS_URL', BASE_URL . '/assets');
+if (!defined('BASE_URL')) {
+    define('BASE_URL', $protocol . '://' . $host);
+}
+if (!defined('ASSETS_URL')) {
+    define('ASSETS_URL', BASE_URL . '/assets');
+}
 
 require_once __DIR__ . '/../src/config/Database.php';
 
@@ -65,7 +71,7 @@ $routes = [
     'home' => 'src/views/home.php',
     'register' => 'src/views/auth/register.php',
     'login' => 'src/views/auth/login.php',
-    'logout' => 'src/controllers/auth.php',
+    'onboarding' => 'src/views/auth/onboarding.php',
     'dashboard' => 'src/views/dashboard.php',
     'ideas' => ($action === 'create') ? 'src/views/ideas/create.php' : 'src/views/ideas/list.php',
     'idea-detail' => 'src/views/ideas/detail.php',
@@ -78,6 +84,17 @@ $routes = [
     'admin' => 'src/views/admin/dashboard.php',
     'admin-users' => 'src/views/admin/users.php',
     'admin-reports' => 'src/views/admin/reports.php',
+    'archive' => 'src/views/archive.php',
+    'proof-wall' => 'src/views/proof-wall.php',
+
+    // Controller Routes
+    'auth-action' => 'src/controllers/auth.php',
+    'ideas-action' => 'src/controllers/ideas.php',
+    'onboarding-action' => 'src/controllers/onboarding.php',
+    'collaboration-action' => 'src/controllers/collaboration.php',
+    'comments-action' => 'src/controllers/comments.php',
+    'events-action' => 'src/controllers/events.php',
+    'logout' => 'src/controllers/auth.php',
 ];
 
 $view_file = __DIR__ . '/../' . ($routes[$page] ?? 'src/views/home.php');

@@ -137,7 +137,7 @@ if (isLoggedIn()) {
 
             <div class="mb-8">
                 <label for="message" class="form-label">Contribution Pitch</label>
-                <textarea id="message" name="message" rows="4" required class="form-textarea" placeholder="e.g. I have experience with PHP and would love to help with the database architecture..."></textarea>
+                <textarea id="message" name="message" rows="4" required class="form-textarea" placeholder="e.g. I have experience with PHP and would love to help with the database structure..."></textarea>
             </div>
 
             <div class="flex items-center justify-end gap-4">

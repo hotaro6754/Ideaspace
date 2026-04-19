@@ -243,7 +243,7 @@ class SearchQuery {
             'statuses' => ['open', 'in_progress', 'completed'],
             'branches' => $this->getUniqueBranches(),
             'years' => [1, 2, 3, 4],
-            'ranks' => ['INITIATE', 'CONTRIBUTOR', 'BUILDER', 'ARCHITECT', 'LEGEND']
+            'ranks' => ['INITIATE', 'CONTRIBUTOR', 'BUILDER', 'LEGEND']
         ];
     }
 
