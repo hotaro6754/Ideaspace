@@ -1,11 +1,12 @@
 :root {
-  /* PRECISION COLOR PALETTE - LINEAR/STRIPE STYLE */
-  --color-bg: #09090b;
-  --color-fg: #fafafa;
-  --color-muted: #a1a1aa;
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-surface: #18181b;
-  --color-brand: #4cd7f6;
+  /* LIET BRAND PALETTE - PRO MAX ACADEMIC STYLE */
+  --color-bg: #ffffff;
+  --color-fg: #0f172a;
+  --color-primary: #004a99;
+  --color-secondary: #ed1c24;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-surface: #f8fafc;
 
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -13,30 +14,38 @@
 
 @layer base {
   body {
-    @apply bg-background text-foreground antialiased selection:bg-white selection:text-black;
+    @apply bg-background text-foreground antialiased selection:bg-primary selection:text-white;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-bold tracking-tight text-white;
+    @apply font-heading font-bold tracking-tight text-foreground;
   }
 }
 
-/* CUSTOM COMPONENTS */
+/* PRO MAX COMPONENTS */
 .premium-card {
-  @apply bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-zinc-900/80;
+  @apply bg-white border border-border rounded-2xl overflow-hidden shadow-subtle transition-all duration-300 hover:shadow-premium hover:border-primary/20;
+}
+
+.glass-card {
+  @apply bg-white/70 backdrop-blur-md border border-white/20 rounded-2xl shadow-glass;
 }
 
 .input-field {
-  @apply w-full bg-white/[0.03] border border-white/10 rounded-md px-4 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all;
+  @apply w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all;
 }
 
-.btn-premium {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-white text-black hover:bg-white/90;
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-200 bg-primary text-white hover:bg-primary-light active:scale-95 shadow-subtle;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-200 bg-secondary text-white hover:opacity-90 active:scale-95 shadow-subtle;
 }
 
 .btn-outline {
-  @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors border border-white/10 bg-transparent hover:bg-white/5;
+  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-200 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 active:scale-95;
 }
 
 /* TYPOGRAPHY UTILS */
@@ -44,9 +53,19 @@
   text-wrap: balance;
 }
 
-/* GRID UTILS */
+/* BENTO GRID */
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s cubic-bezier(0.2, 0, 0, 1) forwards;
 }

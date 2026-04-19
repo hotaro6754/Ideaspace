@@ -1,99 +1,70 @@
 <?php
 ob_start();
-$user = getCurrentUser();
+$conn = getConnection();
+$res = $conn->query("SELECT ideas.*, users.name as creator_name, users.branch as creator_branch
+                     FROM ideas
+                     JOIN users ON ideas.user_id = users.id
+                     ORDER BY ideas.created_at DESC");
+$ideas = [];
+while ($row = $res->fetch_assoc()) {
+    $ideas[] = $row;
+}
 ?>
 
-<div class="max-w-screen-xl mx-auto px-6 py-16">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20 animate-fade-in">
-        <div class="max-w-2xl">
-            <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Discover Ideas</h1>
-            <p class="text-zinc-400 text-lg">Browse vetted projects from the campus builder network.</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16 animate-fade-up">
+        <div>
+            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Active Innovation Tracks</h1>
+            <p class="mt-2 text-slate-500 font-medium">Explore and collaborate on cross-departmental campus projects.</p>
         </div>
-        <div class="flex items-center gap-4">
-             <div class="relative group">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-white transition-colors text-xs"></i>
-                <input type="text" placeholder="Search..." class="form-input !pl-10 !py-2.5 !w-64">
-             </div>
-             <a href="<?php echo BASE_URL; ?>/?page=ideas&action=create" class="btn-primary">
-                Post Project
+        <?php if (isLoggedIn()): ?>
+            <a href="<?php echo BASE_URL; ?>/?page=ideas&action=create" class="btn-primary">
+                <i class="fas fa-plus mr-2"></i> Post New Idea
             </a>
-        </div>
+        <?php endif; ?>
     </div>
 
-    <!-- Category Filter -->
-    <div class="flex items-center gap-3 mb-12 overflow-x-auto pb-4 animate-fade-in animate-delay-100 no-scrollbar">
-        <button class="px-4 py-1.5 rounded-full bg-white text-black text-xs font-semibold whitespace-nowrap">All Projects</button>
-        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs font-semibold hover:bg-white/10 transition-colors whitespace-nowrap">Engineering</button>
-        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs font-semibold hover:bg-white/10 transition-colors whitespace-nowrap">Design</button>
-        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs font-semibold hover:bg-white/10 transition-colors whitespace-nowrap">Business</button>
-        <button class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-xs font-semibold hover:bg-white/10 transition-colors whitespace-nowrap">Social Impact</button>
-    </div>
-
-    <!-- Ideas Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-up animate-delay-200">
-        <?php for($i=1; $i<=6; $i++): ?>
-        <div class="premium-card group">
-            <div class="p-8 h-full flex flex-col">
-                <div class="flex items-start justify-between mb-8">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-[10px]">
-                             <?php echo ['AI', 'FT', 'ED', 'ST', 'IO', 'WB'][$i-1]; ?>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-0.5">Vetted by</p>
-                            <p class="text-xs font-medium text-white">Aryan Sharma</p>
-                        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-up">
+        <?php foreach($ideas as $idea): ?>
+        <div class="premium-card p-8 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <span class="badge badge-primary"><?php echo sanitize($idea['domain']); ?></span>
+                    <div class="flex items-center gap-1.5 text-slate-400">
+                        <i class="fas fa-arrow-up text-[10px]"></i>
+                        <span class="text-xs font-bold"><?php echo $idea['upvotes']; ?></span>
                     </div>
-                    <button class="text-zinc-500 hover:text-white transition-colors">
-                        <i class="far fa-bookmark text-xs"></i>
-                    </button>
                 </div>
-
-                <h3 class="text-xl font-bold text-white mb-4 group-hover:text-zinc-300 transition-colors leading-tight">
-                    <?php echo [
-                        'Campus AI Study Buddy',
-                        'Decentralized Peer-to-Peer Loans',
-                        'Smart Attendance System',
-                        'Vertical Farming Initiative',
-                        'Smart Water Management',
-                        'AI Resume Optimizer'
-                    ][$i-1]; ?>
-                </h3>
-
-                <p class="text-zinc-400 text-sm leading-relaxed line-clamp-2 mb-8">
-                    An innovative approach to solving complex campus challenges using high-end engineering and collaborative design.
+                <h3 class="text-xl font-bold text-slate-900 mb-4"><?php echo sanitize($idea['title']); ?></h3>
+                <p class="text-sm text-slate-500 font-medium line-clamp-3 mb-6 leading-relaxed">
+                    <?php echo sanitize($idea['description']); ?>
                 </p>
 
-                <div class="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="flex -space-x-1.5">
-                            <div class="h-6 w-6 rounded-full border border-[#09090b] bg-zinc-800 flex items-center justify-center text-[8px] font-bold">AS</div>
-                            <div class="h-6 w-6 rounded-full border border-[#09090b] bg-zinc-700 flex items-center justify-center text-[8px] font-bold">RK</div>
-                        </div>
-                        <span class="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">3 Open slots</span>
+                <?php if ($idea['skills_needed']): ?>
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <?php foreach(json_decode($idea['skills_needed']) as $skill): ?>
+                            <span class="text-[10px] font-bold px-2 py-1 bg-slate-50 text-slate-400 rounded uppercase border border-slate-100"><?php echo sanitize($skill); ?></span>
+                        <?php endforeach; ?>
                     </div>
-                    <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $i; ?>" class="text-[10px] font-bold text-white uppercase tracking-widest hover:translate-x-1 transition-transform inline-flex items-center gap-2">
-                        View <i class="fas fa-arrow-right text-[8px]"></i>
-                    </a>
+                <?php endif; ?>
+            </div>
+
+            <div class="pt-6 border-t border-slate-50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-8 rounded-full bg-primary/5 flex items-center justify-center text-primary text-[10px] font-bold">
+                        <?php echo strtoupper(substr($idea['creator_name'], 0, 1)); ?>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-900"><?php echo sanitize($idea['creator_name']); ?></p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight"><?php echo sanitize($idea['creator_branch']); ?> Dept</p>
+                    </div>
                 </div>
+                <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" class="text-[10px] font-black uppercase tracking-widest text-primary hover:translate-x-1 transition-all">
+                    View Details <i class="fas fa-chevron-right ml-1"></i>
+                </a>
             </div>
         </div>
-        <?php endfor; ?>
-    </div>
-
-    <!-- Pagination -->
-    <div class="mt-20 flex justify-center animate-fade-in animate-delay-300">
-        <div class="flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-lg">
-            <button class="h-8 w-8 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">
-                <i class="fas fa-chevron-left text-[10px]"></i>
-            </button>
-            <button class="h-8 w-8 flex items-center justify-center bg-white text-black text-xs font-bold rounded-md">1</button>
-            <button class="h-8 w-8 flex items-center justify-center text-zinc-400 text-xs font-bold hover:bg-white/5 rounded-md transition-colors">2</button>
-            <button class="h-8 w-8 flex items-center justify-center text-zinc-400 text-xs font-bold hover:bg-white/5 rounded-md transition-colors">3</button>
-            <button class="h-8 w-8 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">
-                <i class="fas fa-chevron-right text-[10px]"></i>
-            </button>
-        </div>
+        <?php endforeach; ?>
     </div>
 </div>
 

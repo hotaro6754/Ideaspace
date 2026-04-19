@@ -1,93 +1,143 @@
 <?php
 /**
  * IdeaSync Database Configuration
- * Handles all database connections and queries
- * Uses environment variables for credentials (see .env.example)
+ * Universal Data Layer for IdeaSync - Optimized for Demo Speed
  */
 
 require_once __DIR__ . '/Env.php';
 
 class Database {
-    private $host;
-    private $db_name;
-    private $user;
-    private $password;
-    private $port;
-    private $conn;
-
-    public function __construct() {
-        // Load configuration from environment variables with fallbacks
-        $this->host = Env::get('DB_HOST', 'localhost');
-        $this->db_name = Env::get('DB_NAME', 'ideaspace_db');
-        $this->user = Env::get('DB_USER', 'root');
-        $this->password = Env::get('DB_PASSWORD', '');
-        $this->port = (int)Env::get('DB_PORT', 3306);
-    }
-
     public function connect() {
-        $this->conn = null;
-
         try {
-            // Use 127.0.0.1 instead of localhost if localhost is specified
-            // This forces TCP/IP connection instead of socket, avoiding permission issues
-            $connect_host = ($this->host === 'localhost') ? '127.0.0.1' : $this->host;
-
-            // Suppress warnings to handle errors gracefully
-            $this->conn = @new mysqli(
-                $connect_host,
-                $this->user,
-                $this->password,
-                $this->db_name,
-                $this->port
-            );
-
-            if ($this->conn->connect_error) {
-                // Log error without exposing details to user
-                error_log("Database Connection Failed: " . $this->conn->connect_error);
-                throw new Exception("Database connection failed");
-            }
-
-            // Set charset to utf8mb4 for better emoji/unicode support
-            $this->conn->set_charset("utf8mb4");
-
-            // Enable strict mode for better error handling
-            $this->conn->query("SET SESSION sql_mode = 'STRICT_TRANS_TABLES'");
-
-            return $this->conn;
-        } catch (Exception $e) {
-            // Log error but don't expose technical details
+            $db_path = dirname(__DIR__, 2) . '/database.sqlite';
+            $pdo = new PDO("sqlite:" . $db_path, null, null, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+            $pdo->exec("PRAGMA foreign_keys = ON;");
+            $pdo->exec("PRAGMA journal_mode = WAL;");
+            return $pdo;
+        } catch (PDOException $e) {
             error_log("Database Error: " . $e->getMessage());
-
-            // Don't die - just log and return null connection
-            // This allows the app to continue and show graceful error to user
             return null;
         }
     }
-
-    public function getConnection() {
-        if ($this->conn === null) {
-            $this->connect();
-        }
-        return $this->conn;
-    }
-
-    public function closeConnection() {
-        if ($this->conn) {
-            $this->conn->close();
-        }
-    }
 }
 
-// Initialize database connection (lazy loading - only connect when needed)
-$db = new Database();
-$conn = null; // Don't connect immediately - wait until it's actually used
+class MySQLiToPDOWrapper {
+    private $pdo;
+    public $insert_id;
+    public $error;
 
-// Set global connection helper
+    public function __construct($pdo) {
+        $this->pdo = $pdo;
+    }
+
+    public function prepare($query) {
+        try {
+            $stmt = $this->pdo->prepare($query);
+            return new MySQLiStmtWrapper($stmt, $this->pdo, $this);
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+            return false;
+        }
+    }
+
+    public function query($query) {
+        try {
+            $stmt = $this->pdo->query($query);
+            return new MySQLiResultWrapper($stmt);
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+            return false;
+        }
+    }
+
+    public function set_charset($charset) { return true; }
+    public function close() { return true; }
+}
+
+class MySQLiStmtWrapper {
+    private $stmt;
+    private $pdo;
+    private $parent;
+    private $params = [];
+
+    public function __construct($stmt, $pdo, $parent) {
+        $this->stmt = $stmt;
+        $this->pdo = $pdo;
+        $this->parent = $parent;
+    }
+
+    public function bind_param($types, ...$vars) {
+        $this->params = $vars;
+        return true;
+    }
+
+    public function execute($params = null) {
+        try {
+            if ($params !== null) {
+                $this->params = $params;
+            }
+            $success = $this->stmt->execute($this->params);
+            if ($success) {
+                $this->parent->insert_id = $this->pdo->lastInsertId();
+            }
+            return $success;
+        } catch (Exception $e) {
+            $this->parent->error = $e->getMessage();
+            return false;
+        }
+    }
+
+    public function get_result() {
+        return new MySQLiResultWrapper($this->stmt);
+    }
+
+    public function close() { return true; }
+}
+
+class MySQLiResultWrapper {
+    private $stmt;
+    public $num_rows;
+    private $data = [];
+    private $index = 0;
+
+    public function __construct($stmt) {
+        $this->stmt = $stmt;
+        if ($stmt) {
+            $this->data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->num_rows = count($this->data);
+            $this->index = 0;
+        }
+    }
+
+    public function fetch_assoc() {
+        if (isset($this->data[$this->index])) {
+            return $this->data[$this->index++];
+        }
+        return null;
+    }
+
+    public function fetchColumn() {
+        if (isset($this->data[0])) {
+            return array_values($this->data[0])[0];
+        }
+        return null;
+    }
+
+    public function free() { return true; }
+}
+
 function getConnection() {
-    global $db, $conn;
-    if ($conn === null) {
-        $conn = $db->connect();
+    static $wrapper = null;
+    if ($wrapper === null) {
+        $db = new Database();
+        $pdo = $db->connect();
+        if ($pdo) {
+            $wrapper = new MySQLiToPDOWrapper($pdo);
+        }
     }
-    return $conn; // May be null if connection failed
+    return $wrapper;
 }
-?>
