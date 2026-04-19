@@ -71,12 +71,18 @@ $interests = json_decode($user['interests'] ?? '[]', true);
                                 </div>
                                 <div>
                                     <h4 class="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors"><?php echo sanitize($idea['title']); ?></h4>
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1"><?php echo sanitize($idea['domain']); ?> • <?php echo sanitize($idea['status']); ?></p>
+                                    <div class="flex items-center gap-3 mt-1">
+                                         <span class="text-xs font-bold text-slate-400 uppercase tracking-widest"><?php echo sanitize($idea['domain']); ?></span>
+                                         <span class="badge <?php echo ($idea['status'] === 'completed') ? 'badge-success' : 'badge-primary'; ?> !text-[8px] !py-0.5"><?php echo strtoupper(sanitize($idea['status'])); ?></span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-4">
+                                <a href="<?php echo BASE_URL; ?>/?page=idea-manage&id=<?php echo $idea['id']; ?>" class="btn-outline !py-2 !px-4 !text-[10px] font-black uppercase tracking-widest">
+                                    Manage
+                                </a>
                                 <a href="<?php echo BASE_URL; ?>/?page=idea-detail&id=<?php echo $idea['id']; ?>" class="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-primary group-hover:text-white transition-all">
-                                    <i class="fas fa-chevron-right"></i>
+                                    <i class="fas fa-eye"></i>
                                 </a>
                             </div>
                         </div>

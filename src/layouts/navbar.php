@@ -16,6 +16,8 @@ $current_user = getCurrentUser();
 
             <div class="hidden md:flex items-center gap-1">
                 <a href="<?php echo BASE_URL; ?>/?page=ideas" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors">Forge</a>
+                <a href="<?php echo BASE_URL; ?>/?page=proof-wall" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors">Proof Wall</a>
+                <a href="<?php echo BASE_URL; ?>/?page=archive" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors">Archive</a>
                 <?php if ($current_user): ?>
                     <a href="<?php echo BASE_URL; ?>/?page=dashboard" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors">My Feed</a>
                     <a href="<?php echo BASE_URL; ?>/?page=leaderboard" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors">Talent Board</a>
@@ -25,6 +27,12 @@ $current_user = getCurrentUser();
 
         <div class="flex items-center gap-3">
             <?php if ($current_user): ?>
+                <div class="flex items-center gap-2 mr-4 border-r border-slate-100 pr-4">
+                     <a href="<?php echo BASE_URL; ?>/?page=notifications" class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-primary transition-all relative">
+                        <i class="far fa-bell text-lg"></i>
+                     </a>
+                </div>
+
                 <div class="relative">
                     <button id="userAvatarBtn" class="flex items-center gap-3 focus:outline-none p-1 rounded-full hover:bg-slate-50 transition-colors">
                         <div class="h-8 w-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-primary font-bold text-xs overflow-hidden shadow-inner">

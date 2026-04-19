@@ -49,4 +49,27 @@ if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     exit();
 }
+
+if ($action === 'update_status' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: " . BASE_URL . "/?page=login");
+        exit();
+    }
+
+    $idea_id = (int)$_POST['idea_id'];
+    $status = $_POST['status'];
+    $solution_url = $_POST['solution_url'] ?? '';
+    $lessons_learned = $_POST['lessons_learned'] ?? '';
+
+    $stmt = $db->prepare("UPDATE ideas SET status = ?, solution_url = ?, lessons_learned = ? WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("sssii", $status, $solution_url, $lessons_learned, $idea_id, $_SESSION['user_id']);
+
+    if ($stmt->execute()) {
+        $_SESSION['message'] = "Track status updated!";
+    } else {
+        $_SESSION['error'] = "Failed to update status.";
+    }
+    header("Location: " . BASE_URL . "/?page=idea-manage&id=" . $idea_id);
+    exit();
+}
 ?>

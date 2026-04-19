@@ -75,6 +75,7 @@ $routes = [
     'dashboard' => 'src/views/dashboard.php',
     'ideas' => ($action === 'create') ? 'src/views/ideas/create.php' : 'src/views/ideas/list.php',
     'idea-detail' => 'src/views/ideas/detail.php',
+    'idea-manage' => 'src/views/ideas/manage.php',
     'profile' => 'src/views/profile.php',
     'profile-applications' => 'src/views/profile/applications.php',
     'profile-collaborations' => 'src/views/profile/collaborations.php',
