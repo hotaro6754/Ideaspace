@@ -1,12 +1,24 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/Database.php';
 
 $db = getConnection();
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
+// Define BASE_URL if not already defined
+if (!defined('BASE_URL')) {
+    $protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443 ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
+    define('BASE_URL', $protocol . '://' . $host);
+}
+
 if ($action === 'apply' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_SESSION['user_id'])) redirect(BASE_URL . '/?page=login');
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: " . BASE_URL . "/?page=login");
+        exit();
+    }
 
     $idea_id = (int)$_POST['idea_id'];
     $message = trim($_POST['message'] ?? '');
@@ -15,10 +27,13 @@ if ($action === 'apply' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $app_text = $_SESSION["name"] . " applied to your track: " . $idea_id;
     $idea_res = $db->query("SELECT user_id FROM ideas WHERE id = $idea_id");
-    $idea_owner = $idea_res->fetch_assoc()["user_id"];
+    $idea_owner_data = $idea_res->fetch_assoc();
+    $idea_owner = $idea_owner_data["user_id"];
+
     $n_stmt = $db->prepare("INSERT INTO notifications (recipient_user_id, actor_user_id, notification_type, related_idea_id, message) VALUES (?, ?, 'application', ?, ?)");
     $n_stmt->bind_param("iiis", $idea_owner, $_SESSION["user_id"], $idea_id, $app_text);
     $n_stmt->execute();
+
     $stmt->bind_param("iis", $idea_id, $_SESSION['user_id'], $message);
 
     if ($stmt->execute()) {
@@ -30,10 +45,12 @@ if ($action === 'apply' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: " . BASE_URL . "/?page=idea-detail&id=" . $idea_id);
     exit();
 }
-?>
 
 if ($action === 'respond' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_SESSION['user_id'])) redirect(BASE_URL . '/?page=login');
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: " . BASE_URL . "/?page=login");
+        exit();
+    }
 
     $app_id = (int)$_POST['app_id'];
     $status = $_POST['status']; // accepted or rejected
@@ -64,3 +81,4 @@ if ($action === 'respond' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: " . BASE_URL . "/?page=profile-applications");
     exit();
 }
+?>

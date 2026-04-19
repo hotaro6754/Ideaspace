@@ -24,7 +24,7 @@ class User {
 
         $password_hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 
-        // Auto-verifying for DEMO purposes as requested "Everything Working" immediately
+        // Auto-verifying for DEMO
         $query = "INSERT INTO users (roll_number, name, email, password, branch, year, user_type, email_verified)
                   VALUES (?, ?, ?, ?, ?, ?, 'builder', 1)";
 
@@ -36,15 +36,12 @@ class User {
         if ($stmt->execute()) {
             return ['success' => true, 'user_id' => $this->conn->insert_id];
         } else {
-            return ['success' => false, 'error' => 'Registration failed'];
+            return ['success' => false, 'error' => 'Registration failed: ' . $this->conn->error];
         }
     }
 
     public function login($identifier, $password) {
-        $query = "SELECT id, roll_number, name, email, password, user_type, profile_pic,
-                         email_verified, is_active, is_suspended
-                  FROM users
-                  WHERE roll_number = ? OR email = ?";
+        $query = "SELECT * FROM users WHERE roll_number = ? OR email = ?";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("ss", $identifier, $identifier);
@@ -63,13 +60,17 @@ class User {
     }
 
     private function rollNumberExists($roll_number) {
-        $res = $this->conn->query("SELECT id FROM users WHERE roll_number = '$roll_number'");
-        return ($res && $res->fetch_assoc());
+        $stmt = $this->conn->prepare("SELECT id FROM users WHERE roll_number = ?");
+        $stmt->bind_param("s", $roll_number);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
     }
 
     private function emailExists($email) {
-        $res = $this->conn->query("SELECT id FROM users WHERE email = '$email'");
-        return ($res && $res->fetch_assoc());
+        $stmt = $this->conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
     }
 
     public function getById($id) {

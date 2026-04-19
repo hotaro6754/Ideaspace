@@ -11,7 +11,7 @@ ob_start();
             </div>
             <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Access Your Portal</h2>
             <p class="mt-4 text-slate-500 font-medium">
-                New to the innovation cohort?
+                New to the IdeaSync platform?
                 <a href="<?php echo BASE_URL; ?>/?page=register" class="text-primary font-bold hover:underline underline-offset-4 ml-1">Create an account</a>
             </p>
         </div>
