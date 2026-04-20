@@ -32,6 +32,7 @@ if (!defined('ASSETS_URL')) {
 }
 
 require_once __DIR__ . '/../src/config/Database.php';
+require_once __DIR__ . '/../src/helpers/AssetHelper.php';
 
 function sanitize($data) {
     return htmlspecialchars($data ?? '', ENT_QUOTES, 'UTF-8');
@@ -71,6 +72,8 @@ $routes = [
     'home' => 'src/views/home.php',
     'register' => 'src/views/auth/register.php',
     'login' => 'src/views/auth/login.php',
+    'forgot-password' => 'src/views/auth/forgot-password.php',
+    'reset-password' => 'src/views/auth/reset-password.php',
     'onboarding' => 'src/views/auth/onboarding.php',
     'dashboard' => 'src/views/dashboard.php',
     'ideas' => ($action === 'create') ? 'src/views/ideas/create.php' : 'src/views/ideas/list.php',
@@ -78,6 +81,8 @@ $routes = [
     'profile' => 'src/views/profile.php',
     'profile-applications' => 'src/views/profile/applications.php',
     'profile-collaborations' => 'src/views/profile/collaborations.php',
+    'profile-edit' => 'src/views/profile/edit.php',
+    'settings' => 'src/views/settings.php',
     'leaderboard' => 'src/views/leaderboard.php',
     'messages' => 'src/views/messages.php',
     'notifications' => 'src/views/notifications.php',
@@ -86,6 +91,8 @@ $routes = [
     'admin-reports' => 'src/views/admin/reports.php',
     'archive' => 'src/views/archive.php',
     'proof-wall' => 'src/views/proof-wall.php',
+    'channel' => 'src/views/channel.php',
+    'events' => 'src/views/events.php',
 
     // Controller Routes
     'auth-action' => 'src/controllers/auth.php',

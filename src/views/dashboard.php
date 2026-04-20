@@ -6,6 +6,10 @@ if (!$user) redirect(BASE_URL . '/?page=login');
 $db = getConnection();
 $user_id = $user['id'];
 $interests = json_decode($user['interests'] ?? '[]', true);
+$activity_stmt = $db->prepare("SELECT * FROM activity_logs WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
+$activity_stmt->bind_param("i", $user_id);
+$activity_stmt->execute();
+$recent_activities = $activity_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Fetch personalized ideas based on interests
 $interest_placeholders = empty($interests) ? "''" : implode(',', array_fill(0, count($interests), '?'));
@@ -123,7 +127,7 @@ while ($row = $personalized_ideas->fetch_assoc()) {
                  <div class="grid grid-cols-2 gap-4 relative z-10">
                     <div class="p-4 rounded-xl bg-white/5 border border-white/10">
                         <p class="text-[10px] font-black uppercase text-white/40 tracking-widest mb-1">Impact</p>
-                        <p class="text-xl font-bold">120</p>
+                        <p class="text-xl font-bold"><?php echo $user['points'] ?? 0; ?></p>
                     </div>
                     <div class="p-4 rounded-xl bg-white/5 border border-white/10">
                         <p class="text-[10px] font-black uppercase text-white/40 tracking-widest mb-1">Streak</p>
@@ -135,6 +139,20 @@ while ($row = $personalized_ideas->fetch_assoc()) {
                 </a>
             </div>
 
+<section class="mb-12">
+                <h3 class="text-sm font-black text-slate-900 mb-6 uppercase tracking-[0.2em]">Your Activity</h3>
+                <div class="space-y-3">
+                    <?php foreach($recent_activities as $act): ?>
+                    <div class="p-3 rounded-xl bg-white border border-slate-50 shadow-subtle">
+                        <p class="text-[11px] font-bold text-slate-700"><?php echo ucfirst($act['action']); ?> <?php echo $act['entity_type']; ?></p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase"><?php echo date('M d, H:i', strtotime($act['created_at'])); ?></p>
+                    </div>
+                    <?php endforeach; ?>
+                    <?php if (empty($recent_activities)): ?>
+                        <p class="text-xs text-slate-400 italic">No activity recorded yet.</p>
+                    <?php endif; ?>
+                </div>
+            </section>
             <!-- Suggested Builders -->
             <section>
                 <h3 class="text-sm font-black text-slate-900 mb-6 uppercase tracking-[0.2em]">Top Collaborators</h3>

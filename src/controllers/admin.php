@@ -477,3 +477,24 @@ if ($action === 'getUsers') {
 }
 exit();
 ?>
+
+if ($action === 'report' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_SESSION['user_id'])) exit('Auth required');
+    if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) exit('Invalid token');
+
+    $res = $admin->contentReport->create(
+        $_SESSION['user_id'],
+        $_POST['content_type'],
+        (int)$_POST['content_id'],
+        $_POST['reason'],
+        $_POST['description'] ?? null
+    );
+
+    if ($res['success']) {
+        $_SESSION['message'] = "Thank you for your report. Admins will review it shortly.";
+    } else {
+        $_SESSION['error'] = $res['error'];
+    }
+    header("Location: " . BASE_URL . "/?page=" . $_POST['content_type'] . "-detail&id=" . $_POST['content_id']);
+    exit();
+}

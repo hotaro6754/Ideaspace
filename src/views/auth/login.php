@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../helpers/Security.php';
+require_once __DIR__ . '/../../services/GitHubAPI.php';
 ob_start();
 ?>
 
@@ -49,6 +50,9 @@ ob_start();
                 </div>
 
                 <div class="pt-2">
+                    <a href="<?php echo (new GitHubAPI())->getAuthUrl(); ?>" class="btn-outline w-full py-4 text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-3 mb-4">
+                        <i class="fab fa-github text-xl"></i> Continue with GitHub
+                    </a>
                     <button type="submit" class="btn-primary w-full py-4 text-base font-bold uppercase tracking-widest">
                         Verify & Enter
                     </button>

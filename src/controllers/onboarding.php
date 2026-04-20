@@ -5,7 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../helpers/Security.php';
 
-// Define BASE_URL if not already defined
 if (!defined('BASE_URL')) {
     $protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443 ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
@@ -18,8 +17,16 @@ if (!$user_id) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $role = $_POST['role'] ?? '';
+$action = $_GET['action'] ?? '';
+
+if ($action === 'complete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $_SESSION['error'] = "Invalid security token.";
+        header("Location: " . BASE_URL . "/?page=onboarding");
+        exit();
+    }
+
+    $role = $_POST['academic_role'] ?? '';
     $interests = $_POST['interests'] ?? [];
 
     if (empty($role) || empty($interests)) {
