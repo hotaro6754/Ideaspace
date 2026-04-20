@@ -1,7 +1,10 @@
 <?php
+require_once __DIR__ . '/../../models/IdeaComment.php';
+require_once __DIR__ . '/../../helpers/Security.php';
 ob_start();
 $idea_id = (int)($_GET['id'] ?? 0);
 $conn = getConnection();
+$commentModel = new IdeaComment($conn);
 
 $stmt = $conn->prepare("SELECT ideas.*, users.name as creator_name, users.branch as creator_branch, users.roll_number as creator_roll
                         FROM ideas
@@ -20,6 +23,8 @@ if (isLoggedIn()) {
     $check->execute();
     if ($check->get_result()->fetch_assoc()) $has_applied = true;
 }
+
+$comments = $commentModel->getForIdea($idea_id);
 ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -31,13 +36,18 @@ if (isLoggedIn()) {
             <div class="flex-1">
                 <div class="flex items-center gap-3 mb-6">
                     <span class="badge badge-primary"><?php echo sanitize($idea['domain']); ?></span>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Track #<?php echo $idea['id']; ?> <form action="<?php echo BASE_URL; ?>/src/controllers/comments.php?action=upvote" method="POST" class="inline ml-4"><input type="hidden" name="idea_id" value="<?php echo $idea['id']; ?>"><button type="submit" class="hover:text-primary transition-colors cursor-pointer"><i class="fas fa-arrow-up text-[10px] mr-1"></i> Upvote</button></form></span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Track #<?php echo $idea['id']; ?>
+                        <form action="<?php echo BASE_URL; ?>/src/controllers/comments.php?action=upvote" method="POST" class="inline ml-4">
+                            <input type="hidden" name="idea_id" value="<?php echo $idea['id']; ?>">
+                            <button type="submit" class="hover:text-primary transition-colors cursor-pointer"><i class="fas fa-arrow-up text-[10px] mr-1"></i> Upvote (<?php echo $idea['upvotes']; ?>)</button>
+                        </form>
+                    </span>
                 </div>
                 <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4"><?php echo sanitize($idea['title']); ?></h1>
                 <div class="flex items-center gap-4 text-slate-500 font-medium">
                     <div class="flex items-center gap-2">
                         <div class="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-bold text-primary">
-                            <?php echo strtoupper(substr($idea['creator_name'], 0, 1)); ?>
+                            <?php echo strtoupper(substr($idea['creator_name'] ?? 'U', 0, 1)); ?>
                         </div>
                         <span class="text-sm">Initiated by <span class="text-slate-900 font-bold"><?php echo sanitize($idea['creator_name']); ?></span></span>
                     </div>
@@ -71,7 +81,7 @@ if (isLoggedIn()) {
         <div class="lg:col-span-2 space-y-12">
             <section class="premium-card p-10 bg-white">
                 <h2 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-8 border-b border-slate-50 pb-4">Vision & Requirements</h2>
-                <div class="prose prose-slate max-w-none text-slate-600 font-medium leading-relaxed">
+                <div class="prose prose-slate max-w-none text-slate-600 font-medium leading-relaxed mb-10">
                     <?php echo nl2br(sanitize($idea['description'])); ?>
                 </div>
 
@@ -86,6 +96,49 @@ if (isLoggedIn()) {
                     </div>
                 <?php endif; ?>
             </section>
+
+            <!-- Comments Section -->
+            <section class="space-y-8">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-slate-900">Discussion</h2>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest"><?php echo count($comments); ?> Comments</span>
+                </div>
+
+                <?php if (isLoggedIn()): ?>
+                    <div class="premium-card p-6 bg-white">
+                        <form action="<?php echo BASE_URL; ?>/src/controllers/comments.php?action=create" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?php echo Security::getCsrfToken(); ?>">
+                            <input type="hidden" name="idea_id" value="<?php echo $idea_id; ?>">
+                            <textarea name="content" required class="form-input h-24 mb-4" placeholder="Add your thoughts or questions..."></textarea>
+                            <div class="flex justify-end">
+                                <button type="submit" class="btn-primary !py-2 !text-xs">Post Comment</button>
+                            </div>
+                        </form>
+                    </div>
+                <?php endif; ?>
+
+                <div class="space-y-6">
+                    <?php foreach($comments as $comment): ?>
+                        <div class="premium-card p-6 bg-white border border-slate-50">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                                    <?php echo strtoupper(substr($comment['name'], 0, 1)); ?>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-900"><?php echo sanitize($comment['name']); ?></p>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest"><?php echo date('M d, H:i', strtotime($comment['created_at'])); ?></p>
+                                </div>
+                            </div>
+                            <div class="text-sm text-slate-600 font-medium leading-relaxed">
+                                <?php echo nl2br(sanitize($comment['content'])); ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    <?php if (empty($comments)): ?>
+                        <div class="text-center py-12 opacity-40 italic text-sm">No comments yet. Start the conversation!</div>
+                    <?php endif; ?>
+                </div>
+            </section>
         </div>
 
         <div class="space-y-8">
@@ -94,7 +147,7 @@ if (isLoggedIn()) {
                 <div class="space-y-4">
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-slate-500 font-medium">Lifecycle</span>
-                        <span class="text-primary font-bold uppercase text-[10px] bg-primary/10 px-2 py-0.5 rounded">Discovery</span>
+                        <span class="text-primary font-bold uppercase text-[10px] bg-primary/10 px-2 py-0.5 rounded"><?php echo strtoupper($idea['status']); ?></span>
                     </div>
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-slate-500 font-medium">Upvotes</span>
@@ -111,7 +164,7 @@ if (isLoggedIn()) {
                 <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest mb-6">Lead Builder</h3>
                 <div class="flex items-center gap-4 mb-6">
                     <div class="h-12 w-12 rounded-2xl bg-primary text-white flex items-center justify-center font-bold">
-                        <?php echo strtoupper(substr($idea['creator_name'], 0, 1)); ?>
+                        <?php echo strtoupper(substr($idea['creator_name'] ?? 'U', 0, 1)); ?>
                     </div>
                     <div>
                         <p class="text-sm font-bold text-slate-900"><?php echo sanitize($idea['creator_name']); ?></p>
@@ -120,6 +173,10 @@ if (isLoggedIn()) {
                 </div>
                 <a href="<?php echo BASE_URL; ?>/?page=messages&to=<?php echo $idea['user_id']; ?>" class="btn-outline !w-full !text-xs !py-3">
                     Message Lead
+                </a>
+                <button onclick="document.getElementById('reportModal').classList.remove('hidden')" class="text-[10px] font-bold text-slate-400 hover:text-secondary transition-colors mt-4 block w-full text-center uppercase tracking-widest">
+                    <i class="fas fa-flag mr-1"></i> Report Content
+                </button>
                 </a>
             </div>
         </div>
@@ -152,3 +209,39 @@ if (isLoggedIn()) {
 $content = ob_get_clean();
 include __DIR__ . '/../../layouts/main.php';
 ?>
+
+<!-- Report Modal -->
+<div id="reportModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
+    <div class="premium-card !rounded-3xl w-full max-w-lg bg-white relative z-10 animate-fade-up">
+        <form action="<?php echo BASE_URL; ?>/src/controllers/admin.php?action=report" method="POST" class="p-10">
+            <input type="hidden" name="csrf_token" value="<?php echo Security::getCsrfToken(); ?>">
+            <input type="hidden" name="content_type" value="idea">
+            <input type="hidden" name="content_id" value="<?php echo $idea_id; ?>">
+
+            <h3 class="text-2xl font-bold text-slate-900 mb-2">Report Content</h3>
+            <p class="text-sm text-slate-500 font-medium mb-8">Help us keep the community safe. Why are you reporting this?</p>
+
+            <div class="mb-6">
+                <label class="form-label">Reason</label>
+                <select name="reason" class="form-select" required>
+                    <option value="spam">Spam or Misleading</option>
+                    <option value="inappropriate">Inappropriate Content</option>
+                    <option value="offensive">Offensive/Hate Speech</option>
+                    <option value="plagiarism">Plagiarism</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="mb-8">
+                <label class="form-label">Description (Optional)</label>
+                <textarea name="description" rows="3" class="form-textarea" placeholder="Provide more details..."></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-4">
+                <button type="button" onclick="document.getElementById('reportModal').classList.add('hidden')" class="btn-outline">Cancel</button>
+                <button type="submit" class="btn-primary px-8">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
