@@ -1,86 +1,84 @@
 <?php
-require_once __DIR__ . '/../../models/IdeaComment.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../../config/Database.php';
 require_once __DIR__ . '/../../helpers/Security.php';
-ob_start();
-$idea_id = (int)($_GET['id'] ?? 0);
-$conn = getConnection();
-$commentModel = new IdeaComment($conn);
 
-$stmt = $conn->prepare("SELECT ideas.*, users.name as creator_name, users.branch as creator_branch, users.roll_number as creator_roll
-                        FROM ideas
-                        JOIN users ON ideas.user_id = users.id
-                        WHERE ideas.id = ?");
+$idea_id = (int)($_GET['id'] ?? 0);
+if ($idea_id === 0) {
+    header("Location: " . BASE_URL . "/?page=ideas");
+    exit();
+}
+
+$db = getConnection();
+if (!$db) exit('DB Error');
+
+// Fetch idea with creator info
+$query = "SELECT i.*, u.name as creator_name, u.roll_number as creator_roll, u.profile_pic
+          FROM ideas i
+          JOIN users u ON i.user_id = u.id
+          WHERE i.id = ?";
+$stmt = $db->prepare($query);
 $stmt->bind_param("i", $idea_id);
 $stmt->execute();
 $idea = $stmt->get_result()->fetch_assoc();
 
-if (!$idea) redirect(BASE_URL . '/?page=ideas');
-
-$has_applied = false;
-if (isLoggedIn()) {
-    $check = $conn->prepare("SELECT id FROM applications WHERE idea_id = ? AND user_id = ?");
-    $check->bind_param("ii", $idea_id, $_SESSION['user_id']);
-    $check->execute();
-    if ($check->get_result()->fetch_assoc()) $has_applied = true;
+if (!$idea) {
+    header("Location: " . BASE_URL . "/?page=ideas");
+    exit();
 }
 
-$comments = $commentModel->getForIdea($idea_id);
+// Fetch comments
+$c_query = "SELECT c.*, u.name, u.profile_pic
+            FROM idea_comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.idea_id = ? AND c.is_deleted = 0
+            ORDER BY c.created_at DESC";
+$c_stmt = $db->prepare($c_query);
+$c_stmt->bind_param("i", $idea_id);
+$c_stmt->execute();
+$comments = $c_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+ob_start();
 ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
     <div class="mb-12 animate-fade-up">
-        <a href="<?php echo BASE_URL; ?>/?page=ideas" class="text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-2 mb-6">
-            <i class="fas fa-arrow-left"></i> Back to Tracks
-        </a>
-        <div class="flex flex-col md:flex-row md:items-start justify-between gap-8">
-            <div class="flex-1">
-                <div class="flex items-center gap-3 mb-6">
-                    <span class="badge badge-primary"><?php echo sanitize($idea['domain']); ?></span>
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Track #<?php echo $idea['id']; ?>
-                        <form action="<?php echo BASE_URL; ?>/src/controllers/comments.php?action=upvote" method="POST" class="inline ml-4">
-                            <input type="hidden" name="idea_id" value="<?php echo $idea['id']; ?>">
-                            <button type="submit" class="hover:text-primary transition-colors cursor-pointer"><i class="fas fa-arrow-up text-[10px] mr-1"></i> Upvote (<?php echo $idea['upvotes']; ?>)</button>
-                        </form>
+        <nav class="flex mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-4">
+                <li><a href="<?php echo BASE_URL; ?>/?page=ideas" class="text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">Innovation Tracks</a></li>
+                <li><i class="fas fa-chevron-right text-[10px] text-slate-300"></i></li>
+                <li><span class="text-xs font-bold text-slate-900 uppercase tracking-widest">Detail</span></li>
+            </ol>
+        </nav>
+
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">
+                        <?php echo sanitize($idea['domain']); ?>
+                    </span>
+                    <span class="text-slate-300">•</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                        Track #<?php echo $idea['id']; ?>
                     </span>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4"><?php echo sanitize($idea['title']); ?></h1>
-                <div class="flex items-center gap-4 text-slate-500 font-medium">
-                    <div class="flex items-center gap-2">
-                        <div class="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-bold text-primary">
-                            <?php echo strtoupper(substr($idea['creator_name'] ?? 'U', 0, 1)); ?>
-                        </div>
-                        <span class="text-sm">Initiated by <span class="text-slate-900 font-bold"><?php echo sanitize($idea['creator_name']); ?></span></span>
-                    </div>
-                    <span class="text-slate-300">•</span>
-                    <span class="text-sm"><?php echo sanitize($idea['creator_branch']); ?> Dept</span>
-                </div>
+                <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-2"><?php echo sanitize($idea['title']); ?></h1>
             </div>
 
-            <div class="flex flex-col gap-3 min-w-[200px]">
-                <?php if (isLoggedIn()): ?>
-                    <?php if ($has_applied): ?>
-                        <div class="btn-outline !bg-green-50 !border-green-100 !text-green-700 !cursor-default">
-                            <i class="fas fa-check-circle mr-2"></i> Application Sent
-                        </div>
-                    <?php else: ?>
-                        <button onclick="document.getElementById('applyModal').classList.remove('hidden')" class="btn-primary !py-4">
-                            Join Collaboration
-                        </button>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <a href="<?php echo BASE_URL; ?>/?page=login" class="btn-primary !py-4">Sign in to Join</a>
-                <?php endif; ?>
-                <div class="flex items-center justify-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
-                    <i class="fas fa-users"></i> <?php echo $idea['applicant_count']; ?> Applicants
-                </div>
-            </div>
+            <?php if (isLoggedIn() && $_SESSION['user_id'] != $idea['user_id']): ?>
+                <button onclick="document.getElementById('applyModal').classList.remove('hidden')" class="btn-primary !px-10 !py-4 shadow-premium">
+                    Apply to Track
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 animate-fade-up">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 animate-fade-up" style="animation-delay: 0.1s">
         <div class="lg:col-span-2 space-y-12">
             <section class="premium-card p-10 bg-white">
-                <h2 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-8 border-b border-slate-50 pb-4">Vision & Requirements</h2>
                 <div class="prose prose-slate max-w-none text-slate-600 font-medium leading-relaxed mb-10">
                     <?php echo nl2br(sanitize($idea['description'])); ?>
                 </div>
@@ -95,6 +93,13 @@ $comments = $commentModel->getForIdea($idea_id);
                         </div>
                     </div>
                 <?php endif; ?>
+
+                <?php
+                // GSD Charter Widget Integration (for creator)
+                if (isLoggedIn() && $_SESSION['user_id'] == $idea['user_id']) {
+                    include __DIR__ . '/../gsd/charter_widget.php';
+                }
+                ?>
             </section>
 
             <!-- Comments Section -->
@@ -142,6 +147,14 @@ $comments = $commentModel->getForIdea($idea_id);
         </div>
 
         <div class="space-y-8">
+            <?php
+            // Agent Widget Integration
+            include __DIR__ . '/../gsd/agent_widget.php';
+            include __DIR__ . '/../gsd/roadmap_widget.php';
+            include __DIR__ . '/../gsd/health_widget.php';
+            include __DIR__ . '/../gsd/nav_widget.php';
+            ?>
+
             <div class="premium-card p-8 bg-slate-50/50">
                 <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest mb-6">Track Status</h3>
                 <div class="space-y-4">
@@ -177,7 +190,6 @@ $comments = $commentModel->getForIdea($idea_id);
                 <button onclick="document.getElementById('reportModal').classList.remove('hidden')" class="text-[10px] font-bold text-slate-400 hover:text-secondary transition-colors mt-4 block w-full text-center uppercase tracking-widest">
                     <i class="fas fa-flag mr-1"></i> Report Content
                 </button>
-                </a>
             </div>
         </div>
     </div>
@@ -204,11 +216,6 @@ $comments = $commentModel->getForIdea($idea_id);
         </form>
     </div>
 </div>
-
-<?php
-$content = ob_get_clean();
-include __DIR__ . '/../../layouts/main.php';
-?>
 
 <!-- Report Modal -->
 <div id="reportModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -245,3 +252,8 @@ include __DIR__ . '/../../layouts/main.php';
         </form>
     </div>
 </div>
+
+<?php
+$content = ob_get_clean();
+include __DIR__ . '/../../layouts/main.php';
+?>

@@ -93,6 +93,8 @@ $routes = [
     'proof-wall' => 'src/views/proof-wall.php',
     'channel' => 'src/views/channel.php',
     'events' => 'src/views/events.php',
+    'project-brief' => 'src/views/gsd/project_brief.php',
+    'decision-log' => 'src/views/gsd/decision_log.php',
 
     // Controller Routes
     'auth-action' => 'src/controllers/auth.php',

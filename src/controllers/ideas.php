@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../helpers/Security.php';
+require_once __DIR__ . '/../services/AnalyticsService.php';
 
 $db = getConnection();
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
@@ -41,6 +42,7 @@ if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("issss", $_SESSION['user_id'], $title, $domain, $description, $skills_json);
 
     if ($stmt->execute()) {
+AnalyticsService::logEvent('idea_created', ['user_id' => $_SESSION['user_id'], 'domain' => $domain, 'title' => $title]);
         $_SESSION['message'] = "Innovation Track created successfully!";
         header("Location: " . BASE_URL . "/?page=ideas");
     } else {

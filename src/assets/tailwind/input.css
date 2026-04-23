@@ -2,17 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-@import '../css/variables.css';
-@import '../css/components.css';
+@import "../css/components.css";
 
 @layer base {
-  body {
-    @apply bg-background text-foreground transition-colors duration-200 selection:bg-primary selection:text-white;
-  }
+    body {
+        @apply font-sans text-slate-900 bg-white antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-heading font-bold tracking-tight;
+    }
 }
 
-@layer utilities {
-  .animate-delay-100 { animation-delay: 100ms; }
-  .animate-delay-200 { animation-delay: 200ms; }
-  .animate-delay-300 { animation-delay: 300ms; }
+@layer components {
+    .animate-fade-up {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .animate-fade-up-active {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+
+    .text-primary-light {
+        color: #00a3ff;
+    }
 }

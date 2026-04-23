@@ -2,57 +2,63 @@
 require_once __DIR__ . '/src/config/Database.php';
 
 try {
-    $conn = getConnection();
-    $pdo = (fn() => $this->pdo)->call($conn);
-
+    $db = getConnection();
     echo "Seeding LIET Real Data...\n";
 
     // 1. Initial Admin User
     $admin_pw = password_hash('LendiIIC2026!', PASSWORD_BCRYPT);
-    $pdo->exec("INSERT OR IGNORE INTO users (roll_number, name, email, password, branch, year, user_type, email_verified)
-               VALUES ('LIET000', 'IIC Coordinator', 'iic@lendi.edu.in', '$admin_pw', 'ADMIN', 4, 'visionary', 1)");
+    $stmt = $db->prepare("INSERT OR IGNORE INTO users (roll_number, name, email, password, branch, year, user_type, email_verified, is_admin, academic_role, interests)
+                         VALUES ('LID000', 'IIC Coordinator', 'iic@lendi.edu.in', ?, 'CSE', 4, 'visionary', 1, 1, 'Faculty', 'Web, AI, Cloud')");
+    $stmt->bind_param("s", $admin_pw);
+    $stmt->execute();
 
-    // 2. Real Innovation Tracks (Ideas)
+    // 2. Sample Builders
+    $builders = [
+        ['LID001', 'Sai Krishna', 'sai@lendi.edu.in', 'Senior', 'AI/ML, Python'],
+        ['LID002', 'Priya Reddy', 'priya@lendi.edu.in', 'Alumni', 'Web Dev, Cloud'],
+        ['LID003', 'Manoj Kumar', 'manoj@lendi.edu.in', 'Senior', 'Blockchain, Security']
+    ];
+
+    foreach ($builders as $b) {
+        $pw = password_hash('Builder123!', PASSWORD_BCRYPT);
+        $stmt = $db->prepare("INSERT OR IGNORE INTO users (roll_number, name, email, password, branch, year, academic_role, interests, email_verified)
+                             VALUES (?, ?, ?, ?, 'CSE', 4, ?, ?, 1)");
+        $stmt->bind_param("ssssss", $b[0], $b[1], $b[2], $pw, $b[3], $b[4]);
+        $stmt->execute();
+
+        $check = $db->prepare("SELECT id FROM users WHERE roll_number = ?");
+        $check->bind_param("s", $b[0]);
+        $check->execute();
+        $uid = $check->get_result()->fetch_assoc()['id'] ?? 0;
+
+        if($uid > 0) {
+            $rankStmt = $db->prepare("INSERT OR IGNORE INTO builder_rank (user_id, rank, points) VALUES (?, 'BUILDER', ?)");
+            $pts = rand(100, 2000);
+            $rankStmt->bind_param("ii", $uid, $pts);
+            $rankStmt->execute();
+
+            // Also update points in users table for leaderboard compatibility
+            $upd = $db->prepare("UPDATE users SET points = ? WHERE id = ?");
+            $upd->bind_param("ii", $pts, $uid);
+            $upd->execute();
+        }
+    }
+
+    // 3. Innovation Tracks (Ideas)
     $tracks = [
-        [
-            'title' => 'AI Student Monitoring System',
-            'domain' => 'AI/ML',
-            'desc' => 'AI-integrated 360° dashboards for real-time behavioral and academic tracking. Using MySQL and AI-Analytics to improve campus student success rates.',
-            'skills' => '["Python", "MySQL", "TensorFlow", "React"]'
-        ],
-        [
-            'title' => 'Campus Time Table Scheduler',
-            'domain' => 'Core Algorithms',
-            'desc' => 'Deep-logic engines designed to eliminate campus resource conflicts automatically. Optimizing room utilization for CSE and ECE blocks.',
-            'skills' => '["PHP", "Algorithms", "Optimization", "MySQL"]'
-        ],
-        [
-            'title' => 'Geo-fenced Attendance System',
-            'domain' => 'Cybersecurity',
-            'desc' => 'Secure tracking with dual-factor device authentication protocols. Ensuring integrity of attendance records using GPS and MAC filtering.',
-            'skills' => '["Android", "PHP", "Security", "Networking"]'
-        ],
-        [
-            'title' => 'IdeaSync Collaboration Portal',
-            'domain' => 'Web Ecosystem',
-            'desc' => 'The central hub for Lendi IIC to manage all student innovations and industry collaborations.',
-            'skills' => '["Tailwind CSS", "PHP", "MVC", "SQLite"]'
-        ]
+        ['Edge AI Attendance', 'AI/ML', 'Implementing local facial recognition on edge devices.', '["Python", "TensorFlow", "IoT"]'],
+        ['Smart Campus Mesh', 'Networking', 'Decentralized communication network for campus-wide IoT.', '["C++", "LoRaWAN", "Go"]'],
+        ['Zero Trust Auth', 'Cybersecurity', 'Securing student records with biometric protocols.', '["Cryptography", "React", "Node.js"]']
     ];
 
     foreach ($tracks as $t) {
-        $stmt = $pdo->prepare("INSERT INTO ideas (user_id, title, domain, description, skills_needed, status) VALUES (1, ?, ?, ?, ?, 'open')");
-        $stmt->execute([$t['title'], $t['domain'], $t['desc'], $t['skills']]);
+        $stmt = $db->prepare("INSERT INTO ideas (user_id, title, domain, description, skills_needed, status, upvotes) VALUES (1, ?, ?, ?, ?, 'open', ?)");
+        $uv = rand(10, 50);
+        $stmt->bind_param("ssssi", $t[0], $t[1], $t[2], $t[3], $uv);
+        $stmt->execute();
     }
 
-    // 3. Real Events
-    $pdo->exec("INSERT INTO events (creator_id, title, description, start_time, end_time, location, event_type)
-               VALUES (1, 'Talent Hunt Day', 'The annual Lendi innovation scouting event for top engineers.', '2026-04-22 09:00:00', '2026-04-22 17:00:00', 'Main Auditorium', 'workshop')");
-
-    $pdo->exec("INSERT INTO events (creator_id, title, description, start_time, end_time, location, event_type)
-               VALUES (1, 'IIC Innovation Workshop', 'A deep dive into product design and prototyping for current tracks.', '2026-05-15 14:00:00', '2026-05-15 16:30:00', 'AI Lab 4', 'workshop')");
-
-    echo "✓ Seeding Complete. 1 Admin, 4 Tracks, 2 Events added.\n";
+    echo "✓ Seeding Complete.\n";
 
 } catch (Exception $e) {
     echo "Seeding failed: " . $e->getMessage() . "\n";

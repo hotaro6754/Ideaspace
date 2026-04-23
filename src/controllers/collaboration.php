@@ -3,6 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../services/AnalyticsService.php';
 
 $db = getConnection();
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
@@ -38,6 +39,7 @@ if ($action === 'apply' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         $db->query("UPDATE ideas SET applicant_count = applicant_count + 1 WHERE id = $idea_id");
+AnalyticsService::logEvent('application_sent', ['user_id' => $_SESSION['user_id'], 'idea_id' => $idea_id]);
         $_SESSION['message'] = "Collaboration request sent!";
     } else {
         $_SESSION['error'] = "You have already applied to this track.";
