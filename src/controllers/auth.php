@@ -7,7 +7,6 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/AuthLog.php';
 require_once __DIR__ . '/../models/EmailVerification.php';
 require_once __DIR__ . '/../models/PasswordReset.php';
-require_once __DIR__ . '/../models/RateLimit.php';
 require_once __DIR__ . '/../services/EmailService.php';
 require_once __DIR__ . '/../helpers/Security.php';
 
@@ -63,6 +62,17 @@ if ($action === 'login') {
 
     $res = $userModel->login($identifier, $_POST['password']);
     if ($res['success']) {
+        if (!($res['user']['is_active'] ?? true)) {
+            $_SESSION['error'] = "Your account is deactivated. Please contact support.";
+            header("Location: " . BASE_URL . "/?page=login");
+            exit();
+        }
+        if ($res['user']['is_suspended'] ?? false) {
+            $_SESSION['error'] = "Your account is suspended: " . ($res['user']['suspension_reason'] ?? 'Administrative action');
+            header("Location: " . BASE_URL . "/?page=login");
+            exit();
+        }
+
         $_SESSION['user_id'] = $res['user']['id'];
         $_SESSION['name'] = $res['user']['name'];
         $_SESSION['email'] = $res['user']['email'];
@@ -93,13 +103,6 @@ if ($action === 'forgot-password') {
     exit();
 }
 
-if ($action === 'logout') {
-    session_destroy();
-    header("Location: " . BASE_URL);
-    exit();
-}
-?>
-
 if ($action === 'reset-password') {
     if (!Security::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
         $_SESSION['error'] = "Invalid security token.";
@@ -128,7 +131,7 @@ if ($action === 'reset-password') {
     exit();
 }
 
-if ($action === 'verify' || $_GET['page'] === 'verify') {
+if ($action === 'verify') {
     $token = $_GET['token'] ?? '';
     $res = $emailVerify->verify($token);
     if ($res['success']) {
@@ -137,6 +140,12 @@ if ($action === 'verify' || $_GET['page'] === 'verify') {
         $_SESSION['error'] = $res['error'];
     }
     header("Location: " . BASE_URL . "/?page=login");
+    exit();
+}
+
+if ($action === 'logout') {
+    session_destroy();
+    header("Location: " . BASE_URL);
     exit();
 }
 ?>

@@ -47,7 +47,8 @@ class DatabaseMigration {
             $this->migrateIdeasTableEnhancements();
             echo "✓ Ideas table enhancements applied\n\n";
 
-            $this->migrateIndexes();
+            $this->migrateGSDTables();
+        $this->migrateIndexes();
             echo "✓ Performance indexes created\n\n";
 
             echo str_repeat("=", 50) . "\n";
@@ -440,6 +441,97 @@ class DatabaseMigration {
     /**
      * Create performance indexes
      */
+
+    /**
+     * Migrate GSD and Advanced Collaboration tables
+     */
+    private function migrateGSDTables() {
+        $sql = "
+            -- GSD (Get Shit Done) System Tables
+            CREATE TABLE IF NOT EXISTS idea_charters (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                idea_id INT NOT NULL,
+                vision TEXT,
+                mission TEXT,
+                success_criteria TEXT,
+                scope_limitations TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (idea_id) REFERENCES ideas(id) ON DELETE CASCADE,
+                UNIQUE KEY unique_idea (idea_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS project_briefs (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                idea_id INT NOT NULL,
+                detailed_requirements TEXT,
+                technical_stack TEXT,
+                milestones_json TEXT,
+                risk_assessment TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (idea_id) REFERENCES ideas(id) ON DELETE CASCADE,
+                UNIQUE KEY unique_idea (idea_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS decision_logs (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                idea_id INT NOT NULL,
+                user_id INT NOT NULL,
+                decision_title VARCHAR(255) NOT NULL,
+                decision_context TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (idea_id) REFERENCES ideas(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS quality_gates (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                idea_id INT NOT NULL,
+                phase_name VARCHAR(50) NOT NULL,
+                is_passed BOOLEAN DEFAULT FALSE,
+                passed_at TIMESTAMP NULL,
+                passed_by INT,
+                reviewer_comments TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (idea_id) REFERENCES ideas(id) ON DELETE CASCADE,
+                FOREIGN KEY (passed_by) REFERENCES users(id) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS antipattern_rules (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                pattern_name VARCHAR(100) UNIQUE NOT NULL,
+                description TEXT,
+                severity VARCHAR(20),
+                mitigation_strategy TEXT
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS detected_antipatterns (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                idea_id INT NOT NULL,
+                pattern_id INT NOT NULL,
+                severity VARCHAR(20),
+                pattern_details TEXT,
+                acknowledged BOOLEAN DEFAULT FALSE,
+                resolved_at TIMESTAMP NULL,
+                action_taken TEXT,
+                detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (idea_id) REFERENCES ideas(id) ON DELETE CASCADE,
+                FOREIGN KEY (pattern_id) REFERENCES antipattern_rules(id) ON DELETE CASCADE,
+                UNIQUE KEY unique_detection (idea_id, pattern_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+";
+        $this->executeMultipleStatements($sql);
+
+        // Seed Rules
+        $this->conn->query("INSERT IGNORE INTO antipattern_rules (pattern_name, description, severity, mitigation_strategy) VALUES
+            ('Silent Partner', 'A team member has been inactive for more than 7 days.', 'warning', 'Send a nudge message or reassign tasks.'),
+            ('Scope Creep', 'The project scope is expanding beyond the original charter.', 'warning', 'Review the Idea Charter and update Project Brief.'),
+            ('Unclear Ownership', 'Key tasks or roles have no assigned owners.', 'critical', 'Assign owners to all active tasks and roles.'),
+            ('Knowledge Isolation', 'Important decisions or documentation are not being logged.', 'warning', 'Encourage team members to update the Decision Log and Wiki.'),
+            ('Deadline Drift', 'Significant portion of milestones are delayed.', 'critical', 'Review roadmap and adjust resources or scope.')");
+    }
+
     private function migrateIndexes() {
         $indexes = [
             ['channel_messages', 'idx_channel_messages_channel', 'channel_id'],

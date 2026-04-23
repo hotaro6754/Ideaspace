@@ -105,7 +105,7 @@ if ($to_id > 0) {
                 </div>
 
                 <!-- Messages -->
-                <div class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/30" id="chat-messages">
+                <div class="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/30" id="chat-messages" data-user-id="<?php echo $current_user_id; ?>" data-last-id="<?php echo end($messages)["id"] ?? 0; ?>">
                     <?php foreach($messages as $m): ?>
                         <div class="flex <?php echo ($m['sender_user_id'] == $current_user_id) ? 'justify-end' : 'justify-start'; ?>">
                             <div class="max-w-[70%] p-4 rounded-2xl text-sm font-medium shadow-subtle <?php echo ($m['sender_user_id'] == $current_user_id) ? 'bg-primary text-white' : 'bg-white text-slate-700 border border-slate-100'; ?>">

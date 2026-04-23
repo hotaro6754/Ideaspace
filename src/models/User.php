@@ -24,9 +24,9 @@ class User {
 
         $password_hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 
-        // Auto-verifying for DEMO
+        // Note: Production should have email_verified = 0
         $query = "INSERT INTO users (roll_number, name, email, password, branch, year, user_type, email_verified)
-                  VALUES (?, ?, ?, ?, ?, ?, 'builder', 1)";
+                  VALUES (?, ?, ?, ?, ?, ?, 'builder', 0)";
 
         $stmt = $this->conn->prepare($query);
         if (!$stmt) return ['success' => false, 'error' => 'DB Error: ' . $this->conn->error];
