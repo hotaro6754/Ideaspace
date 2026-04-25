@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   Clock,
   Send,
-  X
+  X,
+  ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
@@ -32,13 +33,11 @@ export default function MentorshipPage() {
   useEffect(() => {
     const fetchMentors = async () => {
       setLoading(true);
-      // In a real app, role would be 'alumni'. For now, let's look for anyone with higher points or explicit role.
       const { data } = await supabase
         .from('profiles')
         .select('*')
         .order('points', { ascending: false });
 
-      // Filter for those who might be mentors (points > 500 or explicitly alumni)
       if (data) {
         setMentors(data.filter(p => p.role === 'alumni' || p.points > 500));
       }
@@ -97,6 +96,12 @@ export default function MentorshipPage() {
                 </div>
               </h1>
               <p className="text-white/40 font-medium tracking-tight">Connect with industry veterans and LIET alumni to accelerate your innovation journey.</p>
+              <Link href="/mentorship/manage" className="mt-4 inline-block">
+                <Button variant="glass" className="rounded-xl h-10 px-6 text-[8px] font-black uppercase tracking-widest flex gap-2 border-orange-500/20 text-orange-500">
+                  Mentor Terminal
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
             </div>
             <div className="relative group">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-lendi-blue transition-colors" />
@@ -180,7 +185,6 @@ export default function MentorshipPage() {
         </div>
       </main>
 
-      {/* Request Modal */}
       <AnimatePresence>
         {selectedMentor && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">

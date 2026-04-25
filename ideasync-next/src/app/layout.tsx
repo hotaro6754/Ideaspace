@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/lib/QueryProvider";
+import { ThemeProvider } from "@/lib/ThemeProvider";
 import { Toaster } from "sonner";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -25,12 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${plusJakarta.variable} ${inter.variable} antialiased`}>
-        <QueryProvider>
-          <Toaster position="bottom-right" />
-          {children}
-        </QueryProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          <QueryProvider>
+            <Toaster position="bottom-right" />
+            {children}
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

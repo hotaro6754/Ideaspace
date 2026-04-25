@@ -1,0 +1,16 @@
+{
+  "name": "IdeaSync | LIET Innovation Network",
+  "short_name": "IdeaSync",
+  "description": "Premium collaboration platform for Lendi Institute of Engineering and Technology.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#004a99",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

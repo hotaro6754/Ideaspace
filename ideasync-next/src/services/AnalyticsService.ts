@@ -1,20 +1,15 @@
-export class AnalyticsService {
-  static async logEvent(name: string, payload: any) {
-    const event = {
-      timestamp: new Date().toISOString(),
-      event: name,
-      ...payload
-    };
+import { logger } from "@/lib/logger";
 
-    // In production, this would stream to Tinybird via High-level Ingestion API
-    console.log('[Analytics]:', event);
+export const AnalyticsService = {
+  async trackEvent(eventName: string, data: Record<string, unknown> = {}) {
+    logger.info("Analytics", `Tracking event: ${eventName}`, data);
 
-    // For the sandbox, we'll append to a local log file for verification
-    // (This would be handled by a server-side route/action in Next.js)
+    // Simulate high-performance uplink to Tinybird
+    try {
+      // In real implementation:
+      // await fetch('https://api.tinybird.co/v0/events', { ... })
+    } catch (e) {
+      logger.error("Analytics", "Uplink failure", e);
+    }
   }
-
-  static async getLeaderboard() {
-    // This would query a Tinybird Pipe endpoint
-    return [];
-  }
-}
+};

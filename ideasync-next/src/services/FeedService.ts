@@ -18,6 +18,10 @@ export interface FeedItem {
   external_url?: string;
 }
 
+interface ProfileData {
+  full_name: string;
+}
+
 export class FeedService {
   static async getPersonalizedFeed(userId: string, limit = 10, offset = 0) {
     try {
@@ -72,18 +76,21 @@ export class FeedService {
       if (newsError) throw newsError;
 
       const items: FeedItem[] = [
-        ...(rawIdeas?.map(i => ({
-          id: i.id,
-          type: 'idea' as const,
-          title: i.title,
-          description: i.description,
-          domain: i.domain,
-          author_id: i.user_id,
-          author_name: (i.profiles as any)?.full_name || 'Anonymous',
-          upvotes: i.upvotes_count,
-          created_at: i.created_at,
-          is_followed: followedIds.includes(i.user_id)
-        })) || []),
+        ...(rawIdeas?.map(i => {
+          const profile = i.profiles as unknown as ProfileData;
+          return {
+            id: i.id,
+            type: 'idea' as const,
+            title: i.title,
+            description: i.description,
+            domain: i.domain,
+            author_id: i.user_id,
+            author_name: profile?.full_name || 'Anonymous',
+            upvotes: i.upvotes_count,
+            created_at: i.created_at,
+            is_followed: followedIds.includes(i.user_id)
+          };
+        }) || []),
         ...(rawBounties?.map(b => ({
           id: b.id,
           type: 'bounty' as const,

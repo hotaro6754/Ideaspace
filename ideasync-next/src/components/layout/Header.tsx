@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Search, Bell, User, ChevronDown, Loader2, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface HeaderProps {
   title: string;
@@ -85,7 +86,8 @@ export const Header = ({ title }: HeaderProps) => {
           </AnimatePresence>
 
           <div className="flex items-center gap-3 pl-4 border-l border-white/10 group cursor-pointer">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-lendi-blue to-purple-600 p-px">
+            <ThemeToggle />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-lendi-blue to-purple-600 p-px ml-2">
               <div className="w-full h-full rounded-[11px] bg-black flex items-center justify-center"><User className="w-4 h-4 text-white/40" /></div>
             </div>
             <ChevronDown className="w-3 h-3 text-white/20 group-hover:text-white transition-colors" />

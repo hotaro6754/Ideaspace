@@ -5,11 +5,11 @@ interface LogEntry {
   level: LogLevel;
   module: string;
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 export const logger = {
-  log(level: LogLevel, module: string, message: string, data?: any) {
+  log(level: LogLevel, module: string, message: string, data?: unknown) {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -30,13 +30,11 @@ export const logger = {
     const color = colorMap[level] || reset;
 
     console.log(`${color}[${entry.timestamp}] [${level.toUpperCase()}] [${module}]${reset} ${message}`, data || '');
-
-    // In production, we could stream these to Supabase or Tinybird
   },
 
-  info: (module: string, message: string, data?: any) => logger.log('info', module, message, data),
-  warn: (module: string, message: string, data?: any) => logger.log('warn', module, message, data),
-  error: (module: string, message: string, data?: any) => logger.log('error', module, message, data),
-  debug: (module: string, message: string, data?: any) => logger.log('debug', module, message, data),
-  slop: (module: string, message: string, data?: any) => logger.log('slop', module, message, data),
+  info: (module: string, message: string, data?: unknown) => logger.log('info', module, message, data),
+  warn: (module: string, message: string, data?: unknown) => logger.log('warn', module, message, data),
+  error: (module: string, message: string, data?: unknown) => logger.log('error', module, message, data),
+  debug: (module: string, message: string, data?: unknown) => logger.log('debug', module, message, data),
+  slop: (module: string, message: string, data?: unknown) => logger.log('slop', module, message, data),
 };

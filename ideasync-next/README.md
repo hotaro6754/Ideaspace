@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IdeaSync: Lendi Innovation Network (Sentinel V1)
 
-## Getting Started
+A premium collaboration platform for the Lendi Institute of Engineering and Technology (LIET). IdeaSync bridges the gap between students, faculty, and industry alumni through a high-motion, gamified ecosystem.
 
-First, run the development server:
+## 🚀 System Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Frontend
+- **Framework**: Next.js 16 (App Router)
+- **Runtime**: Turbopack
+- **Styling**: Tailwind CSS v4
+- **Animations**: Framer Motion & GSAP ScrollTrigger
+- **Icons**: Lucide React
+- **State Management**: TanStack React Query v5
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Backend & Infrastructure
+- **Primary Database**: Neon Postgres (Serverless)
+- **Auth & Realtime**: Supabase
+- **Storage**: Supabase Storage (Project Whitepapers & Media)
+- **Deployment**: Render / Vercel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 Core Modules
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Elite Feed**: Personalized innovation stream using weighted scoring (Following, Interests, Recency).
+2. **Mission Hub**: End-to-end project lifecycle management (Mission Spawning -> Personnel Recruitment -> Roadmap Tracking).
+3. **Bounty Board**: Faculty-sanctioned challenges with verified XP rewards.
+4. **Talent Network**: Reputation-based student directory with peer-verified departmental skills.
+5. **Mentorship Hub**: Secure uplink between student innovators and industry alumni.
+6. **Encrypted Comms**: Sector-based Discord-style messaging with real-time P2P feel.
+7. **Consensus Engine**: Campus-wide polls and debates on future tech tracks.
+8. **Intelligence Command**: Real-time platform analytics and growth tracking.
 
-## Learn More
+## 🔑 Key Features
+- **Innovation Resume**: Export a technical dossier of your campus contributions as a high-fidelity PDF.
+- **Activity Heatmap**: Visual contribution pulse synced with mission logs.
+- **Sentinel Design System**: Glassmorphic, midnight-themed UI inspired by premium design platforms.
+- **Project Forking**: Clone mission ideas into your own sector to iterate and build.
 
-To learn more about Next.js, take a look at the following resources:
+## 🛡 Security & Quality (ZeroSlop)
+IdeaSync adheres to the **ZeroSlop** philosophy:
+- **Demo-Ready**: 100% build pass guaranteed.
+- **RLS Enforced**: Row-level security for all mission-critical data.
+- **Personnel Verified**: Email domain restriction (@lendi.org).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Built for the future of LIET innovation.*
