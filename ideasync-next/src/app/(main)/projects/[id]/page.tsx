@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { ApplyModal } from "@/components/projects/ApplyModal";
 import { supabase } from "@/lib/supabase";
-import { Star, GitFork, Users, Calendar, Terminal, ArrowLeft, Loader2, Sparkles, ShieldCheck } from "lucide-react";
+import { Star, GitFork, Users, Calendar, Terminal, ArrowLeft, Loader2, Sparkles, ShieldCheck, Settings, Map } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 
@@ -15,6 +15,7 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -23,6 +24,7 @@ export default function ProjectDetailPage() {
       if (data) {
         setProject(data);
         if (user) {
+          setIsOwner(data.user_id === user.id);
           const { data: app } = await supabase.from('project_applications').select('id').eq('project_id', id).eq('user_id', user.id).maybeSingle();
           if (app) setHasApplied(true);
         }
@@ -40,7 +42,16 @@ export default function ProjectDetailPage() {
       <Header title="Project Dossier" />
       <main className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar">
         <div className="max-w-[1200px] mx-auto">
-          <Link href="/projects" className="flex items-center gap-2 text-white/20 hover:text-white transition-colors mb-10 group"><ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /><span className="text-[10px] font-black uppercase tracking-widest">Back to Projects</span></Link>
+          <div className="flex justify-between items-center mb-10">
+            <Link href="/projects" className="flex items-center gap-2 text-white/20 hover:text-white transition-colors group"><ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /><span className="text-[10px] font-black uppercase tracking-widest">Back to Projects</span></Link>
+            {isOwner && (
+              <Link href={`/projects/${id}/settings`}>
+                <Button variant="glass" className="rounded-xl h-10 px-4 flex gap-2 text-[10px] font-black uppercase tracking-widest">
+                  <Settings className="w-4 h-4" /> Config
+                </Button>
+              </Link>
+            )}
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
             <div className="lg:col-span-8">
               <div className="flex items-center gap-3 mb-6">
@@ -76,7 +87,7 @@ export default function ProjectDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-8 space-y-12">
               <section><div className="flex items-center gap-3 mb-6"><Terminal className="w-5 h-5 text-lendi-blue" /><h2 className="text-2xl font-black font-plus-jakarta tracking-tight">Tech Stack</h2></div><div className="flex flex-wrap gap-3">{project.tech_stack?.map((tech: string) => (<div key={tech} className="px-6 py-3 rounded-2xl bg-white/5 border border-white/5 text-sm font-bold hover:border-lendi-blue/50 transition-colors">{tech}</div>))}</div></section>
-              <section><div className="flex items-center gap-3 mb-6"><Sparkles className="w-5 h-5 text-yellow-500" /><h2 className="text-2xl font-black font-plus-jakarta tracking-tight">Roadmap</h2></div><div className="space-y-4">{[{ label: "V1.0 MVP Launch", status: "completed", date: "Jan 12" }, { label: "Beta Testing", status: "completed", date: "Feb 05" }, { label: "Public Release", status: "pending", date: "Mar 20" }].map((milestone) => (<div key={milestone.label} className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/5"><div className="flex items-center gap-4"><div className={`w-2 h-2 rounded-full ${milestone.status === 'completed' ? 'bg-green-500' : 'bg-white/10'}`} /><span className={`font-bold ${milestone.status === 'completed' ? 'text-white' : 'text-white/20'}`}>{milestone.label}</span></div><span className="text-[10px] font-black uppercase tracking-widest opacity-20">{milestone.date}</span></div>))}</div></section>
+              <section><div className="flex items-center gap-3 mb-6"><Map className="w-5 h-5 text-green-500" /><h2 className="text-2xl font-black font-plus-jakarta tracking-tight">Roadmap</h2></div><div className="space-y-4">{project.roadmap && project.roadmap.length > 0 ? project.roadmap.map((milestone: any, i: number) => (<div key={i} className="flex items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/5"><div className="flex items-center gap-4"><div className={`w-2 h-2 rounded-full ${milestone.status === 'completed' ? 'bg-green-500' : 'bg-white/10'}`} /><span className={`font-bold ${milestone.status === 'completed' ? 'text-white' : 'text-white/20'}`}>{milestone.label}</span></div><span className="text-[10px] font-black uppercase tracking-widest opacity-20">{milestone.date}</span></div>)) : <div className="p-10 rounded-3xl border border-dashed border-white/10 text-center text-white/20 italic">No roadmap modules initialized.</div>}</div></section>
             </div>
             <div className="lg:col-span-4"><div className="sticky top-10"><div className="glass rounded-[2.5rem] p-10 border-2 border-dashed border-white/5 flex flex-col items-center justify-center text-center"><div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6"><Users className="w-8 h-8 text-white/20" /></div><h4 className="text-xl font-black mb-2">Join Mission</h4><p className="text-xs text-white/30 font-medium mb-8 leading-relaxed">Active missions looking for expertise.</p><Button onClick={() => setIsApplyModalOpen(true)} disabled={hasApplied} className="w-full rounded-2xl h-14 font-black shadow-2xl shadow-lendi-blue/20">{hasApplied ? "Pending" : "Apply"}</Button></div></div></div>
           </div>

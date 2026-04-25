@@ -10,7 +10,8 @@ import {
   Trophy,
   Settings,
   Zap,
-  Briefcase
+  Briefcase,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { icon: Users, label: "Talent", href: "/talent" },
   { icon: MessageSquare, label: "Comms", href: "/messages" },
   { icon: Trophy, label: "Leaderboard", href: "/leaderboard" },
+  { icon: Sparkles, label: "Mentors", href: "/mentorship" },
 ];
 
 export const Sidebar = () => {

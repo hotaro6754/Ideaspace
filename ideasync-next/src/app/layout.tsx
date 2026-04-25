@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/lib/QueryProvider";
+import { Toaster } from "sonner";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${plusJakarta.variable} ${inter.variable} antialiased`}>
         <QueryProvider>
+          <Toaster position="bottom-right" />
           {children}
         </QueryProvider>
       </body>
