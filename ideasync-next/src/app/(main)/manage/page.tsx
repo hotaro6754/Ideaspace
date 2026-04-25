@@ -3,13 +3,50 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { supabase } from "@/lib/supabase";
-import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, User, ShieldCheck, Mail, Loader2, Rocket, Users, Award } from "lucide-react";
+import { motion } from "framer-motion";
+import { Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
+interface AppProfile {
+  full_name: string;
+  rank: string;
+  roll_number: string;
+}
+
+interface AppProject {
+  title: string;
+}
+
+interface Application {
+  id: string;
+  user_id: string;
+  project_id: string;
+  message: string;
+  created_at: string;
+  status: string;
+  profiles: AppProfile;
+  projects: AppProject;
+}
+
+interface MemberProfile {
+  full_name: string;
+  rank: string;
+  department: string;
+}
+
+interface Member {
+  id: string;
+  user_id: string;
+  project_id: string;
+  role: string;
+  joined_at: string;
+  profiles: MemberProfile;
+  projects: AppProject;
+}
+
 export default function LeadDashboard() {
-  const [applications, setApplications] = useState<any[]>([]);
-  const [members, setMembers] = useState<any[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"apps" | "personnel">("apps");
 
@@ -18,20 +55,18 @@ export default function LeadDashboard() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Fetch Apps
     const { data: apps } = await supabase
       .from('project_applications')
-      .select(`*, profiles:user_id (full_name, rank, roll_number), projects:project_id (title)`)
+      .select('*, profiles:user_id (full_name, rank, roll_number), projects:project_id (title)')
       .order('created_at', { ascending: false });
 
-    // Fetch Members
     const { data: mems } = await supabase
       .from('project_members')
-      .select(`*, profiles:user_id (full_name, rank, department), projects:project_id (title)`)
+      .select('*, profiles:user_id (full_name, rank, department), projects:project_id (title)')
       .order('joined_at', { ascending: false });
 
-    if (apps) setApplications(apps);
-    if (mems) setMembers(mems);
+    if (apps) setApplications(apps as unknown as Application[]);
+    if (mems) setMembers(mems as unknown as Member[]);
     setLoading(false);
   };
 
@@ -81,7 +116,7 @@ export default function LeadDashboard() {
                     <div>
                       <div className="flex items-center gap-3 mb-1"><h4 className="text-lg font-black">{app.profiles?.full_name}</h4><div className="px-2 py-0.5 rounded-md bg-lendi-blue/10 border border-lendi-blue/20 text-[8px] font-black text-lendi-blue uppercase tracking-widest">{app.profiles?.rank}</div></div>
                       <p className="text-xs text-white/40 font-medium mb-3">Targeting <span className="text-white font-bold">{app.projects?.title}</span></p>
-                      <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-white/60 leading-relaxed max-w-lg italic">"{app.message}"</div>
+                      <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-white/60 leading-relaxed max-w-lg italic">&quot;{app.message}&quot;</div>
                     </div>
                   </div>
                   <div className="flex md:flex-col gap-3">

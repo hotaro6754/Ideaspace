@@ -1,26 +1,52 @@
-FROM php:8.3-cli
+FROM node:20-slim AS base
 
-# Install MySQL extensions
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+COPY ideasync-next/package.json ideasync-next/package-lock.json ./
+RUN npm install
 
-# Install MySQL client
-RUN apt-get update && apt-get install -y default-mysql-client curl && rm -rf /var/lib/apt/lists/*
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY ideasync-next/ .
+# Note: Next.js collects completely anonymous telemetry about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# Uncomment the following line in case you want to disable telemetry during the build.
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Set working directory
+RUN npm run build
+
+# Production image, copy all the files and run next
+FROM base AS runner
 WORKDIR /app
 
-# Copy application files
-COPY . .
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Create logs and uploads directories
-RUN mkdir -p /app/logs /app/uploads && chmod 777 /app/logs /app/uploads
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Expose port
-EXPOSE 8080
+COPY --from=builder /app/public ./public
 
-# Health check
-HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://127.0.0.1:8080/public/health.php || exit 1
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
 
-# Start PHP built-in server
-CMD php -S 0.0.0.0:${PORT:-8080} -t public public/router.php
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
+CMD ["node", "server.js"]

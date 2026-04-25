@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +10,7 @@ import { useInfiniteFeed } from "@/hooks/useInfiniteFeed";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Plus, Sparkles, Activity } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { SplineScene } from "@/components/ui/SplineScene";
 
 export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,11 +58,31 @@ export default function DashboardPage() {
               <h1 className="text-4xl font-black font-plus-jakarta tracking-tight mb-2">Good morning, Innovator</h1>
               <p className="text-white/40 font-medium">Here's what's happening across the campus today.</p>
             </div>
-            <Button onClick={() => setIsModalOpen(true)} className="rounded-full px-8 h-14 font-black shadow-2xl shadow-lendi-blue/20 flex gap-2 group"><Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />Submit Idea</Button>
+            <Button onClick={() => setIsModalOpen(true)} className="rounded-full px-8 h-14 font-black shadow-2xl shadow-lendi-blue/20 flex gap-2 group transition-all hover:scale-105 active:scale-95"><Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />Submit Idea</Button>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
             <div className="xl:col-span-8 space-y-6">
+              <div className="h-[400px] rounded-[3rem] overflow-hidden border border-white/5 relative group bg-black/40 mb-10">
+                <div className="absolute inset-0 z-0">
+                  <SplineScene />
+                </div>
+                <div className="absolute inset-0 p-12 flex flex-col justify-end z-10 pointer-events-none">
+                   <div className="max-w-md pointer-events-auto">
+                      <div className="px-3 py-1 rounded-full bg-lendi-blue/20 border border-lendi-blue/40 text-[8px] font-black text-lendi-blue uppercase tracking-widest mb-4 w-fit">Featured Prototype</div>
+                      <h2 className="text-4xl font-black font-plus-jakarta mb-4 leading-tight">Quantum Mesh Network V1.2</h2>
+                      <p className="text-sm text-white/60 mb-8 font-medium leading-relaxed">The Lendi IoT sector is testing a new decentralized routing protocol across Block A. Phase 1 active.</p>
+                      <Button variant="glass" className="rounded-xl h-10 px-6 font-black uppercase text-[10px] tracking-widest border-white/10 hover:border-lendi-blue/30 transition-all">Inspect Node</Button>
+                   </div>
+                </div>
+                <div className="absolute top-8 right-8 z-20">
+                   <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-black/60 backdrop-blur-xl border border-white/10">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Live Uplink</span>
+                   </div>
+                </div>
+              </div>
+
               <div className="glass rounded-[2.5rem] p-8 border border-white/5 bg-white/[0.01] mb-10 relative overflow-hidden group">
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
@@ -103,7 +123,7 @@ export default function DashboardPage() {
                   <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-110 transition-transform"><Plus className="w-24 h-24 text-white rotate-45" /></div>
                   <h4 className="text-2xl font-black mb-2 relative z-10">Hackathon V3.0</h4>
                   <p className="text-white/80 text-sm mb-6 relative z-10 leading-relaxed font-medium">The biggest coding event at Lendi is back. 48 hours of pure creation.</p>
-                  <Button className="w-full bg-white text-lendi-blue hover:bg-white/90 font-black rounded-2xl relative z-10">Register Now</Button>
+                  <Button className="w-full bg-white text-lendi-blue hover:bg-white/90 font-black rounded-2xl relative z-10 transition-all active:scale-95 shadow-xl">Register Now</Button>
                 </div>
               </div>
             </div>
