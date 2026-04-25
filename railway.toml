@@ -1,12 +1,10 @@
 [build]
 builder = "nixpacks"
+buildCommand = "npm run build"
 
 [deploy]
+startCommand = "node .next/standalone/server.js"
+healthcheckPath = "/"
+healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
-healthcheckPath = "/"
-healthcheckTimeout = 30
-
-[env]
-PHP_VERSION = "8.3"
-NIXPACKS_PHP_EXTRA_EXTS = "mysqli pdo_mysql"
