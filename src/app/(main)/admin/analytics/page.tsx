@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { Header } from "@/components/layout/Header";
@@ -175,7 +176,7 @@ export default function AnalyticsDashboard() {
                           initial={{ width: 0 }}
                           whileInView={{ width: `${item.val}%` }}
                           viewport={{ once: true }}
-                          transition={{ delay: 0.2 + (i * 0.1), duration: 1.5, ease: "expoOut" }}
+                          transition={{ delay: 0.2 + (i * 0.1), duration: 1.5, ease: "circOut" }}
                           className={`h-full ${item.color} shadow-sm`}
                         />
                       </div>

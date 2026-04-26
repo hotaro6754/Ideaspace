@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -17,7 +18,7 @@ import {
   Linkedin,
   Globe,
   Award,
-  BadgeCheck
+  BadgeCheck, ArrowUpRight
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ActivityHeatmap } from "@/components/profile/ActivityHeatmap";

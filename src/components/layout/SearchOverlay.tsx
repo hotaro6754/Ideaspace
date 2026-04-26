@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Rocket, Users, Command, X, Target, Zap, ShieldCheck } from "lucide-react";
+import { Search, Rocket, Users, Command, X, Target, Zap, ShieldCheck, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
@@ -154,7 +154,7 @@ export const SearchOverlay = ({ isOpen, onClose }: { isOpen: boolean; onClose: (
                                 </div>
                               </div>
                             </div>
-                            <ShieldCheck size={16} className="text-muted-foreground/20 group-hover:text-lendi-blue transition-all" />
+                            <ArrowUpRight size={16} className="text-muted-foreground/20 group-hover:text-lendi-blue transition-all" />
                           </div>
                         </Link>
                       ))}
