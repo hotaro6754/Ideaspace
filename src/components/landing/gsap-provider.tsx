@@ -8,33 +8,38 @@ export default function GSAPProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
 
-    // Global scroll reveal for sections
+    // Global section entry logic
     const sections = document.querySelectorAll("section")
     sections.forEach((section) => {
-      gsap.from(section, {
-        opacity: 0,
-        y: 50,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: section,
-          start: "top 85%",
-          toggleActions: "play none none none",
-        },
-      })
+      gsap.fromTo(
+        section,
+        { opacity: 0, y: 100 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.5,
+          ease: "expo.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 90%",
+            end: "top 20%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      )
     })
 
-    // Specialized reveal for bento cards
-    const cards = document.querySelectorAll(".card-hover")
-    cards.forEach((card, i) => {
-      gsap.from(card, {
-        opacity: 0,
-        scale: 0.95,
-        duration: 0.8,
-        ease: "back.out(1.7)",
+    // Parallax logic for floating elements
+    const floaters = document.querySelectorAll(".hero-float")
+    floaters.forEach((floater, i) => {
+      gsap.to(floater, {
+        y: i % 2 === 0 ? -40 : 40,
+        ease: "none",
         scrollTrigger: {
-          trigger: card,
-          start: "top 90%",
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1,
         },
       })
     })

@@ -1,83 +1,108 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { GraduationCap, Briefcase, Award } from "lucide-react"
+import { GraduationCap, Briefcase, Award, MoveRight, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 const personas = [
   {
-    title: "For Students",
+    id: "student",
+    title: "The Innovator",
+    role: "Students",
     icon: GraduationCap,
-    description: "Launch your career with hands-on projects, industry challenges, and peer collaboration.",
-    points: [
-      "Find project partners across departments",
-      "Solve real-world challenges from faculty",
-      "Build a verified innovation portfolio"
-    ],
-    color: "lendi"
+    description: "Convert academic excellence into industrial-grade products. Build a verified history of contributions and team leadership.",
+    highlights: ["Cross-dept teaming", "Industry-led bounties", "Real-time XP tracking"],
+    cta: "Join the Forge",
+    color: "from-lendi to-blue-600",
+    shadow: "shadow-lendi/20"
   },
   {
-    title: "For Faculty",
+    id: "faculty",
+    title: "The Steward",
+    role: "Faculty",
     icon: Award,
-    description: "Bridge the gap between curriculum and innovation by guiding student research.",
-    points: [
-      "Post project problem statements",
-      "Track and mentor student groups",
-      "Manage academic innovation bails"
-    ],
-    color: "synk"
+    description: "Guide the next generation of researchers. Post institutional challenges and monitor progress across departments.",
+    highlights: ["Manage research tracks", "Direct student mentorship", "Academic gatekeeping"],
+    cta: "Admin Console",
+    color: "from-synk to-cyan-600",
+    shadow: "shadow-synk/20"
   },
   {
-    title: "For Alumni",
+    id: "alumni",
+    title: "The Guardian",
+    role: "Alumni",
     icon: Briefcase,
-    description: "Give back to the Lendi community by mentoring the next generation of builders.",
-    points: [
-      "Mentor high-potential student projects",
-      "Post internship and job opportunities",
-      "Stay connected with Lendi's growth"
-    ],
-    color: "indigo-500"
+    description: "Bridge the gap between Lendi and the corporate world. Hire, mentor, and sponsor innovation from the outside in.",
+    highlights: ["Direct hiring pipeline", "Strategic mentorship", "Corporate sponsorship"],
+    cta: "Network Access",
+    color: "from-indigo-600 to-purple-600",
+    shadow: "shadow-indigo-500/20"
   }
 ]
 
 export default function Personas() {
   return (
-    <section className="py-24 relative overflow-hidden bg-background">
+    <section className="py-32 relative overflow-hidden bg-background mesh-gradient">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-black text-foreground mb-4">
-            A Platform for Every Stakeholder
-          </h2>
-          <p className="text-muted-foreground font-medium max-w-2xl mx-auto">
-            IdeaSync is built to serve the entire Lendi ecosystem, creating a
-            synergistic environment for innovation.
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lendi/10 border border-lendi/20 text-[10px] font-black text-lendi uppercase tracking-widest mb-6">
+              The Ecosystem
+            </div>
+            <h2 className="text-5xl md:text-7xl font-black text-foreground tracking-tighter leading-[0.9]">
+              Unified for <br />
+              <span className="text-gradient-sentinel">Synergistic Progress.</span>
+            </h2>
+          </div>
+          <p className="text-lg text-muted-foreground font-medium max-w-sm mb-2">
+            A single infrastructure designed to connect every node in the Lendi institutional network.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {personas.map((p, i) => (
             <motion.div
-              key={p.title}
-              initial={{ opacity: 0, y: 20 }}
+              key={p.id}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="p-8 rounded-3xl border border-border bg-card/50 card-hover flex flex-col h-full"
+              transition={{ delay: i * 0.1, duration: 0.8, ease: [0.2, 0, 0, 1] }}
+              className={`p-10 rounded-[40px] border border-border bg-card/50 backdrop-blur-xl card-hover flex flex-col h-full group relative overflow-hidden`}
             >
-              <div className={`w-14 h-14 rounded-2xl bg-${p.color}/10 flex items-center justify-center text-${p.color} mb-6`}>
-                <p.icon size={28} />
+              {/* Top Accent Line */}
+              <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${p.color}`} />
+
+              <div className="flex items-center justify-between mb-10">
+                <div className="w-16 h-16 rounded-[24px] bg-secondary border border-border flex items-center justify-center text-foreground group-hover:scale-110 transition-transform duration-500">
+                  <p.icon size={32} />
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground block mb-1">Sector</span>
+                  <span className="text-sm font-black text-foreground">{p.role}</span>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold mb-4">{p.title}</h3>
-              <p className="text-muted-foreground font-medium mb-8 flex-1">
+
+              <h3 className="text-3xl font-black mb-4 tracking-tight">{p.title}</h3>
+              <p className="text-muted-foreground font-medium text-lg leading-snug mb-10 flex-1">
                 {p.description}
               </p>
-              <ul className="space-y-3">
-                {p.points.map((point) => (
-                  <li key={point} className="flex items-center gap-3 text-sm font-semibold text-foreground">
-                    <div className={`w-1.5 h-1.5 rounded-full bg-${p.color}`} />
-                    {point}
-                  </li>
+
+              <div className="space-y-4 mb-10">
+                {p.highlights.map((h) => (
+                  <div key={h} className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${p.color}`} />
+                    <span className="text-xs font-bold text-foreground uppercase tracking-widest">{h}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
+
+              <Link
+                href="/login"
+                className={`flex items-center justify-center gap-3 w-full py-5 bg-foreground text-background dark:bg-white dark:text-black rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all ${p.shadow}`}
+              >
+                {p.cta}
+                <ArrowRight size={18} />
+              </Link>
             </motion.div>
           ))}
         </div>

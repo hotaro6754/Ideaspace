@@ -1,229 +1,160 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { ArrowUpRight, Users, Flame } from "lucide-react"
+import { motion, Variants } from "framer-motion"
+import { ArrowUpRight, Flame, Microscope, Cpu, Link as LinkIcon, Wind, ShieldAlert } from "lucide-react"
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.09 } },
+  visible: { transition: { staggerChildren: 0.1 } },
 }
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.2, 0, 0, 1]
+    }
+  },
 }
 
 type Problem = {
   domain: string
-  domainColor: string
+  icon: any
   title: string
   description: string
   teams: number
-  difficulty: number
-  hot: boolean
+  difficulty: string
+  status: "active" | "hot" | "full"
 }
 
 const problems: Problem[] = [
   {
-    domain: "IoT",
-    domainColor: "bg-synk/15 text-synk border-synk/25",
-    title: "Smart Traffic Management System",
-    description:
-      "Design an adaptive traffic control system using edge computing and ML at LIET campus gates to reduce congestion by 40%.",
-    teams: 12,
-    difficulty: 4,
-    hot: true,
+    domain: "Edge Computing",
+    icon: Cpu,
+    title: "Adaptive Campus Grid Management",
+    description: "Architecting a decentralized power distribution model for LIET labs using low-latency edge nodes and predictive ML.",
+    teams: 14,
+    difficulty: "Elite",
+    status: "hot",
   },
   {
-    domain: "Blockchain",
-    domainColor: "bg-purple-500/15 text-purple-300 border-purple-500/25",
+    domain: "Applied Cryptography",
+    icon: LinkIcon,
     title: "Immutable Academic Credentials",
-    description:
-      "Build a decentralized ledger for degree and certificate verification, eliminating document fraud campus-wide.",
+    description: "Developing a sovereign identity layer for verified degree issuance and cross-institutional certificate validation.",
     teams: 8,
-    difficulty: 4,
-    hot: false,
+    difficulty: "Expert",
+    status: "active",
   },
   {
-    domain: "ML / AI",
-    domainColor: "bg-lendi/15 text-lendi-light border-lendi/25",
-    title: "AI-Powered Attendance System",
-    description:
-      "Face recognition-based smart attendance with real-time anomaly detection and automated faculty reports.",
-    teams: 15,
-    difficulty: 3,
-    hot: true,
+    domain: "Computer Vision",
+    icon: Microscope,
+    title: "Neural Attendance Protocol",
+    description: "High-accuracy biometric verification system for campus-wide auditing with privacy-preserving local processing.",
+    teams: 18,
+    difficulty: "Advanced",
+    status: "hot",
   },
   {
     domain: "Sustainability",
-    domainColor: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
-    title: "Campus Energy Optimizer",
-    description:
-      "Real-time energy monitoring across all LIET buildings with AI-driven consumption forecasting and alerts.",
+    icon: Wind,
+    title: "Eco-Logic Consumption Forecaster",
+    description: "Real-time auditing of renewable energy generation at Lendi with AI-driven load balancing for smart buildings.",
     teams: 6,
-    difficulty: 3,
-    hot: false,
+    difficulty: "Expert",
+    status: "active",
   },
   {
-    domain: "Cybersecurity",
-    domainColor: "bg-red-500/15 text-red-400 border-red-500/25",
-    title: "Secure Research Data Gateway",
-    description:
-      "End-to-end encrypted platform for cross-department research data sharing with role-based access control and audit trails.",
+    domain: "Cyber Intelligence",
+    icon: ShieldAlert,
+    title: "Intrusion Detection Gateway",
+    description: "Securing institutional research data through an automated behavioral analysis firewall for cross-dept networks.",
     teams: 5,
-    difficulty: 5,
-    hot: false,
+    difficulty: "Elite",
+    status: "active",
   },
 ]
 
-function DifficultyDots({ level }: { level: number }) {
-  return (
-    <div className="flex items-center gap-1">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={i}
-          className={`w-1.5 h-1.5 rounded-full transition-colors ${
-            i < level ? "bg-synk" : "bg-border"
-          }`}
-        />
-      ))}
-    </div>
-  )
-}
-
-function SectionLabel({ text }: { text: string }) {
-  return (
-    <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-synk">
-      <span className="w-4 h-px bg-synk" />
-      {text}
-    </div>
-  )
-}
-
 export default function ProblemStatements() {
   return (
-    <section id="challenges" className="relative py-24 lg:py-32 overflow-hidden">
-      <div className="absolute top-0 left-1/4 w-[600px] h-[400px] bg-synk/5 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-14"
-        >
-          <SectionLabel text="Open Challenges" />
-          <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-foreground text-balance leading-tight font-sans">
-            Real problems.
-            <br />
-            <span className="gradient-text">Real impact.</span>
-          </h2>
-          <p className="mt-4 text-muted-foreground text-lg max-w-lg text-pretty font-medium">
-            Tackle industry-grade challenges issued by LIET faculty and partner
-            organizations. Solve it. Ship it. Own it.
+    <section id="challenges" className="py-32 relative overflow-hidden bg-background mesh-gradient">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lendi/10 border border-lendi/20 text-[10px] font-black text-lendi uppercase tracking-widest mb-6">
+              Research Tracks
+            </div>
+            <h2 className="text-5xl md:text-7xl font-black text-foreground tracking-tighter leading-[0.9]">
+              High Stakes <br />
+              <span className="text-gradient-sentinel">Open Challenges.</span>
+            </h2>
+          </div>
+          <p className="text-lg text-muted-foreground font-medium max-w-sm mb-2">
+            Directly from Lendi labs. Solve real institutional problems and earn verified reputation points.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Bento grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {/* Card 0 — wide */}
-          <motion.div
-            variants={itemVariants as any}
-            className="lg:col-span-2 glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer relative overflow-hidden"
-          >
-            <ProblemCard problem={problems[0]} large />
-          </motion.div>
+          {problems.map((p, i) => (
+            <motion.div
+              key={p.title}
+              variants={itemVariants}
+              className={`p-8 rounded-[36px] bg-card/40 backdrop-blur-xl border border-border card-hover flex flex-col group ${i === 0 ? 'md:col-span-2' : ''}`}
+            >
+              <div className="flex items-start justify-between mb-8">
+                 <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-foreground border border-border group-hover:bg-lendi group-hover:text-white transition-colors">
+                      <p.icon size={20} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block leading-none mb-1">{p.domain}</span>
+                      <span className="text-xs font-bold text-foreground uppercase tracking-wider">{p.difficulty}</span>
+                    </div>
+                 </div>
+                 {p.status === 'hot' && (
+                   <span className="px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[9px] font-black text-red-500 uppercase tracking-widest flex items-center gap-1.5">
+                     <Flame size={12} className="fill-red-500" /> Active
+                   </span>
+                 )}
+              </div>
 
-          {/* Card 1 */}
-          <motion.div
-            variants={itemVariants as any}
-            className="glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer"
-          >
-            <ProblemCard problem={problems[1]} />
-          </motion.div>
+              <h3 className="text-2xl font-black mb-4 tracking-tight leading-snug">{p.title}</h3>
+              <p className="text-muted-foreground font-medium text-base leading-snug mb-10 flex-1">
+                {p.description}
+              </p>
 
-          {/* Card 2 */}
-          <motion.div
-            variants={itemVariants as any}
-            className="glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer"
-          >
-            <ProblemCard problem={problems[2]} />
-          </motion.div>
-
-          {/* Card 3 */}
-          <motion.div
-            variants={itemVariants as any}
-            className="glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer"
-          >
-            <ProblemCard problem={problems[3]} />
-          </motion.div>
-
-          {/* Card 4 — wide */}
-          <motion.div
-            variants={itemVariants as any}
-            className="glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer"
-          >
-            <ProblemCard problem={problems[4]} />
-          </motion.div>
+              <div className="flex items-center justify-between pt-8 border-t border-border/50 mt-auto">
+                <div className="flex items-center gap-2">
+                   <div className="flex -space-x-2">
+                     {[1, 2, 3].map(j => (
+                       <div key={j} className="w-6 h-6 rounded-full border-2 border-card bg-secondary" />
+                     ))}
+                   </div>
+                   <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{p.teams} Teams Synced</span>
+                </div>
+                <button className="w-10 h-10 rounded-full bg-secondary border border-border flex items-center justify-center text-muted-foreground group-hover:bg-lendi group-hover:text-white transition-all">
+                  <ArrowUpRight size={18} />
+                </button>
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
 
-        {/* View all CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-10 text-center"
-        >
-          <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border text-sm font-bold text-muted-foreground hover:border-lendi/40 hover:text-foreground hover:bg-lendi/8 transition-all duration-300">
-            View all 48 challenges
-            <ArrowUpRight size={15} />
-          </button>
-        </motion.div>
+        <div className="mt-20 text-center">
+           <button className="px-10 py-5 rounded-2xl border border-border bg-card/50 backdrop-blur-sm font-black text-xs uppercase tracking-[0.3em] hover:bg-secondary transition-all">
+             Audit all 124 Tracks
+           </button>
+        </div>
       </div>
     </section>
-  )
-}
-
-function ProblemCard({ problem, large = false }: { problem: Problem; large?: boolean }) {
-  return (
-    <>
-      <div className="flex items-start justify-between mb-4">
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${problem.domainColor}`}>
-          {problem.domain}
-        </span>
-        <div className="flex items-center gap-2">
-          {problem.hot && (
-            <div className="flex items-center gap-1 text-orange-400 text-xs font-bold uppercase tracking-widest">
-              <Flame size={12} />
-              Hot
-            </div>
-          )}
-          <div className="w-7 h-7 rounded-full bg-secondary/60 border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <ArrowUpRight size={13} className="text-muted-foreground" />
-          </div>
-        </div>
-      </div>
-      <h3 className={`font-bold text-foreground mb-2 text-balance leading-snug font-sans ${large ? "text-xl" : "text-base"}`}>
-        {problem.title}
-      </h3>
-      <p className="text-muted-foreground text-sm leading-relaxed text-pretty line-clamp-3 font-medium">
-        {problem.description}
-      </p>
-      <div className="mt-5 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold">
-          <Users size={12} />
-          <span>{problem.teams} teams working</span>
-        </div>
-        <DifficultyDots level={problem.difficulty} />
-      </div>
-    </>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { validateLendiEmail } from "@/lib/auth";
+import { validateLendiEmail, extractEmailMetadata } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -14,6 +14,7 @@ export default function AuthCallback() {
       const { data: { session }, error } = await supabase.auth.getSession();
 
       if (error || !session) {
+        toast.error("Authentication session failed.");
         router.push("/login");
         return;
       }
@@ -21,22 +22,37 @@ export default function AuthCallback() {
       const email = session.user?.email;
       if (email && !validateLendiEmail(email)) {
         await supabase.auth.signOut();
-        toast.error("Access restricted to Lendi College email addresses only.");
+        toast.error("Access restricted to verified institutional accounts (@lendi.edu.in, @lendi.org).");
         router.push("/login");
         return;
       }
 
-      router.push("/dashboard");
+      // Check if profile exists and update metadata
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (!profile) {
+        // Redirect to onboarding for new OAuth users
+        router.push("/onboarding");
+      } else {
+        router.push("/dashboard");
+      }
     };
 
     handleAuth();
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-8 h-8 border-4 border-lendi border-t-transparent rounded-full animate-spin" />
-        <p className="text-muted-foreground animate-pulse">Verifying credentials...</p>
+    <div className="min-h-screen flex items-center justify-center bg-[#020617] mesh-gradient">
+      <div className="flex flex-col items-center gap-6">
+        <div className="w-12 h-12 border-4 border-lendi border-t-transparent rounded-full animate-spin shadow-2xl shadow-lendi/20" />
+        <div className="text-center">
+          <p className="text-[10px] font-black text-white uppercase tracking-[0.4em] animate-pulse mb-2">Syncing Protocol</p>
+          <p className="text-xs text-white/40 font-medium">Establishing secure link to Lendi network...</p>
+        </div>
       </div>
     </div>
   );
