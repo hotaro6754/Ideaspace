@@ -1,26 +1,24 @@
-FROM php:8.3-cli
-
-# Install MySQL extensions
-RUN docker-php-ext-install mysqli pdo pdo_mysql
-
-# Install MySQL client
-RUN apt-get update && apt-get install -y default-mysql-client curl && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
+FROM node:22-alpine AS base
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Copy application files
+COPY package.json package-lock.json* ./
+RUN npm ci
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Create logs and uploads directories
-RUN mkdir -p /app/logs /app/uploads && chmod 777 /app/logs /app/uploads
-
-# Expose port
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://127.0.0.1:8080/public/health.php || exit 1
-
-# Start PHP built-in server
-CMD php -S 0.0.0.0:${PORT:-8080} -t public public/router.php
+RUN npm run build
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+COPY --from=builder /app/public ./public
+RUN mkdir .next && chown nextjs:nodejs .next
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+USER nextjs
+EXPOSE 3000
+ENV PORT=3000
+CMD ["node", "server.js"]
