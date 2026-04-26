@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/ui.spec.ts >> Dashboard renders core Sentinel components
-- Location: tests/ui.spec.ts:3:5
+- Name: verify_ui.spec.ts >> verify landing page professional look
+- Location: verify_ui.spec.ts:3:5
 
 # Error details
 
