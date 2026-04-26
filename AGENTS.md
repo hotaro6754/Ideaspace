@@ -1,5 +1,16 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# Project Patterns & Guidelines
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+## Authentication
+- Allowed Domains: `lendi.org`, `liethub.org`, `lendi.edu.in`.
+- Always use `validateLendiEmail` from `src/lib/auth.ts` for domain verification.
+- OAuth (Google/GitHub) must be followed by a domain check in the callback route.
+
+## UI/UX Design System
+- Aesthetic: Professional, high-contrast, institutional SaaS.
+- Colors: Lendi Blue (#004a99), Synk Cyan (#06b6d4).
+- Animations: Use GSAP for scroll-triggered reveals and Framer Motion for micro-interactions.
+- Philosophy: ZeroSlop - use high-quality institutional terminology, avoid "hacker/terminal" generic styles.
+
+## Component Organization
+- Landing Page components reside in `src/components/landing/`.
+- Use the `GSAPProvider` for scroll-driven animations on the main page.

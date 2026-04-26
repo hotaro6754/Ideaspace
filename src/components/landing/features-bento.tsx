@@ -1,237 +1,164 @@
 "use client"
 
-import { motion, Variants } from "framer-motion"
+import { motion } from "framer-motion"
+import Link from "next/link"
 import {
-  GitMerge,
   Brain,
-  Map,
-  BarChart3,
+  Rocket,
+  Shield,
+  Layers,
   Users,
-  Network,
-  Sparkles,
+  Search,
+  ChevronRight,
+  TrendingUp,
 } from "lucide-react"
-
-const containerVariants: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-}
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-}
-
-function SectionLabel({ text }: { text: string }) {
-  return (
-    <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-synk">
-      <span className="w-4 h-px bg-synk" />
-      {text}
-    </div>
-  )
-}
 
 export default function FeaturesBento() {
   return (
-    <section id="features" className="relative py-24 lg:py-32 overflow-hidden">
-      <div className="absolute inset-0 blueprint-grid-sm opacity-40" />
-      <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-lendi/6 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-14"
-        >
-          <SectionLabel text="Platform Capabilities" />
-          <h2 className="mt-4 text-4xl sm:text-5xl font-bold text-foreground text-balance leading-tight font-sans">
-            Everything you need to
-            <br />
-            <span className="gradient-text">build and collaborate.</span>
+    <section id="features" className="py-24 lg:py-32 relative overflow-hidden bg-secondary/30">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Section Header */}
+        <div className="mb-16">
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-lendi mb-4">
+            <span className="w-8 h-px bg-lendi" />
+            Core Capabilities
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black text-foreground mb-6 tracking-tight">
+            Designed for institutional <br />
+            <span className="gradient-text">excellence.</span>
           </h2>
-          <p className="mt-4 text-muted-foreground text-lg max-w-xl text-pretty font-medium">
-            A unified workspace for LIET students to ideate, team up, and ship
-            solutions that make a difference.
-          </p>
-        </motion.div>
+        </div>
 
         {/* Bento Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        >
-          {/* Card 1 — Large (col-span-2) */}
-          <motion.div
-            variants={itemVariants as any}
-            className="lg:col-span-2 glass-card card-hover-glow border-shine rounded-2xl p-6 min-h-[220px] group cursor-pointer relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-lendi/5 via-transparent to-synk/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-synk/15 border border-synk/25 flex items-center justify-center">
-                <Network size={20} className="text-synk" />
-              </div>
-              <span className="text-xs font-medium bg-synk/10 text-synk border border-synk/20 px-2.5 py-1 rounded-full">
-                Live
-              </span>
-            </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">Real-time Sync</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
-              Co-edit project briefs, pitch decks, and technical specs simultaneously.
-              Powered by CRDTs — no merge conflicts, ever. See your teammates' cursors live.
-            </p>
-            {/* Live indicator strip */}
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-synk/40 to-transparent" />
-            <div className="mt-5 flex items-center gap-3">
-              {["CS", "EC", "ME", "AI"].map((dept) => (
-                <div key={dept} className="w-7 h-7 rounded-full bg-lendi/20 border border-lendi/30 text-[10px] font-bold text-lendi-light flex items-center justify-center">
-                  {dept}
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {/* Card 1: Collaborative Research (Large) */}
+          <div className="md:col-span-4 lg:col-span-4 p-8 rounded-3xl bg-card border border-border card-hover group relative overflow-hidden">
+            <div className="flex flex-col h-full justify-between relative z-10">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-lendi/10 flex items-center justify-center text-lendi mb-6">
+                  <Layers size={24} />
                 </div>
-              ))}
-              <span className="text-xs text-muted-foreground font-medium">+18 collaborating now</span>
-            </div>
-          </motion.div>
-
-          {/* Card 2 — AI Mentor */}
-          <motion.div
-            variants={itemVariants as any}
-            className="glass-card card-hover-glow-cyan border-shine rounded-2xl p-6 group cursor-pointer relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-b from-synk/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="w-10 h-10 rounded-xl bg-lendi/15 border border-lendi/25 flex items-center justify-center mb-4">
-              <Brain size={20} className="text-lendi-light" />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">AI Mentor</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Smart pairing suggestions based on your skills, interests, and project history.
-              The AI analyzes 40+ signals.
-            </p>
-            <div className="mt-4 p-3 rounded-xl bg-lendi/8 border border-lendi/15">
-              <div className="flex items-center gap-2 text-xs text-lendi-light">
-                <Sparkles size={12} />
-                <span className="font-medium">Match found: 94% compatibility</span>
+                <h3 className="text-2xl font-bold text-foreground mb-3">Multi-Disciplinary Collaboration</h3>
+                <p className="text-muted-foreground font-medium max-w-md">
+                  Bridge departments and year groups. Students from CSE, ECE, and Mechanical can collaborate
+                  seamlessly on complex research projects with shared workspaces.
+                </p>
               </div>
-              <div className="text-[11px] text-muted-foreground mt-1 font-medium">
-                Riya S. · ML Expert · CSE Branch
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Card 3 — Innovation Tracks */}
-          <motion.div
-            variants={itemVariants as any}
-            className="glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer"
-          >
-            <div className="w-10 h-10 rounded-xl bg-synk/15 border border-synk/25 flex items-center justify-center mb-4">
-              <Map size={20} className="text-synk" />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Innovation Tracks</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Curated challenge tracks across 12 domains — from IoT and AI to Sustainability
-              and Blockchain.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-1.5">
-              {["IoT", "AI/ML", "Web3", "Green", "Cyber"].map((tag) => (
-                <span key={tag} className="text-[11px] px-2 py-0.5 rounded-full bg-secondary/60 text-muted-foreground border border-border/60 font-bold">
-                  {tag}
+              <div className="mt-12 flex items-center gap-4">
+                <div className="flex -space-x-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-secondary flex items-center justify-center text-[10px] font-bold">
+                      {String.fromCharCode(64 + i)}
+                    </div>
+                  ))}
+                </div>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                  +12 Departments Active
                 </span>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Card 4 — Talent Matching */}
-          <motion.div
-            variants={itemVariants as any}
-            className="glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer"
-          >
-            <div className="w-10 h-10 rounded-xl bg-lendi/15 border border-lendi/25 flex items-center justify-center mb-4">
-              <Users size={20} className="text-lendi-light" />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Talent Matching</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Algorithm-driven team assembly. Balance skills, year of study, and specialization
-              for optimal team composition.
-            </p>
-            <div className="mt-4 flex items-center gap-2">
-              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <div className="h-full w-[78%] bg-gradient-to-r from-lendi to-synk rounded-full" />
-              </div>
-              <span className="text-xs text-synk font-bold">78% match rate</span>
-            </div>
-          </motion.div>
-
-          {/* Card 5 — Version Control (col-span-2) */}
-          <motion.div
-            variants={itemVariants as any}
-            className="lg:col-span-2 glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer relative overflow-hidden"
-          >
-            <div className="absolute right-6 top-0 bottom-0 w-[200px] opacity-[0.04] group-hover:opacity-[0.07] transition-opacity">
-              <svg viewBox="0 0 200 200" className="w-full h-full" fill="none">
-                <circle cx="100" cy="50" r="8" stroke="#004a99" strokeWidth="2" />
-                <circle cx="60" cy="120" r="8" stroke="#004a99" strokeWidth="2" />
-                <circle cx="140" cy="120" r="8" stroke="#004a99" strokeWidth="2" />
-                <circle cx="100" cy="180" r="8" stroke="#06b6d4" strokeWidth="2" />
-                <line x1="100" y1="58" x2="60" y2="112" stroke="#004a99" strokeWidth="1.5" strokeDasharray="4 4" />
-                <line x1="100" y1="58" x2="140" y2="112" stroke="#004a99" strokeWidth="1.5" strokeDasharray="4 4" />
-                <line x1="60" y1="128" x2="100" y2="172" stroke="#06b6d4" strokeWidth="1.5" strokeDasharray="4 4" />
-                <line x1="140" y1="128" x2="100" y2="172" stroke="#06b6d4" strokeWidth="1.5" strokeDasharray="4 4" />
-              </svg>
-            </div>
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-lendi/15 border border-lendi/25 flex items-center justify-center">
-                <GitMerge size={20} className="text-lendi-light" />
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                GitHub connected
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">Project Versioning</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-md">
-              GitHub-native integration built into every project. Push commits, open PRs, and
-              track contribution history — all visible inside IdeaSync.
-            </p>
-            <div className="mt-5 flex items-center gap-6 text-xs text-muted-foreground font-bold">
-              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-green-500" /> 3 branches</span>
-              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-lendi-light" /> 127 commits</span>
-              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-synk" /> 14 open PRs</span>
-            </div>
-          </motion.div>
+            {/* Abstract Background Element */}
+            <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-lendi/5 rounded-full blur-3xl pointer-events-none group-hover:bg-lendi/10 transition-colors" />
+          </div>
 
-          {/* Card 6 — Analytics */}
-          <motion.div
-            variants={itemVariants as any}
-            className="glass-card card-hover-glow border-shine rounded-2xl p-6 group cursor-pointer"
-          >
-            <div className="w-10 h-10 rounded-xl bg-synk/15 border border-synk/25 flex items-center justify-center mb-4">
-              <BarChart3 size={20} className="text-synk" />
+          {/* Card 2: AI Mentor */}
+          <div className="md:col-span-2 lg:col-span-2 p-8 rounded-3xl bg-card border border-border card-hover group">
+            <div className="w-12 h-12 rounded-2xl bg-synk/10 flex items-center justify-center text-synk mb-6">
+              <Brain size={24} />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Analytics Hub</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Monitor project velocity, team activity scores, and milestone completion
-              with live dashboards.
+            <h3 className="text-xl font-bold text-foreground mb-3">AI Academic Pairing</h3>
+            <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+              Smart algorithms suggest mentors and project partners based on research history,
+              skills, and publication interests.
             </p>
-            {/* Mini bar chart */}
-            <div className="mt-4 flex items-end gap-1.5 h-10">
-              {[40, 65, 35, 80, 55, 90, 70].map((h, i) => (
-                <div
-                  key={i}
-                  className="flex-1 rounded-sm transition-all duration-300 group-hover:opacity-90"
-                  style={{
-                    height: `${h}%`,
-                    background: i === 5
-                      ? "linear-gradient(to top, #004a99, #06b6d4)"
-                      : "rgba(0,74,153,0.25)",
-                  }}
-                />
-              ))}
+          </div>
+
+          {/* Card 3: For Faculty */}
+          <div id="faculty" className="md:col-span-2 lg:col-span-2 p-8 rounded-3xl bg-lendi text-white card-hover group relative overflow-hidden">
+            <div className="relative z-10 flex flex-col h-full justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-6">
+                  <Shield size={24} />
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-white">Faculty Stewardship</h3>
+                <p className="text-sm text-white/80 font-medium leading-relaxed">
+                  Manage research bails, track student progress, and issue problem statements
+                  directly to the student body with administrative oversight.
+                </p>
+              </div>
+              <Link href="/login" className="mt-8 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:translate-x-1 transition-transform">
+                Admin Terminal <ChevronRight size={14} />
+              </Link>
             </div>
-          </motion.div>
-        </motion.div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-16 -mt-16" />
+          </div>
+
+          {/* Card 4: Alumni Network */}
+          <div id="alumni" className="md:col-span-2 lg:col-span-4 p-8 rounded-3xl bg-card border border-border card-hover group">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 h-full">
+              <div className="flex-1">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6">
+                  <Users size={24} />
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-3">Alumni Mentorship Gateway</h3>
+                <p className="text-muted-foreground font-medium max-w-sm">
+                  Lendi alumni now at top global firms can mentor students, review projects, and post
+                  internship opportunities exclusively for current students.
+                </p>
+              </div>
+              <div className="w-full md:w-auto p-6 rounded-2xl bg-secondary/50 border border-border">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <TrendingUp size={18} className="text-emerald-600" />
+                  </div>
+                  <span className="text-sm font-bold">92% Career Success</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-2 w-32 bg-border rounded-full overflow-hidden">
+                    <div className="h-full w-4/5 bg-emerald-500" />
+                  </div>
+                  <div className="h-2 w-24 bg-border rounded-full overflow-hidden">
+                    <div className="h-full w-2/3 bg-emerald-500" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 5: Smart Search */}
+          <div className="md:col-span-2 lg:col-span-2 p-8 rounded-3xl bg-card border border-border card-hover group">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-6">
+              <Search size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-3">Institutional Discovery</h3>
+            <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+              Global Command+K search to find any project, research paper, student, or faculty
+              member across the entire Lendi network.
+            </p>
+          </div>
+
+          {/* Card 6: Career Growth */}
+          <div className="md:col-span-2 lg:col-span-4 p-8 rounded-3xl bg-card border border-border card-hover group flex items-center justify-between overflow-hidden relative">
+            <div className="relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 mb-6">
+                <Rocket size={24} />
+              </div>
+              <h3 className="text-2xl font-bold text-foreground mb-3">Industry-Ready Portfolio</h3>
+              <p className="text-muted-foreground font-medium max-w-sm">
+                Every project and participation generates a verified "Innovation Resume"
+                shareable with recruiters to showcase hands-on excellence.
+              </p>
+            </div>
+            <div className="hidden lg:flex flex-col gap-3 relative z-10 translate-x-4">
+               {[1, 2, 3].map(i => (
+                 <div key={i} className="w-48 h-12 rounded-xl bg-secondary border border-border border-dashed flex items-center px-4">
+                   <div className="w-2 h-2 rounded-full bg-indigo-400 mr-3" />
+                   <div className="h-2 w-24 bg-border rounded-full" />
+                 </div>
+               ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   )
