@@ -1,49 +1,23 @@
-# Environment files
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+# testing
+/coverage
+/test-results
+# next.js
+/.next/
+/out/
+# production
+/build
+# misc
+*.pem
+.DS_Store
+# local env files
+.env*.local
 .env
-.env.local
-.env.*.local
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Logs
-logs/
-*.log
-
-# Caches
-cache/
-tmp/
-temp/
-
-# Dependencies
-vendor/
-node_modules/
-
-# Compiled files
-dist/
-build/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Temporary files
-*.tmp
-*.bak
-*.orig
-
-# Database dumps
-*.sql
-*.sql.gz
-
-# Uploaded files (but keep the directory)
-uploads/*
-!uploads/.gitkeep
-
-# Composer
-composer.lock
+# vercel
+.vercel
+# typescript
+*.tsbuildinfo
+next-env.d.ts

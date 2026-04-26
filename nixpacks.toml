@@ -1,5 +1,11 @@
 [phases.setup]
-nixPkgs = ["php82", "php82Extensions.pdo", "php82Extensions.pdo_mysql", "php82Extensions.mysqli"]
-
+nixPkgs = ["nodejs_22"]
+[phases.install]
+cmds = ["npm ci"]
+[phases.build]
+cmds = ["npm run build"]
 [start]
-cmd = "php -S 0.0.0.0:$PORT -t public public/router.php"
+cmd = "node .next/standalone/server.js"
+[env]
+NODE_ENV = "production"
+PORT = "3000"
