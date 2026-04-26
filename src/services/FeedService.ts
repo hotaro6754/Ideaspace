@@ -3,7 +3,7 @@ import { logger } from '@/lib/logger';
 
 export interface FeedItem {
   id: string;
-  type: 'idea' | 'bounty' | 'news';
+  type: 'project' | 'bounty' | 'news';
   title: string;
   description: string;
   author_id: string;
@@ -11,22 +11,16 @@ export interface FeedItem {
   created_at: string;
   domain?: string;
   category?: string;
-  points_reward?: number;
+  reward_amount?: number;
   upvotes?: number;
   is_followed?: boolean;
   image_url?: string;
   external_url?: string;
 }
 
-interface ProfileData {
-  full_name: string;
-}
-
 export class FeedService {
   static async getPersonalizedFeed(userId: string, limit = 10, offset = 0) {
     try {
-      logger.info('Feed', 'Fetching personalized feed batch', { userId, offset });
-
       const { data: profile } = await supabase
         .from('profiles')
         .select('interests')
@@ -41,99 +35,87 @@ export class FeedService {
       const followedIds = following?.map(f => f.following_id) || [];
       const interests = profile?.interests || [];
 
-      const { data: rawIdeas, error: ideasError } = await supabase
-        .from('ideas')
-        .select(`
-          id,
-          title,
-          description,
-          domain,
-          user_id,
-          upvotes_count,
-          created_at,
-          profiles:user_id (full_name)
-        `)
+      // Fetch Projects (formerly ideas)
+      const { data: projects } = await supabase
+        .from('projects')
+        .select(`id, title, description, lead_id, created_at, stars_count, profiles:lead_id (full_name)`)
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
-      if (ideasError) throw ideasError;
-
-      const { data: rawBounties, error: bountiesError } = await supabase
+      // Fetch Bounties
+      const { data: bounties } = await supabase
         .from('bounties')
         .select('*')
         .eq('status', 'open')
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
-      if (bountiesError) throw bountiesError;
-
-      const { data: rawNews, error: newsError } = await supabase
+      // Fetch News
+      const { data: news } = await supabase
         .from('news')
         .select('*')
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
-      if (newsError) throw newsError;
-
       const items: FeedItem[] = [
-        ...(rawIdeas?.map(i => {
-          const profile = i.profiles as unknown as ProfileData;
-          return {
-            id: i.id,
-            type: 'idea' as const,
-            title: i.title,
-            description: i.description,
-            domain: i.domain,
-            author_id: i.user_id,
-            author_name: profile?.full_name || 'Anonymous',
-            upvotes: i.upvotes_count,
-            created_at: i.created_at,
-            is_followed: followedIds.includes(i.user_id)
-          };
-        }) || []),
-        ...(rawBounties?.map(b => ({
+        ...(projects?.map(p => ({
+          id: p.id,
+          type: 'project' as const,
+          title: p.title,
+          description: p.description,
+          author_id: p.lead_id,
+          author_name: (p.profiles as any)?.full_name || 'Anonymous',
+          upvotes: p.stars_count,
+          created_at: p.created_at,
+          is_followed: followedIds.includes(p.lead_id)
+        })) || []),
+        ...(bounties?.map(b => ({
           id: b.id,
           type: 'bounty' as const,
           title: b.title,
           description: b.description,
-          points_reward: b.points_reward,
+          reward_amount: b.reward_amount,
           author_id: 'system',
           author_name: 'Lendi Faculty',
           created_at: b.created_at,
           is_followed: false
         })) || []),
-        ...(rawNews?.map(n => ({
+        ...(news?.map(n => ({
           id: n.id,
           type: 'news' as const,
           title: n.title,
           description: n.content,
           category: n.category,
-          author_id: n.author_id || 'system',
-          author_name: 'Tech Desk',
+          author_id: 'system',
+          author_name: 'Institutional News',
           created_at: n.created_at,
-          image_url: n.image_url,
           external_url: n.external_url,
           is_followed: false
         })) || [])
       ];
 
+      // Sophisticated scoring for discovery
       const rankedFeed = items.sort((a, b) => {
         let scoreA = 0;
         let scoreB = 0;
+
         if (a.is_followed) scoreA += 50;
         if (b.is_followed) scoreB += 50;
-        if (a.domain && interests.includes(a.domain)) scoreA += 30;
-        if (b.domain && interests.includes(b.domain)) scoreB += 30;
-        if (a.type === 'news') scoreA += 10;
-        if (b.type === 'news') scoreB += 10;
-        scoreA += new Date(a.created_at).getTime() / 10000000000;
-        scoreB += new Date(b.created_at).getTime() / 10000000000;
+
+        // Boost projects matching interests
+        if (a.type === 'project' && interests.some(i => a.description.toLowerCase().includes(i.toLowerCase()))) scoreA += 30;
+        if (b.type === 'project' && interests.some(i => b.description.toLowerCase().includes(i.toLowerCase()))) scoreB += 30;
+
+        // Recency factor
+        scoreA += new Date(a.created_at).getTime() / 1e12;
+        scoreB += new Date(b.created_at).getTime() / 1e12;
+
         return scoreB - scoreA;
       });
 
       return rankedFeed.slice(0, limit);
     } catch (error) {
-      logger.error('Feed', 'Failed to generate feed batch', error);
+      logger.error('Feed', 'Batch synthesis failed', error);
       return [];
     }
   }

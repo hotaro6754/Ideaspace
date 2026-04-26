@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
-import { User, Shield, Bell, Moon, Sun, Globe, Lock, ShieldCheck, Loader2, Save } from "lucide-react";
+import { User, Shield, Bell, Loader2, Save, BadgeCheck, Fingerprint, Mail, Building2, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
+
+const DEPARTMENTS = ["CSE", "CSM", "CSIT", "ECE", "EEE", "MECH"];
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState<any>(null);
@@ -26,84 +28,150 @@ export default function SettingsPage() {
   }, []);
 
   const handleSave = async () => {
+    if (!profile) return;
     setSaving(true);
-    const { error } = await supabase.from('profiles').update({
-      full_name: profile.full_name,
-      department: profile.department
-    }).eq('id', profile.id);
+    try {
+      const { error } = await supabase.from('profiles').update({
+        full_name: profile.full_name,
+        department: profile.department,
+        bio: profile.bio,
+        linkedin_url: profile.linkedin_url,
+        github_username: profile.github_username
+      }).eq('id', profile.id);
 
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Security profile updated.");
+      if (error) throw error;
+      toast.success("Institutional profile synchronized");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-black"><Loader2 className="w-10 h-10 animate-spin text-lendi-blue" /></div>;
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-background">
+      <Loader2 className="w-10 h-10 animate-spin text-lendi-blue" />
+    </div>
+  );
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-black text-white">
-      <Header title="System Configuration" />
-      <main className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+    <div className="flex flex-col h-full overflow-hidden bg-background">
+      <Header title="Personnel Configuration" />
+      <main className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-12">
-            <h1 className="text-4xl font-black font-plus-jakarta tracking-tight mb-2">Personnel Settings</h1>
-            <p className="text-white/40 font-medium">Manage your digital footprint and authorization levels.</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lendi-blue/10 border border-lendi-blue/20 text-[10px] font-black text-lendi-blue uppercase tracking-widest">
+                <Shield size={12} />
+                Identity Terminal
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight-inst">Account Settings</h1>
+              <p className="text-muted-foreground font-medium max-w-xl">
+                Manage your institutional identity, research credentials, and networking authorization levels.
+              </p>
+            </div>
+
+            <Button onClick={handleSave} disabled={saving} className="h-14 rounded-2xl px-10 font-black uppercase tracking-widest text-xs gap-3 shadow-lendi">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={18} />}
+              Sync Profile
+            </Button>
           </div>
 
-          <div className="space-y-8 pb-20">
-            <section className="glass rounded-[2.5rem] p-10 border border-white/5 relative overflow-hidden">
-               <div className="flex items-center gap-4 mb-10">
-                 <div className="p-3 rounded-2xl bg-lendi-blue/10 text-lendi-blue"><User className="w-6 h-6" /></div>
-                 <h2 className="text-2xl font-black font-plus-jakarta tracking-tight">Identity Matrix</h2>
+          <div className="space-y-10 pb-24">
+            <section className="inst-card p-10 bg-card shadow-sm">
+               <div className="flex items-center gap-4 mb-10 border-b border-border pb-6">
+                 <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-lendi-blue shadow-sm">
+                   <User size={24} />
+                 </div>
+                 <h2 className="text-2xl font-black tracking-tight uppercase">Core Identity Matrix</h2>
                </div>
 
                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                 <div>
-                   <label className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-3 block">Full Name</label>
-                   <input type="text" value={profile?.full_name} onChange={e => setProfile({...profile, full_name: e.target.value})} className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 h-14 text-sm focus:outline-none focus:border-lendi-blue/50" />
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Full Academic Name</label>
+                   <input
+                    type="text"
+                    value={profile?.full_name}
+                    onChange={e => setProfile({...profile, full_name: e.target.value})}
+                    className="w-full bg-secondary border border-border rounded-2xl px-6 h-14 text-sm font-bold focus:outline-none focus:border-lendi-blue transition-all"
+                   />
                  </div>
-                 <div>
-                   <label className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-3 block">Roll Number (Read-only)</label>
-                   <input type="text" value={profile?.roll_number} disabled className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 h-14 text-sm opacity-40 cursor-not-allowed" />
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Roll Number (Verified)</label>
+                   <div className="relative">
+                     <Fingerprint className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
+                     <input
+                      type="text"
+                      value={profile?.roll_number}
+                      disabled
+                      className="w-full bg-muted border border-border rounded-2xl pl-14 pr-6 h-14 text-sm font-bold opacity-60 cursor-not-allowed"
+                     />
+                   </div>
                  </div>
-                 <div className="md:col-span-2">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-3 block">Department</label>
-                   <input type="text" value={profile?.department} onChange={e => setProfile({...profile, department: e.target.value})} className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 h-14 text-sm focus:outline-none focus:border-lendi-blue/50" />
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Department Sector</label>
+                   <select
+                    value={profile?.department}
+                    onChange={e => setProfile({...profile, department: e.target.value})}
+                    className="w-full bg-secondary border border-border rounded-2xl px-6 h-14 text-sm font-bold focus:outline-none focus:border-lendi-blue appearance-none"
+                   >
+                     {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                   </select>
+                 </div>
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Institutional Rank</label>
+                   <div className="w-full bg-muted border border-border rounded-2xl px-6 h-14 flex items-center gap-3">
+                     <BadgeCheck size={18} className="text-lendi-blue" />
+                     <span className="text-sm font-black text-foreground uppercase tracking-widest">{profile?.rank}</span>
+                   </div>
+                 </div>
+                 <div className="md:col-span-2 space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Research Bio</label>
+                   <textarea
+                    value={profile?.bio || ""}
+                    onChange={e => setProfile({...profile, bio: e.target.value})}
+                    placeholder="Describe your technical focus and academic goals..."
+                    className="w-full bg-secondary border border-border rounded-2xl p-6 min-h-[140px] text-sm font-medium focus:outline-none focus:border-lendi-blue transition-all resize-none shadow-sm placeholder:text-muted-foreground/30"
+                   />
                  </div>
                </div>
             </section>
 
-            <section className="glass rounded-[2.5rem] p-10 border border-white/5">
-              <div className="flex items-center gap-4 mb-10">
-                <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-500"><Shield className="w-6 h-6" /></div>
-                <h2 className="text-2xl font-black font-plus-jakarta tracking-tight">Privacy & Visibility</h2>
+            <section className="inst-card p-10 bg-card shadow-sm">
+              <div className="flex items-center gap-4 mb-10 border-b border-border pb-6">
+                <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-purple-600 shadow-sm">
+                  <Rocket size={24} />
+                </div>
+                <h2 className="text-2xl font-black tracking-tight uppercase">Presence & Uplinks</h2>
               </div>
-              <div className="space-y-6">
-                {[
-                  { label: "Public Profile Dossier", desc: "Allow other students and alumni to view your mission history.", active: true },
-                  { label: "Verified Skill Endorsements", desc: "Show badges and verified skills on the Talent Board.", active: true },
-                  { label: "Campus Search Index", desc: "Include your profile in the Cmd+K omni-search.", active: true }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-6 rounded-3xl bg-white/[0.02] border border-white/5">
-                    <div>
-                      <p className="text-sm font-bold">{item.label}</p>
-                      <p className="text-xs text-white/20">{item.desc}</p>
-                    </div>
-                    <div className="w-12 h-6 rounded-full bg-lendi-blue/20 border border-lendi-blue/50 relative">
-                      <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-lendi-blue shadow-[0_0_10px_rgba(0,74,153,1)]" />
-                    </div>
-                  </div>
-                ))}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">LinkedIn URL</label>
+                   <input
+                    type="url"
+                    value={profile?.linkedin_url || ""}
+                    onChange={e => setProfile({...profile, linkedin_url: e.target.value})}
+                    className="w-full bg-secondary border border-border rounded-2xl px-6 h-14 text-sm font-bold focus:outline-none focus:border-lendi-blue transition-all"
+                   />
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">GitHub Username</label>
+                   <input
+                    type="text"
+                    value={profile?.github_username || ""}
+                    onChange={e => setProfile({...profile, github_username: e.target.value})}
+                    className="w-full bg-secondary border border-border rounded-2xl px-6 h-14 text-sm font-bold focus:outline-none focus:border-lendi-blue transition-all"
+                   />
+                </div>
               </div>
             </section>
 
-            <div className="flex justify-end gap-4">
-              <Button variant="glass" className="h-14 px-10 rounded-2xl text-white/40 hover:text-white">Discard Changes</Button>
-              <Button onClick={handleSave} disabled={saving} className="h-14 px-10 rounded-2xl font-black bg-white text-black hover:bg-white/90 shadow-2xl flex gap-2">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Save Protocol
+            <div className="flex justify-end gap-4 pt-6">
+              <Button variant="outline" className="h-14 px-10 rounded-2xl text-[10px] font-black uppercase tracking-widest">Discard Changes</Button>
+              <Button onClick={handleSave} disabled={saving} className="h-14 px-12 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lendi gap-3">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={16} />}
+                Confirm Protocol Update
               </Button>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { Activity, Github } from "lucide-react";
 
 interface DayData {
   level: number;
@@ -22,25 +23,27 @@ export const ActivityHeatmap = () => {
 
   const getLevelColor = (level: number) => {
     switch (level) {
-      case 1: return "bg-lendi-blue/20";
-      case 2: return "bg-lendi-blue/50";
+      case 1: return "bg-lendi-blue/30";
+      case 2: return "bg-lendi-blue/60";
       case 3: return "bg-lendi-blue";
-      default: return "bg-white/5";
+      default: return "bg-secondary";
     }
   };
 
   return (
-    <div className="glass rounded-[2.5rem] p-10 border border-white/5 relative overflow-hidden">
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/20">Contribution Pulse</h3>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 text-muted-foreground">
+          <Activity size={16} className="text-lendi-blue" />
+          <h3 className="text-[10px] font-black uppercase tracking-[0.3em]">Sector Activity Stream</h3>
+        </div>
         <div className="flex items-center gap-2">
-          <span className="text-[8px] font-black uppercase text-white/20">Less</span>
-          <div className="flex gap-1">
+          <span className="text-[9px] font-black uppercase text-muted-foreground/40 mr-1">Intensity</span>
+          <div className="flex gap-1.5">
             {[0, 1, 2, 3].map(l => (
-              <div key={l} className={`w-2.5 h-2.5 rounded-sm ${getLevelColor(l)}`} />
+              <div key={l} className={`w-3 h-3 rounded-sm ${getLevelColor(l)} border border-border/50`} />
             ))}
           </div>
-          <span className="text-[8px] font-black uppercase text-white/20">More</span>
         </div>
       </div>
 
@@ -48,27 +51,31 @@ export const ActivityHeatmap = () => {
         {days.map((day, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, scale: 0.5 }}
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.005 }}
-            className={`w-3 h-3 rounded-sm ${getLevelColor(day.level)} transition-colors hover:border hover:border-white/20 cursor-crosshair`}
-            title={`${day.date.toDateString()}: ${day.level} sectors active`}
+            transition={{ delay: i * 0.002 }}
+            className={`w-[12px] h-[12px] rounded-[3px] ${getLevelColor(day.level)} border border-border/20 transition-all hover:border-lendi-blue cursor-crosshair`}
+            title={`${day.date.toDateString()}: ${day.level} activity units`}
           />
         ))}
       </div>
 
-      <div className="mt-8 pt-8 border-t border-white/5 flex justify-between items-center">
-        <div className="flex gap-8">
+      <div className="pt-6 border-t border-border flex justify-between items-end">
+        <div className="flex gap-10">
           <div>
-            <p className="text-xl font-black font-plus-jakarta tracking-tight">412</p>
-            <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Total Commits</p>
+            <p className="text-2xl font-black tracking-tight text-foreground leading-none mb-1.5">582</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/50">Contributions</p>
           </div>
           <div>
-            <p className="text-xl font-black font-plus-jakarta tracking-tight">18</p>
-            <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Current Streak</p>
+            <p className="text-2xl font-black tracking-tight text-foreground leading-none mb-1.5">24</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/50">Day Streak</p>
           </div>
         </div>
-        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-lendi-blue/40">Syncing with GitHub Sentinel...</p>
+
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary border border-border">
+          <Github size={14} className="text-muted-foreground" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">GitHub Sentinel Active</span>
+        </div>
       </div>
     </div>
   );

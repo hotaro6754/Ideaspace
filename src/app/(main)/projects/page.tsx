@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { ProjectCard } from "@/components/ui/ProjectCard";
 import { CreateProjectModal } from "@/components/projects/CreateProjectModal";
-import { Plus, Search, Filter, Loader2, Sparkles } from "lucide-react";
+import { Plus, Search, Loader2, Sparkles, LayoutGrid, ListFilter } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,9 +17,9 @@ export default function ProjectsPage() {
 
   const fetchProjects = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('projects')
-      .select('*')
+      .select('*, profiles:user_id(full_name)')
       .order('created_at', { ascending: false });
 
     if (data) setProjects(data);
@@ -38,79 +37,92 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden relative">
-      <Header title="Collaborative Projects" />
+    <div className="flex flex-col h-full overflow-hidden relative bg-background">
+      <Header title="Innovation Missions" />
 
-      <main className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
+      <main className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar">
         <div className="max-w-[1400px] mx-auto">
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
-            <div>
-              <h1 className="text-4xl font-black font-plus-jakarta tracking-tight mb-2">Build Together</h1>
-              <p className="text-white/40 font-medium">Join active projects or spawn a new mission in the campus network.</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lendi-blue/10 border border-lendi-blue/20 text-[10px] font-black text-lendi-blue uppercase tracking-widest">
+                <LayoutGrid size={12} />
+                Mission Registry
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight-inst">Institutional Projects</h1>
+              <p className="text-muted-foreground font-medium max-w-xl text-balance">
+                Explore and contribute to active research tracks and development missions within the Lendi innovation ecosystem.
+              </p>
             </div>
-            <div className="flex gap-3">
+
+            <div className="flex items-center gap-4">
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-lendi-blue transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within:text-lendi-blue transition-colors" />
                 <input
                   type="text"
-                  placeholder="Search projects..."
-                  className="bg-white/5 border border-white/5 rounded-2xl pl-12 pr-6 h-12 w-64 text-sm focus:outline-none focus:border-lendi-blue/50 transition-all"
+                  placeholder="Filter missions..."
+                  className="bg-card border border-border rounded-2xl pl-12 pr-6 h-14 w-full md:w-72 text-sm font-bold focus:outline-none focus:border-lendi-blue transition-all shadow-sm"
                 />
               </div>
               <Button
                 onClick={() => setIsModalOpen(true)}
-                className="rounded-full px-8 h-12 font-black shadow-lg shadow-lendi-blue/20 flex gap-2"
+                className="h-14 rounded-2xl px-8 font-black uppercase tracking-widest text-xs gap-3 shadow-lendi"
               >
-                <Plus className="w-4 h-4" />
-                New Project
+                <Plus size={18} />
+                Initiate Mission
               </Button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-            {loading ? (
-              <div className="col-span-full h-64 flex flex-col items-center justify-center gap-4">
-                <Loader2 className="w-8 h-8 animate-spin text-lendi-blue" />
-                <p className="text-white/20 italic font-bold uppercase tracking-widest text-[10px]">Syncing with GitHub layer...</p>
-              </div>
-            ) : (
-              <>
-                {projects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    id={project.id}
-                    title={project.title}
-                    description={project.description}
-                    tags={project.tech_stack || []}
-                    stars={project.stars_count || 0}
-                    members={1}
-                    progress={project.status === 'completed' ? 100 : 45}
-                  />
-                ))}
+          {loading ? (
+            <div className="h-[400px] flex flex-col items-center justify-center gap-6">
+              <div className="w-12 h-12 border-4 border-lendi-blue border-t-transparent rounded-full animate-spin" />
+              <p className="text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px]">Retrieving Mission Data...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-24">
+              {projects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  id={project.id}
+                  title={project.title}
+                  description={project.description}
+                  tags={project.tech_stack || []}
+                  stars={project.stars_count || 0}
+                  members={project.members_count || 1}
+                  progress={project.status === 'ship' ? 100 : 45}
+                />
+              ))}
 
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setIsModalOpen(true)}
-                  className="h-[420px] rounded-[2.5rem] border-2 border-dashed border-white/5 flex flex-col items-center justify-center p-10 text-center hover:border-lendi-blue/20 transition-all group cursor-pointer bg-white/[0.01]"
-                >
-                  <div className="p-4 rounded-full bg-white/5 mb-4 group-hover:bg-lendi-blue/10 transition-colors">
-                    <Plus className="w-8 h-8 text-white/20 group-hover:text-lendi-blue" />
-                  </div>
-                  <p className="text-white/20 font-bold uppercase tracking-widest text-xs">Spawn New Project</p>
-                </motion.div>
-              </>
-            )}
-          </div>
+              <motion.div
+                whileHover={{ y: -4 }}
+                onClick={() => setIsModalOpen(true)}
+                className="h-[440px] rounded-3xl border-2 border-dashed border-border flex flex-col items-center justify-center p-12 text-center hover:border-lendi-blue/30 hover:bg-secondary/50 transition-all group cursor-pointer bg-muted/20"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-white border border-border flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 group-hover:text-lendi-blue transition-all">
+                  <Plus size={32} />
+                </div>
+                <h4 className="text-lg font-black mb-2 uppercase tracking-tight">Spawn New Track</h4>
+                <p className="text-muted-foreground text-xs font-medium max-w-[200px]">Propose a new institutional mission to the community.</p>
+              </motion.div>
+            </div>
+          )}
         </div>
       </main>
+
       <CreateProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={handleSuccess} />
+
       <AnimatePresence>
         {showToast && (
-          <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="fixed bottom-10 left-1/2 -translate-x-1/2 glass px-8 py-4 rounded-2xl border border-white/10 z-[200] flex items-center gap-3 shadow-2xl" >
-            <div className="p-2 bg-lendi-blue/20 rounded-lg"><Sparkles className="w-4 h-4 text-lendi-blue" /></div>
-            <p className="text-sm font-bold tracking-tight">Mission Spawned Successfully</p>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 bg-white dark:bg-card px-8 py-5 rounded-2xl border border-border shadow-premium z-[200] flex items-center gap-4"
+          >
+            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-600 shadow-sm">
+              <Sparkles size={20} />
+            </div>
+            <p className="text-sm font-black uppercase tracking-widest text-foreground">Mission Successfully Spawned</p>
           </motion.div>
         )}
       </AnimatePresence>
