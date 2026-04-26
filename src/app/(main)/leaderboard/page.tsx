@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Header } from "@/components/layout/Header";
-import { supabase } from "@/lib/supabase";
+import { XPService } from "@/services/XPService";
+import { Trophy, Medal, Crown, Star, Loader2, Target, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { Trophy, Medal, Award, Star, Loader2, TrendingUp, Zap } from "lucide-react";
+import { toast } from "sonner";
 
 export default function LeaderboardPage() {
   const [leaders, setLeaders] = useState<any[]>([]);
@@ -12,76 +13,105 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     const fetchLeaders = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('points', { ascending: false })
-        .limit(20);
-      if (data) setLeaders(data);
-      setLoading(false);
+      try {
+        const data = await XPService.getLeaderboard(20);
+        setLeaders(data);
+      } catch (error) {
+        toast.error("Failed to sync leaderboard data");
+      } finally {
+        setLoading(false);
+      }
     };
     fetchLeaders();
   }, []);
 
   const getRankIcon = (index: number) => {
-    if (index === 0) return <Trophy className="w-6 h-6 text-yellow-500" />;
-    if (index === 1) return <Medal className="w-6 h-6 text-slate-400" />;
-    if (index === 2) return <Award className="w-6 h-6 text-orange-600" />;
-    return <span className="text-xl font-black opacity-10">{index + 1}</span>;
+    switch (index) {
+      case 0: return <Crown size={24} className="text-amber-500 fill-amber-500 shadow-xl" />;
+      case 1: return <Medal size={24} className="text-slate-400 fill-slate-400" />;
+      case 2: return <Medal size={24} className="text-amber-700 fill-amber-700" />;
+      default: return <span className="text-sm font-black text-muted-foreground">#{index + 1}</span>;
+    }
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-black">
-      <Header title="Hall of Fame" />
-      <main className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-end justify-between mb-16">
-            <div>
-              <h1 className="text-5xl font-black font-plus-jakarta tracking-tightest mb-4">Elite Tier</h1>
-              <p className="text-white/40 font-medium">Top contributors across the Lendi Innovation network.</p>
+    <div className="flex flex-col h-full overflow-hidden bg-background">
+      <Header title="Hall of Innovation" />
+      <main className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lendi-blue/10 border border-lendi-blue/20 text-[10px] font-black text-lendi-blue uppercase tracking-widest">
+                <Trophy size={12} />
+                Global Rankings
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight-inst text-balance">Top Contributors</h1>
+              <p className="text-muted-foreground font-medium max-w-xl">
+                The most active innovators across the Lendi ecosystem, ranked by verified institutional XP.
+              </p>
             </div>
-            <div className="px-6 py-3 rounded-2xl bg-lendi-blue/10 border border-lendi-blue/20 flex items-center gap-3">
-              <Zap className="w-5 h-5 text-lendi-blue" />
-              <span className="text-xs font-black uppercase tracking-widest text-lendi-blue">Season 1: Active</span>
+            <div className="p-6 rounded-2xl bg-secondary border border-border shadow-sm flex items-center gap-6">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Your Ranking</span>
+                <span className="text-2xl font-black text-lendi-blue">---</span>
+              </div>
+              <div className="w-px h-10 bg-border" />
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Total XP</span>
+                <span className="text-2xl font-black text-foreground">---</span>
+              </div>
             </div>
           </div>
 
           {loading ? (
-            <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-lendi-blue" /></div>
+            <div className="h-[400px] flex flex-col items-center justify-center gap-6">
+              <div className="w-12 h-12 border-4 border-lendi-blue border-t-transparent rounded-full animate-spin" />
+              <p className="text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px]">Processing Data Nodes...</p>
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 pb-24">
               {leaders.map((leader, i) => (
                 <motion.div
                   key={leader.id}
                   initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
                   transition={{ delay: i * 0.05 }}
-                  className={`glass rounded-2xl p-6 border border-white/5 flex items-center justify-between group hover:border-lendi-blue/30 transition-all ${
-                    i < 3 ? "bg-white/[0.03] py-8" : ""
-                  }`}
+                  className="inst-card p-6 flex items-center justify-between group hover:border-lendi-blue transition-all"
                 >
                   <div className="flex items-center gap-8">
-                    <div className="w-12 flex justify-center">{getRankIcon(i)}</div>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-lg font-black text-white/40">
-                        {leader.full_name?.[0] || 'A'}
+                    <div className="w-12 flex justify-center">
+                      {getRankIcon(i)}
+                    </div>
+                    <div className="flex items-center gap-5">
+                      <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-xl font-black text-muted-foreground/30 border border-border">
+                        {leader.full_name?.[0]}
                       </div>
                       <div>
-                        <h4 className="font-black text-lg group-hover:text-lendi-blue transition-colors">{leader.full_name}</h4>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-white/20">{leader.department || "General"}</span>
-                          <div className="w-1 h-1 rounded-full bg-white/10" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-lendi-blue">{leader.rank}</span>
+                        <h4 className="font-black text-foreground text-lg tracking-tight group-hover:text-lendi-blue transition-colors">{leader.full_name}</h4>
+                        <div className="flex gap-4 mt-1">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">{leader.department}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-lendi-blue">{leader.rank}</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-2 justify-end">
-                      <p className="text-2xl font-black font-plus-jakarta">{leader.points}</p>
-                      <TrendingUp className="w-4 h-4 text-green-500" />
+
+                  <div className="flex items-center gap-12">
+                    <div className="text-right hidden md:block">
+                      <div className="flex items-center gap-2 justify-end mb-1">
+                        <Target size={12} className="text-muted-foreground" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Success Rate</span>
+                      </div>
+                      <p className="text-sm font-bold">92%</p>
                     </div>
-                    <p className="text-[10px] font-black uppercase tracking-tighter text-white/20">Synthesized XP</p>
+                    <div className="text-right">
+                      <div className="flex items-center gap-2 justify-end mb-1">
+                        <Star size={12} className="text-amber-500 fill-amber-500" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Institutional XP</span>
+                      </div>
+                      <p className="text-2xl font-black text-foreground">{leader.xp.toLocaleString()}</p>
+                    </div>
                   </div>
                 </motion.div>
               ))}

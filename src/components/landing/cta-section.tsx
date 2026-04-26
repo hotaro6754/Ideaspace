@@ -1,112 +1,55 @@
 "use client"
 
-import { useState } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, CheckCircle2, Mail, GraduationCap } from "lucide-react"
-
-const benefits = [
-  "Institutional Research Hub access",
-  "GitHub & Industry tools integration",
-  "Peer & Alumni mentorship matching",
-  "Verified Innovation Resume",
-]
+import { ArrowRight, Zap } from "lucide-react"
+import Link from "next/link"
 
 export default function CtaSection() {
-  const [email, setEmail] = useState("")
-  const [submitted, setSubmitted] = useState(false)
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (email) setSubmitted(true)
-  }
-
   return (
-    <section id="join" className="relative py-24 lg:py-36 overflow-hidden bg-background">
-      {/* Background Decor */}
-      <div className="absolute inset-0 soft-grid opacity-20 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-lendi/5 rounded-full blur-[120px] pointer-events-none" />
+    <section className="py-32 px-6 relative overflow-hidden bg-background">
+      <div className="absolute inset-0 soft-grid opacity-20" />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        {/* Badge */}
+      <div className="max-w-5xl mx-auto relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary border border-border text-[10px] font-black text-muted-foreground mb-8 uppercase tracking-[0.2em]"
-        >
-          <GraduationCap size={14} className="text-lendi" />
-          Institutional Access is Open
-        </motion.div>
-
-        {/* Heading */}
-        <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-5xl md:text-7xl font-black text-foreground tracking-tighter leading-none mb-6"
+          className="p-12 md:p-24 rounded-[3rem] bg-gradient-to-br from-lendi-blue to-lendi-dark text-white text-center shadow-premium relative overflow-hidden group"
         >
-          Join the Hub. <br />
-          <span className="gradient-text-hero">Elevate your Career.</span>
-        </motion.h2>
+          {/* Decorative Elements */}
+          <div className="absolute top-0 right-0 p-32 opacity-10 group-hover:scale-110 transition-transform duration-1000">
+            <Zap size={300} fill="currentColor" />
+          </div>
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-lg text-muted-foreground max-w-xl mx-auto font-medium leading-relaxed mb-12"
-        >
-          Secure your workspace with your institutional credentials.
-          The future of Lendi innovation starts here.
-        </motion.p>
+          <h3 className="text-4xl md:text-6xl font-black tracking-tight-inst mb-8 leading-none relative z-10">
+            Ready to shape the <br /> future of Lendi?
+          </h3>
+          <p className="text-lg md:text-xl text-white/80 font-medium mb-12 max-w-2xl mx-auto leading-relaxed relative z-10">
+            Join thousands of innovators at LIET. Access the institutional hub today and start your journey towards excellence.
+          </p>
 
-        {/* Benefits */}
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mb-12">
-          {benefits.map((benefit) => (
-            <div key={benefit} className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <CheckCircle2 size={16} className="text-lendi" />
-              {benefit}
-            </div>
-          ))}
-        </div>
-
-        {/* Email form */}
-        <div className="max-w-md mx-auto">
-          {submitted ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-lendi/10 border border-lendi/20 text-lendi font-bold text-sm uppercase tracking-widest"
-            >
-              <CheckCircle2 size={20} />
-              Verification link sent to your email.
-            </motion.div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <div className="relative flex-1 w-full">
-                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="rollno@lendi.edu.in"
-                  required
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-card border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-lendi focus:ring-1 focus:ring-lendi transition-all font-bold"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-lendi text-white font-bold text-sm glow-btn whitespace-nowrap shadow-xl shadow-lendi/20"
+          <div className="flex flex-wrap justify-center gap-6 relative z-10">
+            <Link href="/login">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-10 py-5 bg-white text-lendi-blue rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl"
               >
-                Access Now
-                <ArrowRight size={18} />
-              </button>
-            </form>
-          )}
-        </div>
-
-        <p className="mt-8 text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30">
-          Exclusive for LIET Students, Faculty & Alumni.
-        </p>
+                Launch Hub Access
+              </motion.button>
+            </Link>
+            <Link href="/login">
+              <motion.button
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                whileTap={{ scale: 0.98 }}
+                className="px-10 py-5 bg-white/5 border-2 border-white/20 text-white rounded-2xl font-black text-xs uppercase tracking-widest backdrop-blur-sm transition-colors"
+              >
+                Contact Faculty Desk
+              </motion.button>
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </section>
   )
