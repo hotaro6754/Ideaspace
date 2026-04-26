@@ -9,7 +9,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof HTMLMotionProps<"button">> {
+export interface ButtonProps extends HTMLMotionProps<"button"> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'glass' | 'outline';
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }
@@ -33,6 +33,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <motion.button
+        ref={ref}
         whileHover={{ y: -2 }}
         whileTap={{ scale: 0.97 }}
         className={cn(

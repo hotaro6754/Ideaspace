@@ -103,8 +103,8 @@ export class FeedService {
         if (b.is_followed) scoreB += 50;
 
         // Boost projects matching interests
-        if (a.type === 'project' && interests.some(i => a.description.toLowerCase().includes(i.toLowerCase()))) scoreA += 30;
-        if (b.type === 'project' && interests.some(i => b.description.toLowerCase().includes(i.toLowerCase()))) scoreB += 30;
+        if (a.type === 'project' && interests.some((i: string) => a.description.toLowerCase().includes(i.toLowerCase()))) scoreA += 30;
+        if (b.type === 'project' && interests.some((i: string) => b.description.toLowerCase().includes(i.toLowerCase()))) scoreB += 30;
 
         // Recency factor
         scoreA += new Date(a.created_at).getTime() / 1e12;
