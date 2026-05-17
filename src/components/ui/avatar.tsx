@@ -33,11 +33,11 @@ export function Avatar({ name, src, size = "md", tier, className }: AvatarProps)
     return (
       <div
         className={cn(
-          "rounded-full overflow-hidden shrink-0 ring-2",
+          "rounded-full overflow-hidden shrink-0",
           sizes[size],
           className
         )}
-        style={{ ringColor: tierColor }}
+        style={{ boxShadow: `0 0 0 2px ${tierColor}` }}
       >
         <img src={src} alt={name} className="h-full w-full object-cover" />
       </div>
