@@ -21,7 +21,7 @@ export async function GET() {
       ProofEntry.countDocuments({ submittedBy: session.user.id, isVerified: true }),
     ]);
 
-    const user = await User.findById(session.user.id).select("points rankTier").lean();
+    const user = (await User.findById(session.user.id).select("points rankTier").lean()) as any;
 
     return NextResponse.json({
       data: {
