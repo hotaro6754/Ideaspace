@@ -1,8 +1,8 @@
-import Pusher from "pusher";
+// Use standard CommonJS require to completely bypass Turbopack ESM transpile wrappers
+const Pusher = require("pusher");
 import PusherClient from "pusher-js";
 
-// Handle CommonJS vs ESM default export compatibility in Next.js
-const PusherServer = (Pusher as any).default || Pusher;
+const PusherServer = Pusher.default || Pusher;
 
 export const pusherServer = new PusherServer({
   appId: process.env.PUSHER_APP_ID!,
