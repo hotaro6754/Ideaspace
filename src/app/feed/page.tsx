@@ -11,7 +11,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { SkeletonCard } from "@/components/ui/skeleton";
-import { pusherClient } from "@/lib/pusher-client";
+import { getPusherClient } from "@/lib/pusher-client";
 import { CORE_TRACKS, STATUS_COLORS } from "@/types";
 import type { IdeaStatus, RankTier } from "@/types";
 import { Flame, Search, TrendingUp, Clock, Activity, Users, Plus, Star, Eye } from "lucide-react";
@@ -49,13 +49,14 @@ export default function FeedPage() {
   }, []);
 
   useEffect(() => {
-    const channel = pusherClient.subscribe("ideas-channel");
+    const pusher = getPusherClient();
+    const channel = pusher.subscribe("ideas-channel");
     channel.bind("upvote-update", (data: { ideaId: string, upvotes: number }) => {
       setIdeas(prev => prev.map(i => i._id === data.ideaId ? { ...i, upvotes: data.upvotes } : i));
     });
 
     return () => {
-      pusherClient.unsubscribe("ideas-channel");
+      pusher.unsubscribe("ideas-channel");
     };
   }, []);
 
