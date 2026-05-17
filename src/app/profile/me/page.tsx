@@ -9,7 +9,7 @@ export default function ProfileMeRedirect() {
 
   useEffect(() => {
     if (session?.user) {
-      const user = session.user as Record<string, unknown>;
+      const user = session.user as any;
       if (user.username) {
         redirect(`/profile/${user.username}`);
       }

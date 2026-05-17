@@ -48,7 +48,7 @@ export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  const user = session?.user as Record<string, unknown> | undefined;
+  const user = session?.user as any;
   const isAdmin = user?.role === "admin" || user?.role === "faculty";
 
   return (

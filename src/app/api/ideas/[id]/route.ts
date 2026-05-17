@@ -87,7 +87,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Idea not found" }, { status: 404 });
     }
 
-    const user = session.user as Record<string, unknown>;
+    const user = session.user as any;
     if (idea.owner.toString() !== session.user.id && user.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }

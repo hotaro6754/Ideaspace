@@ -34,7 +34,7 @@ export default auth((req) => {
   }
 
   // Not onboarded — redirect to onboarding
-  const user = session.user as Record<string, unknown>;
+  const user = session.user as any;
   if (!user.isOnboarded && pathname !== "/auth/onboarding") {
     return NextResponse.redirect(new URL("/auth/onboarding", req.url));
   }
