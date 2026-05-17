@@ -1,5 +1,8 @@
-import PusherServer from "pusher";
+import Pusher from "pusher";
 import PusherClient from "pusher-js";
+
+// Handle CommonJS vs ESM default export compatibility in Next.js
+const PusherServer = (Pusher as any).default || Pusher;
 
 export const pusherServer = new PusherServer({
   appId: process.env.PUSHER_APP_ID!,

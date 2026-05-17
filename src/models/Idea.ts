@@ -61,7 +61,7 @@ const IdeaSchema = new Schema<IIdea>(
   { timestamps: true }
 );
 
-IdeaSchema.index({ slug: 1 });
+
 IdeaSchema.index({ owner: 1 });
 IdeaSchema.index({ track: 1, status: 1 });
 IdeaSchema.index({ upvotes: -1 });
