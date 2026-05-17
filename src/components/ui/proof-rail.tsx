@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-type BadgeVariant = "default" | "secondary" | "outline" | "success" | "danger" | "purple" | "cyan" | "gold" | "live"
+type BadgeVariant = "default" | "secondary" | "success" | "warning" | "danger" | "info" | "outline" | "cyan" | "gold" | "ember"
 
 export interface ProofRailItem {
   title: string
@@ -44,7 +44,7 @@ export function ProofRail({
     <div className={cn("space-y-4", className)}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Badge variant="live">{title}</Badge>
+          <Badge variant="cyan">{title}</Badge>
           <span className="text-sm text-text-secondary">{subtitle}</span>
         </div>
         {viewHref && (
