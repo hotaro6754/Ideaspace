@@ -56,7 +56,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (idea.owner.toString() === session.user.id) {
       return NextResponse.json({ error: "Cannot join your own idea" }, { status: 400 });
     }
-    if (idea.collaborators.some(c => c.toString() === session.user.id)) {
+    if (idea.collaborators.some((c: any) => c.toString() === session.user.id)) {
       return NextResponse.json({ error: "Already a collaborator" }, { status: 400 });
     }
 

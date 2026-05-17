@@ -45,7 +45,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "Idea not found" }, { status: 404 });
     }
 
-    const isCollaborator = idea.collaborators.some(c => c.toString() === session.user.id) || idea.owner.toString() === session.user.id;
+    const isCollaborator = idea.collaborators.some((c: any) => c.toString() === session.user.id) || idea.owner.toString() === session.user.id;
     
     if (!isCollaborator && (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Only team members can submit proof" }, { status: 403 });
