@@ -1,0 +1,6 @@
+[
+  {
+    "ipAddress": "0.0.0.0/0",
+    "comment": "Allow all access"
+  }
+]
