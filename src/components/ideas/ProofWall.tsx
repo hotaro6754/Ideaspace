@@ -6,9 +6,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
-import { Link2, Image as ImageIcon, Github, FileText, CheckCircle2, AlertCircle, Clock, Plus } from "lucide-react";
+import { Link2, Image as ImageIcon, GitBranch, FileText, CheckCircle2, AlertCircle, Clock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/ui/Modal";
+import { Modal } from "@/components/ui/modal";
 import { toast } from "@/components/ui/ToastSystem";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -32,7 +32,7 @@ interface ProofWallProps {
 const ICONS = {
   link: Link2,
   image: ImageIcon,
-  github: Github,
+  github: GitBranch,
   document: FileText,
 };
 

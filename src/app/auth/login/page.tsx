@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Github, Mail, ArrowRight, ShieldCheck, Chrome } from "lucide-react";
+import { GitBranch, Mail, ArrowRight, ShieldCheck, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { toast } from "@/components/ui/ToastSystem";
@@ -78,7 +78,7 @@ export default function LoginPage() {
               onClick={handleGitHubLogin}
               disabled={loading !== null}
             >
-              <Github className="h-5 w-5" /> {loading === "github" ? "Connecting..." : "Sign in with GitHub"}
+              <GitBranch className="h-5 w-5" /> {loading === "github" ? "Connecting..." : "Sign in with GitHub"}
             </Button>
             
             <Button
@@ -87,7 +87,7 @@ export default function LoginPage() {
               onClick={handleGoogleLogin}
               disabled={loading !== null}
             >
-              <Chrome className="h-5 w-5" /> {loading === "google" ? "Connecting..." : "Sign in with Google"}
+              <Globe className="h-5 w-5" /> {loading === "google" ? "Connecting..." : "Sign in with Google"}
             </Button>
           </div>
 

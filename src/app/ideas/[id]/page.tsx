@@ -15,7 +15,7 @@ import { CollaboratorStack } from "@/components/ui/CollaboratorStack";
 import { ProofWall } from "@/components/ideas/ProofWall";
 import { JoinRequestManager } from "@/components/ideas/JoinRequestManager";
 import { CORE_TRACKS } from "@/types";
-import { Flame, Eye, Github, ExternalLink, ArrowLeft, Calendar, Code2, Shield } from "lucide-react";
+import { Flame, Eye, GitBranch, ExternalLink, ArrowLeft, Calendar, Code2, Shield } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -206,7 +206,7 @@ export default function IdeaDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="flex flex-col gap-3">
                   {idea.githubUrl && (
                     <a href={idea.githubUrl} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" className="w-full justify-start"><Github className="mr-3 h-4 w-4" /> GitHub Repository</Button>
+                      <Button variant="outline" className="w-full justify-start"><GitBranch className="mr-3 h-4 w-4" /> GitHub Repository</Button>
                     </a>
                   )}
                   {idea.demoUrl && (

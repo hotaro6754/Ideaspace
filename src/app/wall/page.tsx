@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShieldCheck, CheckCircle, ExternalLink, Github, Video, FileText } from "lucide-react";
+import { ShieldCheck, CheckCircle, ExternalLink, GitBranch, Video, FileText } from "lucide-react";
 import { formatRelativeTime } from "@/lib/utils";
 import type { RankTier } from "@/types";
 import { motion } from "framer-motion";
@@ -26,7 +26,7 @@ interface ProofData {
 }
 
 const typeIcons: Record<string, React.ElementType> = {
-  github_commit: Github,
+  github_commit: GitBranch,
   demo_link: ExternalLink,
   presentation: Video,
   build_log: FileText,

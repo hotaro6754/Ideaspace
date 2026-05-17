@@ -10,7 +10,7 @@ import { RankBadge } from "@/components/ui/RankBadge";
 import { PointsCounter } from "@/components/ui/PointsCounter";
 import { IdeaCard } from "@/components/ui/IdeaCard";
 import { CORE_TRACKS } from "@/types";
-import { Github, MapPin, Calendar, Code2, ArrowLeft, Lightbulb, Users } from "lucide-react";
+import { GitBranch, MapPin, Calendar, Code2, ArrowLeft, Lightbulb, Users } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -86,7 +86,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                   <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />Joined {new Date(profile.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
                   {profile.githubUsername && (
                     <a href={`https://github.com/${profile.githubUsername}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-text-primary transition-colors">
-                      <Github className="h-4 w-4" />@{profile.githubUsername}
+                      <GitBranch className="h-4 w-4" />@{profile.githubUsername}
                     </a>
                   )}
                 </div>
