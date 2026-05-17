@@ -11,7 +11,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { SkeletonCard } from "@/components/ui/skeleton";
-import { pusherClient } from "@/lib/pusher";
+import { pusherClient } from "@/lib/pusher-client";
 import { CORE_TRACKS, STATUS_COLORS } from "@/types";
 import type { IdeaStatus, RankTier } from "@/types";
 import { Flame, Search, TrendingUp, Clock, Activity, Users, Plus, Star, Eye } from "lucide-react";
