@@ -11,7 +11,8 @@ export interface EmptyStateProps {
   description: string;
   action?: {
     label: string;
-    href: string;
+    href?: string;
+    onClick?: () => void;
   };
   className?: string;
 }
@@ -25,9 +26,13 @@ export function EmptyState({ icon, title, description, action, className }: Empt
       <h3 className="text-lg font-bold text-text-primary mb-2">{title}</h3>
       <p className="text-sm text-text-secondary max-w-md mb-6">{description}</p>
       {action && (
-        <Link href={action.href}>
-          <Button variant="gradient">{action.label}</Button>
-        </Link>
+        action.href ? (
+          <Link href={action.href}>
+            <Button variant="gradient">{action.label}</Button>
+          </Link>
+        ) : (
+          <Button variant="gradient" onClick={action.onClick}>{action.label}</Button>
+        )
       )}
     </div>
   );
