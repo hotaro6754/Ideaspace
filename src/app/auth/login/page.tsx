@@ -19,12 +19,12 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading("credentials");
     try {
-      const result = await signIn("credentials", {
+      const result = (await signIn("credentials", {
         email,
         password,
         redirect: true,
         callbackUrl: "/dashboard",
-      });
+      })) as any;
       if (result?.error) {
         toast.error("Sign in failed", result.error);
       }
