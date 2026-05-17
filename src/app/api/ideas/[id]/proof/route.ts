@@ -13,13 +13,10 @@ const proofSchema = z.object({
   description: z.string().max(300).optional(),
 });
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();
-    
-    // params.id could be slug or objectId, check Idea first to get true ID if needed.
-    // For simplicity, assuming the client passes the raw Idea _id here.
-    const ideaId = params.id; 
+    const { id: ideaId } = await params;
 
     const proofs = await Proof.find({ ideaId })
       .sort({ createdAt: -1 })
@@ -33,7 +30,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -41,14 +38,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     await connectDB();
-    const ideaId = params.id;
+    const { id: ideaId } = await params;
     const idea = await Idea.findById(ideaId);
 
     if (!idea) {
       return NextResponse.json({ error: "Idea not found" }, { status: 404 });
     }
 
-    // Only collaborators or owner can submit proof
     const isCollaborator = idea.collaborators.some(c => c.toString() === session.user.id) || idea.owner.toString() === session.user.id;
     
     if (!isCollaborator && (session.user as any).role !== "admin") {
@@ -72,7 +68,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ data: populatedProof }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid input", details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Invalid input", details: error.issues }, { status: 400 });
     }
     logger.error("Failed to submit proof", { error: String(error) });
     return NextResponse.json({ error: "Failed to submit proof" }, { status: 500 });

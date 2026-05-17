@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid input", details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Invalid input", details: error.issues }, { status: 400 });
     }
     logger.error("Registration failed", { error: String(error) });
     return NextResponse.json({ error: "Registration failed" }, { status: 500 });

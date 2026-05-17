@@ -11,7 +11,7 @@ const joinSchema = z.object({
   message: z.string().max(300).optional(),
 });
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -19,12 +19,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 
     await connectDB();
-    const ideaId = params.id;
+    const { id: ideaId } = await params;
     const idea = await Idea.findById(ideaId);
 
     if (!idea) return NextResponse.json({ error: "Idea not found" }, { status: 404 });
 
-    // Only owner can view pending requests
     if (idea.owner.toString() !== session.user.id && (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -41,7 +40,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -49,12 +48,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
 
     await connectDB();
-    const ideaId = params.id;
+    const { id: ideaId } = await params;
     const idea = await Idea.findById(ideaId);
 
     if (!idea) return NextResponse.json({ error: "Idea not found" }, { status: 404 });
 
-    // Cannot join own idea or if already a collaborator
     if (idea.owner.toString() === session.user.id) {
       return NextResponse.json({ error: "Cannot join your own idea" }, { status: 400 });
     }
@@ -62,7 +60,6 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: "Already a collaborator" }, { status: 400 });
     }
 
-    // Check for existing pending request
     const existing = await JoinRequest.findOne({ ideaId, userId: session.user.id, status: "pending" });
     if (existing) {
       return NextResponse.json({ error: "You already have a pending request" }, { status: 400 });
@@ -82,14 +79,14 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ data: request }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid input", details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Invalid input", details: error.issues }, { status: 400 });
     }
     logger.error("Failed to create join request", { error: String(error) });
     return NextResponse.json({ error: "Failed to submit request" }, { status: 500 });
   }
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -97,7 +94,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 
     await connectDB();
-    const ideaId = params.id;
+    const { id: ideaId } = await params;
     const idea = await Idea.findById(ideaId);
 
     if (!idea) return NextResponse.json({ error: "Idea not found" }, { status: 404 });
@@ -124,7 +121,6 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     await joinRequest.save();
 
     if (status === "approved") {
-      // Add user to collaborators
       await Idea.findByIdAndUpdate(ideaId, {
         $addToSet: { collaborators: joinRequest.userId }
       });

@@ -118,7 +118,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ data: idea }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid input", details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Invalid input", details: error.issues }, { status: 400 });
     }
     logger.error("Failed to create idea", { error: String(error) });
     return NextResponse.json({ error: "Failed to create idea" }, { status: 500 });

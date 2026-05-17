@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ data: { success: true } });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Invalid input", details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Invalid input", details: error.issues }, { status: 400 });
     }
     logger.error("Onboarding failed", { error: String(error) });
     return NextResponse.json({ error: "Onboarding failed" }, { status: 500 });
