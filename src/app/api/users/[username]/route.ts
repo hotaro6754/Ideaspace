@@ -11,9 +11,9 @@ export async function GET(
   try {
     await connectDB();
     const { username } = await params;
-    const user = await User.findOne({ username: username.toLowerCase() })
+    const user = (await User.findOne({ username: username.toLowerCase() })
       .select("-passwordHash")
-      .lean();
+      .lean()) as any;
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
